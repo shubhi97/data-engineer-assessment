@@ -1,19 +1,36 @@
 import { useState, useEffect } from "react";
 
-const PLATFORMS = ["Azure", "AWS", "Snowflake"];
+// ─── ROLE TYPES ───────────────────────────────────────────────────────
+const ROLES = [
+  { id: "engineer", label: "Data Engineer", icon: "⚙️", desc: "Azure · AWS · Snowflake · SQL · Python" },
+  { id: "analyst",  label: "Data Analyst",  icon: "📊", desc: "Power BI · Tableau · Qlik Sense · SQL · Analytics" },
+];
+
+const PLATFORMS_ENG = ["Azure", "AWS", "Snowflake"];
+const TOOLS_ANALYST = ["Power BI", "Tableau", "Qlik Sense"];
+
 const BANDS = [
   { id: "junior", label: "0–3 Years", color: "#10b981", emoji: "🟢", title: "Junior / Entry Level" },
   { id: "mid",    label: "3–5 Years", color: "#f59e0b", emoji: "🟠", title: "Mid-Level" },
   { id: "senior", label: "5+ Years",  color: "#8b5cf6", emoji: "🟣", title: "Senior / Lead" },
 ];
-const CATEGORIES = {
+
+const ENG_CATEGORIES = {
   SQL:         { color: "#38bdf8", tag: "SQL" },
   Cloud:       { color: "#34d399", tag: "Cloud Technology" },
   Python:      { color: "#a78bfa", tag: "Python" },
   Stakeholder: { color: "#f472b6", tag: "Stakeholder Mgmt" },
 };
 
-const QUESTIONS = {
+const ANALYST_CATEGORIES = {
+  SQL:         { color: "#38bdf8", tag: "SQL" },
+  Tool:        { color: "#fb923c", tag: "Analytics Tool" },
+  Analytics:   { color: "#34d399", tag: "Analytics & Insight" },
+  Stakeholder: { color: "#f472b6", tag: "Stakeholder Mgmt" },
+};
+
+// ─── ENGINEER QUESTIONS ───────────────────────────────────────────────
+const ENG_QUESTIONS = {
   Azure: {
     junior: [
       { id:1, cat:"SQL",         q:"Write a SQL query to find the top 5 customers by total order value from a table called 'orders' (columns: customer_id, order_date, order_amount).", wtlf:"SELECT customer_id, SUM(order_amount) AS total FROM orders GROUP BY customer_id ORDER BY total DESC FETCH NEXT 5 ROWS ONLY (or TOP 5). Checks GROUP BY, aggregation, ordering." },
@@ -112,81 +129,171 @@ const QUESTIONS = {
   },
 };
 
-const STORAGE_KEY = "de_interview_session";
-
-const saveSession = (data) => {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {}
+// ─── ANALYST QUESTIONS ────────────────────────────────────────────────
+const ANALYST_QUESTIONS = {
+  "Power BI": {
+    junior: [
+      { id:1, cat:"SQL",         q:"Write a SQL query to calculate total sales by region and month from a table 'sales' (columns: sale_date, region, amount). How would you use this in Power BI?", wtlf:"SELECT region, FORMAT(sale_date,'yyyy-MM') AS month, SUM(amount) FROM sales GROUP BY region, FORMAT(sale_date,'yyyy-MM'). Should mention importing via DirectQuery or Import mode in Power BI." },
+      { id:2, cat:"SQL",         q:"What is the difference between a fact table and a dimension table? Give an example relevant to a sales dashboard.", wtlf:"Fact: measurable events (sales transactions, quantities, amounts). Dimension: descriptive context (product, customer, date). Star schema: fact in centre, dimensions around it. Essential for Power BI data modelling." },
+      { id:3, cat:"Tool",        q:"What is the difference between Import mode and DirectQuery mode in Power BI? When would you use each?", wtlf:"Import: data loaded into Power BI memory, fast, limited by dataset size, scheduled refresh. DirectQuery: live queries to source, always fresh, slower, limited DAX. Use Import for performance; DirectQuery for real-time or large data." },
+      { id:4, cat:"Tool",        q:"Explain what a DAX measure is and write a simple example to calculate Year-to-Date (YTD) sales.", wtlf:"DAX measure = formula evaluated in filter context. YTD Sales = CALCULATE(SUM(Sales[Amount]), DATESYTD(Date[Date])). Must understand CALCULATE and time intelligence functions." },
+      { id:5, cat:"Analytics",   q:"A bar chart in your Power BI report is showing incorrect totals. Walk me through how you would debug this.", wtlf:"Check data source for duplicates or nulls; verify relationships (1:many, cross-filter direction); check measure logic (SUM vs COUNT); validate DAX filter context; confirm date table is marked as date table." },
+      { id:6, cat:"Analytics",   q:"What are slicers and filters in Power BI? How do they differ and when would you use each?", wtlf:"Slicers: visual, user-interactive filtering on the canvas. Filters: panel-based, can be page/report/visual level. Slicers for end-user exploration; filters for fixed analytical constraints. Cross-filtering between visuals also relevant." },
+      { id:7, cat:"Stakeholder", q:"A business manager says 'the numbers in your Power BI report don't match what I see in Excel'. How do you handle this?", wtlf:"Don't dismiss; ask for specific examples (date range, filters applied); trace data lineage from source to report; check for different business logic definitions; document and align on single source of truth." },
+      { id:8, cat:"Stakeholder", q:"How would you gather requirements from a non-technical stakeholder before building a Power BI dashboard?", wtlf:"Discovery session: understand audience, decisions the dashboard should drive, KPIs needed, data sources available, refresh frequency, device (mobile/desktop). Prototype with wireframe before building. Iterative feedback loop." },
+    ],
+    mid: [
+      { id:1, cat:"SQL",         q:"Write a SQL query using window functions to calculate a running total of monthly revenue and the month-over-month percentage change.", wtlf:"SUM(revenue) OVER (ORDER BY month ROWS UNBOUNDED PRECEDING) for running total; LAG(revenue) OVER (ORDER BY month) for prior month; (current - prior)/prior * 100 for % change. Tests advanced SQL for analytics." },
+      { id:2, cat:"SQL",         q:"How would you optimise a slow SQL query that joins 4 large tables in your reporting database? What steps would you take?", wtlf:"Check execution plan; add appropriate indexes; reduce columns selected (avoid SELECT *); filter early with WHERE; consider materialised views or aggregation tables; avoid functions on indexed columns. Tests performance thinking." },
+      { id:3, cat:"Tool",        q:"Explain the difference between calculated columns and measures in Power BI. When would you use each and what are the performance implications?", wtlf:"Calculated column: row-by-row evaluation at refresh time, stored in model, increases file size. Measure: evaluated at query time in filter context, no storage overhead. Prefer measures for aggregations; calculated columns for row-level categorisation." },
+      { id:4, cat:"Tool",        q:"What is Row Level Security (RLS) in Power BI and how would you implement it for a regional sales dashboard where managers only see their region's data?", wtlf:"RLS: restrict data access by user role. Static RLS: fixed DAX filter per role. Dynamic RLS: USERNAME() or USERPRINCIPALNAME() matched to a user-region table. Publish and assign users to roles in Power BI Service." },
+      { id:5, cat:"Analytics",   q:"Describe how you would design a Power BI data model for a retail business with sales, products, customers, and a date dimension.", wtlf:"Star schema: FactSales (transaction grain) with DimProduct, DimCustomer, DimDate dimensions. Single active relationship per table pair. Mark date table. Avoid many-to-many unless required. Hide foreign keys from report view." },
+      { id:6, cat:"Analytics",   q:"How would you build a KPI dashboard in Power BI that shows actuals vs targets with traffic light indicators?", wtlf:"Import actuals and targets tables; relate on common key; DAX measure for variance and % achievement; KPI visual or conditional formatting with rules (green >=100%, amber >=80%, red <80%); card visuals for headline numbers." },
+      { id:7, cat:"Stakeholder", q:"You've been asked to consolidate 5 different Excel-based reports used by different teams into a single Power BI dashboard. How do you approach this project?", wtlf:"Stakeholder interviews to understand each report's purpose and audience; data source mapping; identify common metrics vs team-specific; design unified data model; phased delivery (core metrics first); change management and training plan." },
+      { id:8, cat:"Stakeholder", q:"A senior director wants a new metric added to the dashboard 'urgently' but it requires significant data model changes. How do you handle this?", wtlf:"Acknowledge urgency; assess impact on model, existing reports, and refresh times; present options (quick workaround vs proper solution with timeline); agree on priority with stakeholder; document decision. Shows structured thinking under pressure." },
+    ],
+    senior: [
+      { id:1, cat:"SQL",         q:"Design a SQL-based aggregation strategy for a Power BI report serving 500+ users with sub-second response times on a 100M row fact table.", wtlf:"Aggregation tables at summary grain; Power BI aggregations feature with automatic fallback; partitioning on date; columnstore indexes; consider Azure Analysis Services or Premium for large-scale caching; Composite model for mixed DirectQuery/Import." },
+      { id:2, cat:"SQL",         q:"How would you implement a slowly changing dimension (Type 2) in your data warehouse to support historical trend analysis in Power BI?", wtlf:"SCD Type 2: add effective_from, effective_to, is_current columns; MERGE statement for updates; bridge table for many-to-many historical relationships. In Power BI: use role-playing dimensions or active/inactive relationships with USERELATIONSHIP()." },
+      { id:3, cat:"Tool",        q:"Explain Power BI's Composite Model and how you would use it to combine a large DirectQuery source with an imported dimension table.", wtlf:"Composite Model: mix Import and DirectQuery tables in one model. DirectQuery for large fact table (live data); Import for small, slowly-changing dimensions (fast lookups). Set storage mode per table; manage relationship cardinality carefully. Use aggregations for performance." },
+      { id:4, cat:"Tool",        q:"How would you architect a Power BI deployment for an enterprise with 1000+ users, multiple business units, and strict data governance requirements?", wtlf:"Power BI Premium or Fabric capacity; centralised dataset strategy (shared certified datasets); workspace separation by domain; deployment pipelines (dev/test/prod); RLS/OLS for data security; sensitivity labels via Purview; usage monitoring via Activity Log and admin APIs." },
+      { id:5, cat:"Analytics",   q:"Describe your approach to building a self-service analytics capability in Power BI while maintaining data governance and a single source of truth.", wtlf:"Certified/promoted datasets as governed foundation; dataflows for reusable transformations; training programme for self-service report authors; endorsement workflow; monitor dataset usage; data dictionary and lineage via Purview; governance committee sign-off for new sources." },
+      { id:6, cat:"Analytics",   q:"How would you use Power BI's AI features (Smart Narrative, Anomaly Detection, Key Influencers) to enhance an executive dashboard?", wtlf:"Smart Narrative: auto-generated text summaries of chart trends. Anomaly Detection: automatic spike/dip flagging on time series. Key Influencers: identifies which factors drive a metric. Should discuss when these add value vs when they confuse non-technical users. Customisation and limitations awareness." },
+      { id:7, cat:"Stakeholder", q:"You're leading a Power BI Centre of Excellence (CoE). How do you balance enabling business users to build their own reports while maintaining quality and governance?", wtlf:"Tiered model: governed datasets + self-service report layer; certification workflow for promoted content; training academy; community of practice; report review process for enterprise-wide dashboards; clear ownership model (IT vs business). Measures adoption and report quality metrics." },
+      { id:8, cat:"Stakeholder", q:"Describe a time you influenced a major analytics or BI decision at an organisational level. What was your approach and what was the outcome?", wtlf:"Looks for: structured business case (quantified benefit), stakeholder mapping, handling resistance, data-driven argument, executive communication skills, lessons learned. Evidence of strategic thinking beyond technical delivery." },
+    ],
+  },
+  "Tableau": {
+    junior: [
+      { id:1, cat:"SQL",         q:"Write a SQL query to find the top 10 products by revenue for the last 12 months. How would you connect this to Tableau?", wtlf:"SELECT product, SUM(revenue) FROM sales WHERE sale_date >= DATEADD(month,-12,GETDATE()) GROUP BY product ORDER BY SUM(revenue) DESC TOP 10. Tableau: connect via live or extract; custom SQL or published data source." },
+      { id:2, cat:"SQL",         q:"What is a star schema and why is it preferred for Tableau data sources over highly normalised OLTP schemas?", wtlf:"Star schema: fact table + denormalised dimensions. Preferred in Tableau because fewer joins = faster performance; Tableau handles single joins well; reduces query complexity. OLTP schemas cause slow, complex multi-join queries in Tableau." },
+      { id:3, cat:"Tool",        q:"What is the difference between a live connection and an extract in Tableau? When would you choose each?", wtlf:"Live: always queries source directly, always fresh, performance depends on DB. Extract: snapshot stored in Tableau's .hyper format, very fast, scheduled refresh. Use live for real-time needs; extract for performance and offline access." },
+      { id:4, cat:"Tool",        q:"Explain the difference between dimensions and measures in Tableau. What happens when you place each on the Rows/Columns shelf?", wtlf:"Dimensions: categorical, create headers/partitions (blue pills). Measures: quantitative, create axes (green pills). Dimensions on Rows/Columns partition the view; measures create axes with aggregation (SUM, AVG etc.). Discrete vs continuous also relevant." },
+      { id:5, cat:"Analytics",   q:"A line chart in Tableau is showing gaps in the data for certain months. How would you investigate and fix this?", wtlf:"Check for missing dates in source data (use Show Missing Values in Tableau); verify date field type; check date filters; use a date scaffold/spine table joined to fill gaps; confirm aggregate function isn't excluding nulls unexpectedly." },
+      { id:6, cat:"Analytics",   q:"How do you create a calculated field in Tableau? Write a simple example to classify customers as 'High', 'Medium', or 'Low' value.", wtlf:"Analysis > Create Calculated Field. Example: IF SUM([Revenue]) > 10000 THEN 'High' ELSEIF SUM([Revenue]) > 5000 THEN 'Medium' ELSE 'Low' END. Tests basic Tableau calculation syntax and logic." },
+      { id:7, cat:"Stakeholder", q:"A stakeholder says they want 'everything' on one dashboard. How do you manage this request?", wtlf:"Acknowledge their need for comprehensive view; guide them to identify primary decisions the dashboard should support; prioritise top 5-7 metrics; design for the audience (exec vs analyst); use actions and drill-through for depth without clutter. Push back constructively." },
+      { id:8, cat:"Stakeholder", q:"How would you present a Tableau dashboard to a non-technical executive audience for the first time?", wtlf:"Focus on insights not features; lead with the headline KPI; use annotations to highlight key findings; walk through a story not a demo; anticipate questions; keep it to 3-5 key points; provide a leave-behind or published link. Tests communication skills." },
+    ],
+    mid: [
+      { id:1, cat:"SQL",         q:"Write a SQL query to calculate cohort retention: for each monthly acquisition cohort, show what % of customers were still active in months 1, 2, and 3 after acquisition.", wtlf:"Cohort analysis: assign acquisition_month; join to activity by customer_id; calculate months since acquisition; aggregate active customers per cohort per period; divide by cohort size. Tests advanced analytical SQL thinking." },
+      { id:2, cat:"SQL",         q:"How would you design a summary/aggregation table in SQL to improve Tableau dashboard performance on a 500M row transactions table?", wtlf:"Pre-aggregate at the grain required by the dashboard (daily/weekly by product/region); store in a separate summary table; refresh on a schedule; connect Tableau to summary table. Discuss trade-offs: data freshness vs performance vs maintenance overhead." },
+      { id:3, cat:"Tool",        q:"Explain Level of Detail (LOD) expressions in Tableau. Write an example using FIXED to calculate each customer's first purchase date.", wtlf:"LOD expressions compute aggregations at a specified granularity independently of the view's level of detail. FIXED LOD: {FIXED [Customer ID] : MIN([Order Date])}. INCLUDE adds dimensions; EXCLUDE removes them. Tests understanding of context vs LOD scope." },
+      { id:4, cat:"Tool",        q:"What are Tableau Table Calculations? Give an example of a running total and explain the difference between Compute Using Table Across vs Down.", wtlf:"Table calculations: computed on the aggregated result set in Tableau, not the raw data. Running Total: RUNNING_SUM(SUM([Sales])). Table Across: computes across columns (left to right). Table Down: computes down rows (top to bottom). Partition and addressing are key concepts." },
+      { id:5, cat:"Analytics",   q:"How would you build a Tableau dashboard to analyse customer churn, showing churn rate by segment, trend over time, and key drivers?", wtlf:"Define churn (no activity in N days); calculate churn rate by segment; trend line with reference bands; use a scatter or bar to show segment comparison; table calc or LOD for cohort-based churn; consider a story or guided analytics flow. Tests end-to-end analytical thinking." },
+      { id:6, cat:"Analytics",   q:"Describe how you would use Tableau's set actions and parameter actions to build an interactive drill-down dashboard.", wtlf:"Set actions: update a set based on user selection (click/hover/menu); use set in calculations to highlight or filter. Parameter actions: update a parameter value from a mark selection; use parameter in calculated fields or reference lines. Enables highly interactive dashboards without LOD complexity." },
+      { id:7, cat:"Stakeholder", q:"You've delivered a Tableau dashboard but users aren't adopting it. What steps would you take to improve adoption?", wtlf:"User interviews to understand friction points; usability testing; check if dashboard answers their actual questions; simplify navigation; add training/documentation; ensure performance is acceptable; involve champions from business; measure usage via Tableau Server/Cloud admin." },
+      { id:8, cat:"Stakeholder", q:"How do you manage a situation where different business teams are using different Tableau dashboards with conflicting metrics for the same KPI?", wtlf:"Audit all dashboards and definitions; facilitate alignment workshop; agree on single certified definition; build governed shared data source; deprecate inconsistent dashboards with clear communication; update data dictionary. Tests data governance mindset." },
+    ],
+    senior: [
+      { id:1, cat:"SQL",         q:"Design a SQL-based data architecture to support a Tableau reporting layer for a multinational business with regional databases, daily data loads, and sub-5-second dashboard response times.", wtlf:"Centralised data warehouse with regional ETL pipelines; aggregation layer for Tableau; Tableau extracts (.hyper) on schedule; consider Hyper API for large extract generation; partitioned tables; columnar storage. Discuss trade-offs between centralisation and latency." },
+      { id:2, cat:"SQL",         q:"How would you implement incremental extract refreshes in Tableau using SQL incremental load patterns? What are the limitations?", wtlf:"Tableau incremental refresh: appends rows where a datetime column > last extract date. SQL side: ensure updated_at column is indexed and updated correctly. Limitations: doesn't handle updates or deletes (only inserts); full refresh needed periodically. Alternative: Tableau Hyper API for full programmatic control." },
+      { id:3, cat:"Tool",        q:"How would you architect a Tableau Server or Tableau Cloud deployment for 2000 users with strict performance SLAs and data security requirements?", wtlf:"Tableau Server: multi-node with gateway, primary, worker nodes; extract scheduling to off-peak; site separation for isolation; RLS via user filters or entitlement tables; data source certification; performance monitoring via admin views; Tableau Blueprint governance framework." },
+      { id:4, cat:"Tool",        q:"Explain Tableau's Virtual Connections and Data Policies. How do they support centralised data governance?", wtlf:"Virtual Connections: centralised, reusable connection objects managed by data stewards; decouple connection credentials from individual data sources. Data Policies: row-level security applied at the Virtual Connection level, enforced across all downstream content. Reduces RLS maintenance overhead significantly." },
+      { id:5, cat:"Analytics",   q:"Describe how you would use Tableau Prep and Tableau Cloud together to build a governed, automated analytics pipeline from raw data to published dashboard.", wtlf:"Tableau Prep Builder: data cleaning, shaping, aggregation; Prep Conductor (on Cloud/Server) for scheduled runs; output to published data source on Tableau Cloud; certified data source used by analysts for self-service. Lineage tracking, version control, notification on failure. End-to-end governed pipeline." },
+      { id:6, cat:"Analytics",   q:"How would you use Tableau's Einstein (AI) features or statistical capabilities to surface predictive insights in an operational dashboard?", wtlf:"Forecast: built-in exponential smoothing with confidence intervals. Trend Lines: statistical models (linear, polynomial, exponential). Tableau AI/Einstein: natural language Q&A, automated insights. R/Python integration for custom models via TabPy or RServe. Discuss when to use built-in vs custom modelling." },
+      { id:7, cat:"Stakeholder", q:"You are leading a Tableau practice across a 500-person organisation. How do you build a data culture and ensure analytics investments deliver measurable business value?", wtlf:"Analytics champions programme; self-service training curriculum; metrics for adoption (DAU, published views, certified sources); business value tracking (decisions influenced, time saved); executive sponsorship; community of practice; regular showcases of impactful dashboards. Links analytics to business outcomes." },
+      { id:8, cat:"Stakeholder", q:"Describe a complex analytics project you led where the initial brief changed significantly. How did you manage stakeholders and deliver value?", wtlf:"Looks for: structured change management approach, impact assessment, re-scoping conversation, maintaining trust under ambiguity, iterative delivery, lessons applied to future projects. Evidence of senior-level stakeholder management and analytical leadership." },
+    ],
+  },
+  "Qlik Sense": {
+    junior: [
+      { id:1, cat:"SQL",         q:"Write a SQL query to summarise total orders and average order value by customer segment and month. How would you load this into Qlik Sense?", wtlf:"SELECT segment, FORMAT(order_date,'yyyy-MM') AS month, COUNT(*) AS orders, AVG(order_value) AS avg_value FROM orders GROUP BY segment, FORMAT(order_date,'yyyy-MM'). Qlik: load via ODBC/JDBC connector or inline load script; QVD for performance." },
+      { id:2, cat:"SQL",         q:"What is a surrogate key and why is it important when building data models for BI tools like Qlik Sense?", wtlf:"Surrogate key: system-generated unique identifier (integer sequence) vs natural business key. Important in Qlik: needed to associate tables correctly in the data model; avoids synthetic key issues caused by multiple common fields. Ensures clean associations." },
+      { id:3, cat:"Tool",        q:"What is Qlik Sense's Associative Model and how is it different from traditional query-based BI tools like SQL reporting?", wtlf:"Associative Model: all data is loaded into memory; selections propagate across all associated tables simultaneously (green = selected, white = associated, grey = excluded). No pre-defined drill paths. Users can explore in any direction. Different from SQL: no WHERE clause requery needed per selection." },
+      { id:4, cat:"Tool",        q:"What is a QVD file in Qlik and why is it used? Explain the QVD layer in a typical Qlik architecture.", wtlf:"QVD (Qlik View Data): binary data format optimised for Qlik; extremely fast to load; compressed. QVD layer: staging area between source and app; raw QVDs from source, transformed QVDs for consumption. Enables incremental loads and separates ETL from reporting apps. Reduces source system load." },
+      { id:5, cat:"Analytics",   q:"A KPI chart in Qlik Sense is showing 'null' values unexpectedly. How would you debug this?", wtlf:"Check load script: NullAsValue or NullInterpret settings; inspect raw data for nulls in key fields; check master measure expression for division by zero or empty set; use IsNull() in expression; verify association between tables is correct (no broken keys). Systematic debug approach." },
+      { id:6, cat:"Analytics",   q:"How do you create a set analysis expression in Qlik Sense? Write an example to calculate total sales for the previous year regardless of current year filter.", wtlf:"Set analysis: calculates aggregation in a defined set context. Example: SUM({<Year={$(=Year(Today())-1)}>} Sales). Curly braces = set modifier; angle brackets = field modifier; dollar sign expansion for dynamic values. Tests fundamental Qlik set analysis knowledge." },
+      { id:7, cat:"Stakeholder", q:"A user reports that clicking a chart in your Qlik Sense app is showing unexpected data in other charts. How do you explain and resolve this?", wtlf:"Explain the associative model (expected behaviour); check if this is intentional (grey = excluded is correct); if truly unexpected, review data model for synthetic keys or incorrect table associations; add bookmark to reset selections; consider using alternate states for comparison. Communication + technical fix." },
+      { id:8, cat:"Stakeholder", q:"How would you demo a Qlik Sense dashboard to a business team who have never seen Qlik before?", wtlf:"Start with business question the app answers; demonstrate associative selection (click and see propagation); show how selections guide to insights rather than limit; use storytelling with Qlik Sense stories feature; highlight mobile responsiveness if relevant; end with how to access and bookmark. Engages non-technical audience." },
+    ],
+    mid: [
+      { id:1, cat:"SQL",         q:"You need to load 5 years of daily transactional data (200M rows) into a Qlik Sense app efficiently. What SQL and Qlik loading strategies would you use?", wtlf:"SQL: pre-aggregate in DB to required grain; create summary views/tables. Qlik: incremental QVD load (load only new/changed rows using ModifiedDate watermark); store as QVDs; load summarised QVD into app. Avoid full reload of 200M rows on schedule. Tests performance thinking." },
+      { id:2, cat:"SQL",         q:"How would you handle a many-to-many relationship between two tables in Qlik Sense? What are the risks and how do you resolve them?", wtlf:"Many-to-many causes synthetic keys in Qlik (concatenated key auto-created, bad for performance/clarity). Solutions: create a bridge/link table with a concatenated key; use IntervalMatch for range lookups; or resolve at SQL level with an intermediate fact table. Must understand synthetic key risk." },
+      { id:3, cat:"Tool",        q:"Explain Qlik Sense's Alternate States feature. Give a practical example of how you would use it for a comparison dashboard.", wtlf:"Alternate States: allow two or more selections simultaneously in the same app for comparison. Example: compare current period vs prior period; assign charts/objects to different states; master items can reference specific states. Use case: A vs B product comparison, region comparison without filtering the whole app." },
+      { id:4, cat:"Tool",        q:"What is Section Access in Qlik Sense and how do you implement row-level security for a multi-region sales dashboard?", wtlf:"Section Access: data reduction at app level based on user credentials. ACCESS, USERID, PASSWORD/NTNAME, and reduction field (e.g. REGION) defined in the access section. At load time, Qlik reduces data per user. Publish with 'Reduce data based on section access'. Must stress: publish correctly or all data visible." },
+      { id:5, cat:"Analytics",   q:"How would you build a Qlik Sense dashboard to perform customer RFM (Recency, Frequency, Monetary) analysis? Walk through your data model and key expressions.", wtlf:"Data model: transactions table with customer_id, date, amount. Load script: calculate R (days since last purchase), F (count of transactions), M (total spend) per customer. Master measures: RFM scores. Visualisations: scatter plot (R vs F coloured by M), bar charts by segment. Set analysis for segment filtering." },
+      { id:6, cat:"Analytics",   q:"Explain the difference between master items (master dimensions and measures) in Qlik Sense and why they are important in an enterprise environment.", wtlf:"Master items: centrally defined, reusable dimensions and measures. Changes propagate to all charts using that master item. Ensures consistency across the app; reduces maintenance; supports governed self-service (analysts use approved measures). Master measures can include complex set analysis, colour coding, and formatting." },
+      { id:7, cat:"Stakeholder", q:"You've been asked to migrate 20 QlikView dashboards to Qlik Sense. How do you plan and prioritise this migration?", wtlf:"Audit existing QlikView apps: usage stats (most used first), business criticality, complexity; assess conversion effort (QlikView to Sense converter limitations); prioritise high-use, lower-complexity apps first; plan load script migration (most reusable); stakeholder sign-off at each phase; test with users before decommission." },
+      { id:8, cat:"Stakeholder", q:"A business team wants to build their own Qlik Sense app but has no technical background. How do you enable them while maintaining data quality?", wtlf:"Governed self-service model: provide certified QVD data layer they can connect to; training on Sense drag-and-drop; define approved master items they must use; review process before publishing to wider audience; Qlik Sense Business (SaaS) for simpler authoring. Balance enablement with governance." },
+    ],
+    senior: [
+      { id:1, cat:"SQL",         q:"Design a SQL and QVD-based data architecture for a Qlik Sense platform serving 300 concurrent users across 50 apps with sub-3-second load times.", wtlf:"Three-layer QVD architecture: Extract (raw QVDs from source), Transform (business logic QVDs), Load (app-specific QVDs). Pre-aggregate at transform layer; app-level QVDs at the grain needed. Qlik: binary QVD format loads 10-50x faster than SQL. Incremental loads at extract layer. Engine node scaling for concurrency." },
+      { id:2, cat:"SQL",         q:"How would you implement a robust incremental load pattern in Qlik Sense for a 500M row fact table that receives inserts, updates, and deletes daily?", wtlf:"Inserts/Updates: watermark on ModifiedDate, load delta QVD, concatenate and deduplicate (keep last by primary key). Deletes: maintain a delete log or full key scan; remove deleted keys from QVD. Store master QVD; reload app from master QVD. Full reload weekly as safety net. Handles all DML operations." },
+      { id:3, cat:"Tool",        q:"How would you architect a Qlik Sense enterprise deployment on Qlik Cloud for 2000 users with multi-tenant requirements and data residency constraints?", wtlf:"Qlik Cloud: managed spaces (shared/managed/data); tenant separation per business unit; data gateways for on-premise/private cloud data; spaces-level security and access control; bring-your-own-key encryption for data residency; Qlik AutoML and AI for advanced analytics; API-based automation for governance. Discusses scalability and compliance." },
+      { id:4, cat:"Tool",        q:"Explain how Qlik's engine works differently from traditional in-memory BI tools. How does the Associative Engine's memory management work at scale?", wtlf:"Qlik's Associative Engine: columnar in-memory storage; highly compressed (bit-stuffed representation); symbol table + data table separation (efficient for low-cardinality dimensions). At scale: RAM is the bottleneck; engine caches calculations; reload reloads all data. Multi-node: engine nodes handle app sessions. Differs from Tableau: always-loaded vs extract-at-query." },
+      { id:5, cat:"Analytics",   q:"How would you use Qlik's APIs (Engine API, Capability API, REST API) to build an automated insight generation pipeline that pushes anomaly alerts to business users?", wtlf:"Engine API (WebSocket): programmatic access to Qlik engine for hypercube data extraction. Schedule via Python/Node.js: extract KPI values, compare to thresholds/baselines, detect anomalies. Push alerts via email/Teams webhook. REST API for app and user management automation. Demonstrates advanced Qlik developer knowledge." },
+      { id:6, cat:"Analytics",   q:"Describe how you would implement Qlik's Insight Advisor and AI-assisted analytics in a governed enterprise environment.", wtlf:"Insight Advisor: NLP-based auto-chart generation from master items. Governance: only expose certified master items to Insight Advisor; configure business logic (always/never link certain fields); train via user feedback. AI-generated narratives. Discuss when AI recommendations are reliable vs misleading. Change management for adoption." },
+      { id:7, cat:"Stakeholder", q:"You are the Qlik platform owner for a global organisation. How do you build a governance framework that enables 500 self-service authors while maintaining enterprise standards?", wtlf:"Tiered publishing model (personal → shared → managed space with review); certified app standards (naming, master items, documentation); review board for managed space promotion; training and accreditation programme; usage monitoring and app lifecycle management (archive unused apps); data stewardship model. Governance that enables rather than blocks." },
+      { id:8, cat:"Stakeholder", q:"Describe the most complex Qlik Sense analytics solution you have delivered. What were the technical and organisational challenges and how did you overcome them?", wtlf:"Looks for: scale and complexity of solution, technical depth (data model, performance, security), stakeholder management at senior level, change management, measurable business outcome, lessons applied. Senior candidates should demonstrate end-to-end ownership and strategic impact beyond technical delivery." },
+    ],
+  },
 };
 
-const loadSession = () => {
-  try { const d = localStorage.getItem(STORAGE_KEY); return d ? JSON.parse(d) : null; } catch(e) { return null; }
-};
+const STORAGE_KEY = "interview_session_v2";
+const saveSession = (data) => { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {} };
+const loadSession = () => { try { const d = localStorage.getItem(STORAGE_KEY); return d ? JSON.parse(d) : null; } catch(e) { return null; } };
+
+const getCatInfo = (role, cat) => role === "analyst" ? ANALYST_CATEGORIES[cat] : ENG_CATEGORIES[cat];
 
 export default function App() {
   const isInterviewer = typeof window !== "undefined" && window.location.search.includes("interviewer=true");
 
-  const [step, setStep] = useState("setup");
-  const [platform, setPlatform] = useState(null);
-  const [band, setBand] = useState(null);
+  const [step, setStep]               = useState("setup");
+  const [role, setRole]               = useState(null);
+  const [platform, setPlatform]       = useState(null);
+  const [band, setBand]               = useState(null);
   const [candidateName, setCandidateName] = useState("");
-  const [yearsExp, setYearsExp] = useState("");
-  const [currentQ, setCurrentQ] = useState(0);
-  const [answers, setAnswers] = useState({});
-  const [scores, setScores] = useState({});
-  const [submitted, setSubmitted] = useState(false);
-  const [session, setSession] = useState(null);
+  const [yearsExp, setYearsExp]       = useState("");
+  const [currentQ, setCurrentQ]       = useState(0);
+  const [answers, setAnswers]         = useState({});
+  const [scores, setScores]           = useState({});
+  const [session, setSession]         = useState(null);
 
   useEffect(() => {
-    if (isInterviewer) {
-      const s = loadSession();
-      setSession(s);
-    }
+    if (isInterviewer) { setSession(loadSession()); }
   }, [isInterviewer]);
 
-  const questions = platform && band ? QUESTIONS[platform][band] : [];
+  const getQuestions = (r, p, b) => {
+    if (!r || !p || !b) return [];
+    return r === "analyst" ? (ANALYST_QUESTIONS[p]?.[b] || []) : (ENG_QUESTIONS[p]?.[b] || []);
+  };
+
+  const questions    = getQuestions(role, platform, band);
   const selectedBand = BANDS.find(b => b.id === band);
+  const currentQuestion = questions[currentQ];
 
   const handleStart = () => {
-    if (!platform || !band || !candidateName.trim()) return;
+    if (!role || !platform || !band || !candidateName.trim() || !yearsExp.trim()) return;
     setStep("interview");
     setCurrentQ(0);
     setAnswers({});
   };
 
   const handleSubmit = () => {
-    const sessionData = {
-      candidateName,
-      yearsExp,
-      platform,
-      band,
-      answers,
-      submittedAt: new Date().toISOString(),
-    };
-    saveSession(sessionData);
-    setSubmitted(true);
+    saveSession({ candidateName, yearsExp, role, platform, band, answers, submittedAt: new Date().toISOString() });
     setStep("thankyou");
   };
 
-  // ─── INTERVIEWER VIEW ────────────────────────────────────────────────
+  // ─── INTERVIEWER VIEW ─────────────────────────────────────────────────
   if (isInterviewer) {
     if (!session) {
       return (
         <div style={{ minHeight:"100vh", background:"#0f172a", display:"flex", alignItems:"center", justifyContent:"center", fontFamily:"'DM Sans','Segoe UI',sans-serif" }}>
           <div style={{ textAlign:"center", color:"#64748b" }}>
-            <div style={{ fontSize:48, marginBottom:16 }}>📭</div>
+            <div style={{ fontSize:56, marginBottom:16 }}>📭</div>
             <h2 style={{ color:"#f1f5f9", fontSize:22, margin:"0 0 8px" }}>No Submission Yet</h2>
             <p style={{ margin:0, fontSize:15 }}>The candidate hasn't completed the interview on this device yet.</p>
           </div>
         </div>
       );
     }
-
-    const qs = QUESTIONS[session.platform]?.[session.band] || [];
+    const qs   = getQuestions(session.role, session.platform, session.band);
     const cats = [...new Set(qs.map(q => q.cat))];
+    const catMap = session.role === "analyst" ? ANALYST_CATEGORIES : ENG_CATEGORIES;
 
     return (
       <div style={{ minHeight:"100vh", background:"#0f172a", fontFamily:"'DM Sans','Segoe UI',sans-serif", padding:"2rem" }}>
-        <div style={{ maxWidth:760, margin:"0 auto" }}>
+        <div style={{ maxWidth:780, margin:"0 auto" }}>
           {/* Header */}
           <div style={{ background:"#1e293b", border:"1px solid #334155", borderRadius:16, padding:"1.5rem", marginBottom:"1.5rem" }}>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", flexWrap:"wrap", gap:12 }}>
@@ -194,72 +301,54 @@ export default function App() {
                 <div style={{ color:"#94a3b8", fontSize:12, textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:6 }}>Interviewer Results</div>
                 <h1 style={{ color:"#f1f5f9", fontSize:24, fontWeight:800, margin:"0 0 4px" }}>{session.candidateName}</h1>
                 <div style={{ color:"#64748b", fontSize:14 }}>
-                  {session.platform} · {BANDS.find(b=>b.id===session.band)?.title}
-                  {session.yearsExp && <span> · {session.yearsExp} yrs experience</span>}
+                  {session.role === "analyst" ? "📊 Data Analyst" : "⚙️ Data Engineer"} · {session.platform} · {BANDS.find(b=>b.id===session.band)?.title}
+                  {session.yearsExp && <span> · {session.yearsExp} yrs exp</span>}
                 </div>
-                <div style={{ color:"#475569", fontSize:12, marginTop:4 }}>
-                  Submitted: {new Date(session.submittedAt).toLocaleString()}
-                </div>
+                <div style={{ color:"#475569", fontSize:12, marginTop:4 }}>Submitted: {new Date(session.submittedAt).toLocaleString()}</div>
               </div>
               <div style={{ background:"#0f172a", border:"1px solid #334155", borderRadius:12, padding:"1rem 1.5rem", textAlign:"center" }}>
-                <div style={{ color:"#94a3b8", fontSize:11, textTransform:"uppercase", letterSpacing:"0.06em", marginBottom:4 }}>Questions Answered</div>
-                <div style={{ color:"#f1f5f9", fontSize:32, fontWeight:800 }}>
-                  {Object.keys(session.answers).length}<span style={{ color:"#475569", fontSize:16 }}>/{qs.length}</span>
-                </div>
+                <div style={{ color:"#94a3b8", fontSize:11, textTransform:"uppercase", letterSpacing:"0.06em", marginBottom:4 }}>Answered</div>
+                <div style={{ color:"#f1f5f9", fontSize:32, fontWeight:800 }}>{Object.keys(session.answers).length}<span style={{ color:"#475569", fontSize:16 }}>/{qs.length}</span></div>
               </div>
             </div>
           </div>
 
-          {/* Scoring instructions */}
-          <div style={{ background:"#1e293b", border:"1px solid #f59e0b40", borderLeft:"3px solid #f59e0b", borderRadius:"0 12px 12px 0", padding:"12px 16px", marginBottom:"1.5rem" }}>
-            <p style={{ color:"#fcd34d", fontSize:13, margin:0 }}>
-              📋 <strong>Interviewer Mode</strong> — Review each answer below and assign a score (1–4). Scores are calculated in real time.
-            </p>
+          <div style={{ background:"#1e293b", borderLeft:"3px solid #f59e0b", borderRadius:"0 12px 12px 0", padding:"12px 16px", marginBottom:"1.5rem" }}>
+            <p style={{ color:"#fcd34d", fontSize:13, margin:0 }}>📋 <strong>Interviewer Mode</strong> — Review answers and score each question 1–4. Results update in real time.</p>
           </div>
 
-          {/* Questions + Answers + Scoring */}
           {qs.map((q, i) => {
-            const info = CATEGORIES[q.cat];
+            const info   = catMap[q.cat] || { color:"#94a3b8", tag: q.cat };
             const answer = session.answers[q.id];
             return (
               <div key={q.id} style={{ background:"#1e293b", border:"1px solid #334155", borderRadius:14, padding:"1.25rem", marginBottom:"1rem" }}>
-                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", gap:12, flexWrap:"wrap" }}>
+                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", gap:12 }}>
                   <div style={{ flex:1 }}>
                     <div style={{ marginBottom:8 }}>
-                      <span style={{ background: info.color+"22", color:info.color, fontSize:11, fontWeight:700, padding:"3px 10px", borderRadius:20, textTransform:"uppercase", letterSpacing:"0.06em", marginRight:8 }}>{info.tag}</span>
+                      <span style={{ background:info.color+"22", color:info.color, fontSize:11, fontWeight:700, padding:"3px 10px", borderRadius:20, textTransform:"uppercase", letterSpacing:"0.06em", marginRight:8 }}>{info.tag}</span>
                       <span style={{ color:"#475569", fontSize:12 }}>Q{i+1}</span>
                     </div>
                     <p style={{ color:"#e2e8f0", fontSize:15, margin:"0 0 12px", fontWeight:500, lineHeight:1.6 }}>{q.q}</p>
-
-                    {/* Candidate answer */}
                     <div style={{ background:"#0f172a", border:"1px solid #334155", borderRadius:10, padding:"12px 14px", marginBottom:10 }}>
                       <div style={{ color:"#64748b", fontSize:11, textTransform:"uppercase", letterSpacing:"0.06em", marginBottom:6 }}>Candidate's Answer</div>
-                      <p style={{ color: answer ? "#cbd5e1" : "#475569", fontSize:14, margin:0, lineHeight:1.7, fontStyle: answer ? "normal" : "italic" }}>
-                        {answer || "No answer provided"}
-                      </p>
+                      <p style={{ color: answer ? "#cbd5e1" : "#475569", fontSize:14, margin:0, lineHeight:1.7, fontStyle: answer ? "normal" : "italic" }}>{answer || "No answer provided"}</p>
                     </div>
-
-                    {/* What to listen for */}
-                    <details style={{ marginBottom:0 }}>
+                    <details>
                       <summary style={{ color:"#64748b", fontSize:13, cursor:"pointer", userSelect:"none" }}>▶ What to Listen For</summary>
                       <div style={{ background:"#0f172a", borderLeft:`3px solid ${info.color}`, borderRadius:"0 8px 8px 0", padding:"10px 14px", marginTop:8 }}>
                         <p style={{ color:"#94a3b8", fontSize:13, margin:0, lineHeight:1.7 }}>{q.wtlf}</p>
                       </div>
                     </details>
                   </div>
-
-                  {/* Score selector */}
                   <div style={{ display:"flex", flexDirection:"column", gap:6, minWidth:52 }}>
                     {[4,3,2,1].map(s => {
-                      const cols = {4:"#2563eb",3:"#16a34a",2:"#d97706",1:"#dc2626"};
-                      const active = scores[q.id] === s;
+                      const cols={4:"#2563eb",3:"#16a34a",2:"#d97706",1:"#dc2626"};
+                      const active = scores[q.id]===s;
                       return (
-                        <button key={s} onClick={() => setScores(prev => ({...prev, [q.id]: s}))}
-                          style={{ width:52, height:52, borderRadius:10, border: active ? `2px solid ${cols[s]}` : "2px solid #334155",
-                            background: active ? `${cols[s]}33` : "#0f172a", color: active ? cols[s] : "#475569",
-                            cursor:"pointer", fontWeight:800, fontSize:18, transition:"all 0.15s" }}>
-                          {s}
-                        </button>
+                        <button key={s} onClick={()=>setScores(p=>({...p,[q.id]:s}))}
+                          style={{ width:52,height:52,borderRadius:10,border:active?`2px solid ${cols[s]}`:"2px solid #334155",
+                            background:active?`${cols[s]}33`:"#0f172a",color:active?cols[s]:"#475569",
+                            cursor:"pointer",fontWeight:800,fontSize:18,transition:"all 0.15s" }}>{s}</button>
                       );
                     })}
                   </div>
@@ -268,84 +357,80 @@ export default function App() {
             );
           })}
 
-          {/* Results Summary */}
-          {Object.keys(scores).length > 0 && (
-            <div style={{ background:"#1e293b", border:"1px solid #334155", borderRadius:16, padding:"1.5rem", marginTop:"1.5rem" }}>
-              <h3 style={{ color:"#f1f5f9", fontSize:18, fontWeight:700, margin:"0 0 1rem" }}>Score Summary</h3>
-              <div style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:10, marginBottom:"1rem" }}>
-                {cats.map(cat => {
-                  const catQs = qs.filter(q => q.cat === cat);
-                  const vals = catQs.map(q => scores[q.id]).filter(Boolean);
-                  const avg = vals.length ? (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1) : null;
-                  const info = CATEGORIES[cat];
-                  return (
-                    <div key={cat} style={{ background:"#0f172a", border:"1px solid #334155", borderRadius:10, padding:"12px 14px" }}>
-                      <div style={{ color:info.color, fontSize:11, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.06em", marginBottom:4 }}>{info.tag}</div>
-                      <div style={{ color:"#f1f5f9", fontSize:26, fontWeight:800 }}>{avg ?? "—"}<span style={{ color:"#475569", fontSize:13 }}>/4</span></div>
-                      {avg && parseFloat(avg) < 2 && <div style={{ color:"#dc2626", fontSize:11, marginTop:2 }}>⚠ Below minimum</div>}
-                    </div>
-                  );
-                })}
+          {/* Summary */}
+          {Object.keys(scores).length > 0 && (() => {
+            const allVals = Object.values(scores).map(Number);
+            const overall = (allVals.reduce((a,b)=>a+b,0)/allVals.length).toFixed(2);
+            const anyBelow2 = cats.some(c => {
+              const vals = qs.filter(q=>q.cat===c).map(q=>scores[q.id]).filter(Boolean);
+              return vals.length && (vals.reduce((a,b)=>a+b,0)/vals.length) < 2;
+            });
+            const verdict = parseFloat(overall)>=3.0&&!anyBelow2
+              ?{text:"RECOMMENDED TO PROCEED",color:"#16a34a",bg:"#f0fdf4"}
+              :parseFloat(overall)>=2.5
+              ?{text:"BORDERLINE — REVIEW CAREFULLY",color:"#d97706",bg:"#fffbeb"}
+              :{text:"NOT RECOMMENDED AT THIS LEVEL",color:"#dc2626",bg:"#fef2f2"};
+            return (
+              <div style={{ background:"#1e293b", border:"1px solid #334155", borderRadius:16, padding:"1.5rem", marginTop:"1.5rem" }}>
+                <h3 style={{ color:"#f1f5f9", fontSize:18, fontWeight:700, margin:"0 0 1rem" }}>Score Summary</h3>
+                <div style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:10, marginBottom:"1rem" }}>
+                  {cats.map(cat => {
+                    const vals = qs.filter(q=>q.cat===cat).map(q=>scores[q.id]).filter(Boolean);
+                    const avg  = vals.length ? (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1) : null;
+                    const info = catMap[cat] || {color:"#94a3b8",tag:cat};
+                    return (
+                      <div key={cat} style={{ background:"#0f172a", border:"1px solid #334155", borderRadius:10, padding:"12px 14px" }}>
+                        <div style={{ color:info.color, fontSize:11, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.06em", marginBottom:4 }}>{info.tag}</div>
+                        <div style={{ color:"#f1f5f9", fontSize:26, fontWeight:800 }}>{avg??'—'}<span style={{ color:"#475569",fontSize:13 }}>/4</span></div>
+                        {avg && parseFloat(avg)<2 && <div style={{ color:"#dc2626",fontSize:11,marginTop:2 }}>⚠ Below minimum</div>}
+                      </div>
+                    );
+                  })}
+                </div>
+                <div style={{ background:verdict.bg, border:`2px solid ${verdict.color}40`, borderRadius:12, padding:"1.25rem", textAlign:"center" }}>
+                  <div style={{ fontSize:32, fontWeight:800, color:verdict.color }}>{overall}<span style={{ fontSize:16, color:"#94a3b8" }}>/4</span></div>
+                  <div style={{ color:verdict.color, fontWeight:700, fontSize:13, letterSpacing:"0.08em", textTransform:"uppercase", marginTop:4 }}>{verdict.text}</div>
+                  <div style={{ color:"#64748b", fontSize:12, marginTop:4 }}>Min 3.0 avg · No category below 2.0</div>
+                </div>
               </div>
-              {/* Overall */}
-              {(() => {
-                const allVals = Object.values(scores).map(Number);
-                const overall = allVals.length ? (allVals.reduce((a,b)=>a+b,0)/allVals.length).toFixed(2) : null;
-                const anyBelow2 = cats.some(c => {
-                  const vals = qs.filter(q=>q.cat===c).map(q=>scores[q.id]).filter(Boolean);
-                  return vals.length && (vals.reduce((a,b)=>a+b,0)/vals.length) < 2;
-                });
-                const verdict = overall && parseFloat(overall) >= 3.0 && !anyBelow2
-                  ? { text:"RECOMMENDED TO PROCEED", color:"#16a34a", bg:"#f0fdf4" }
-                  : overall && parseFloat(overall) >= 2.5
-                  ? { text:"BORDERLINE — REVIEW CAREFULLY", color:"#d97706", bg:"#fffbeb" }
-                  : { text:"NOT RECOMMENDED AT THIS LEVEL", color:"#dc2626", bg:"#fef2f2" };
-                return overall ? (
-                  <div style={{ background:verdict.bg, border:`2px solid ${verdict.color}40`, borderRadius:12, padding:"1.25rem", textAlign:"center" }}>
-                    <div style={{ fontSize:32, fontWeight:800, color:verdict.color }}>{overall}<span style={{ fontSize:16, color:"#94a3b8" }}>/4</span></div>
-                    <div style={{ color:verdict.color, fontWeight:700, fontSize:13, letterSpacing:"0.08em", textTransform:"uppercase", marginTop:4 }}>{verdict.text}</div>
-                    <div style={{ color:"#64748b", fontSize:12, marginTop:4 }}>Min 3.0 avg · No category below 2.0</div>
-                  </div>
-                ) : null;
-              })()}
-            </div>
-          )}
+            );
+          })()}
         </div>
       </div>
     );
   }
 
-  // ─── THANK YOU SCREEN ────────────────────────────────────────────────
+  // ─── THANK YOU ────────────────────────────────────────────────────────
   if (step === "thankyou") {
     return (
       <div style={{ minHeight:"100vh", background:"#0f172a", display:"flex", alignItems:"center", justifyContent:"center", fontFamily:"'DM Sans','Segoe UI',sans-serif", padding:"2rem" }}>
         <div style={{ maxWidth:480, width:"100%", textAlign:"center" }}>
           <div style={{ fontSize:64, marginBottom:24 }}>✅</div>
           <h1 style={{ color:"#f1f5f9", fontSize:28, fontWeight:800, margin:"0 0 12px" }}>Thank You, {candidateName}!</h1>
-          <p style={{ color:"#64748b", fontSize:16, lineHeight:1.7, margin:"0 0 24px" }}>
-            Your answers have been successfully submitted. The interviewer will review your responses shortly.
-          </p>
+          <p style={{ color:"#64748b", fontSize:16, lineHeight:1.7, margin:"0 0 24px" }}>Your answers have been successfully submitted. The interviewer will review your responses shortly.</p>
           <div style={{ background:"#1e293b", border:"1px solid #334155", borderRadius:14, padding:"1.25rem" }}>
-            <p style={{ color:"#94a3b8", fontSize:14, margin:0 }}>
-              📬 Your submission has been recorded.<br/>You may now close this window.
-            </p>
+            <p style={{ color:"#94a3b8", fontSize:14, margin:0 }}>📬 Your submission has been recorded.<br/>You may now close this window.</p>
           </div>
         </div>
       </div>
     );
   }
 
-  // ─── SETUP SCREEN ────────────────────────────────────────────────────
+  // ─── SETUP ────────────────────────────────────────────────────────────
   if (step === "setup") {
+    const platformOptions = role === "analyst" ? TOOLS_ANALYST : PLATFORMS_ENG;
+    const platformIcons   = { Azure:"☁️", AWS:"⚡", Snowflake:"❄️", "Power BI":"📊", "Tableau":"📈", "Qlik Sense":"🔵" };
+    const canStart = role && platform && band && candidateName.trim() && yearsExp.trim();
+
     return (
       <div style={{ minHeight:"100vh", background:"#0f172a", display:"flex", alignItems:"center", justifyContent:"center", fontFamily:"'DM Sans','Segoe UI',sans-serif", padding:"2rem" }}>
-        <div style={{ width:"100%", maxWidth:520 }}>
+        <div style={{ width:"100%", maxWidth:540 }}>
           <div style={{ textAlign:"center", marginBottom:"2rem" }}>
             <div style={{ display:"inline-flex", alignItems:"center", gap:8, background:"#1e293b", border:"1px solid #334155", borderRadius:8, padding:"6px 14px", marginBottom:16 }}>
               <span style={{ width:8, height:8, borderRadius:"50%", background:"#22c55e", display:"inline-block", boxShadow:"0 0 6px #22c55e" }}></span>
-              <span style={{ color:"#94a3b8", fontSize:12, letterSpacing:"0.08em", textTransform:"uppercase" }}>Data Engineer Interview</span>
+              <span style={{ color:"#94a3b8", fontSize:12, letterSpacing:"0.08em", textTransform:"uppercase" }}>Technical Interview</span>
             </div>
-            <h1 style={{ color:"#f1f5f9", fontSize:26, fontWeight:800, margin:"0 0 8px", letterSpacing:"-0.5px" }}>Welcome</h1>
+            <h1 style={{ color:"#f1f5f9", fontSize:26, fontWeight:800, margin:"0 0 8px" }}>Welcome</h1>
             <p style={{ color:"#64748b", fontSize:14, margin:0 }}>Please fill in your details to begin</p>
           </div>
 
@@ -353,63 +438,91 @@ export default function App() {
             {/* Name */}
             <div>
               <label style={{ color:"#94a3b8", fontSize:12, fontWeight:600, textTransform:"uppercase", letterSpacing:"0.06em", display:"block", marginBottom:8 }}>Full Name *</label>
-              <input placeholder="e.g. Alex Johnson" value={candidateName} onChange={e => setCandidateName(e.target.value)}
+              <input placeholder="e.g. Alex Johnson" value={candidateName} onChange={e=>setCandidateName(e.target.value)}
                 style={{ width:"100%", background:"#0f172a", border:"1px solid #334155", borderRadius:8, padding:"10px 14px", color:"#f1f5f9", fontSize:15, outline:"none", boxSizing:"border-box" }} />
             </div>
 
-            {/* Years of Experience */}
+            {/* Years */}
             <div>
               <label style={{ color:"#94a3b8", fontSize:12, fontWeight:600, textTransform:"uppercase", letterSpacing:"0.06em", display:"block", marginBottom:8 }}>Years of Experience *</label>
-              <input placeholder="e.g. 4" type="number" min="0" max="40" value={yearsExp} onChange={e => setYearsExp(e.target.value)}
+              <input placeholder="e.g. 4" type="number" min="0" max="40" value={yearsExp} onChange={e=>setYearsExp(e.target.value)}
                 style={{ width:"100%", background:"#0f172a", border:"1px solid #334155", borderRadius:8, padding:"10px 14px", color:"#f1f5f9", fontSize:15, outline:"none", boxSizing:"border-box" }} />
             </div>
 
-            {/* Platform */}
+            {/* Role */}
             <div>
-              <label style={{ color:"#94a3b8", fontSize:12, fontWeight:600, textTransform:"uppercase", letterSpacing:"0.06em", display:"block", marginBottom:10 }}>Cloud Platform *</label>
-              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:10 }}>
-                {PLATFORMS.map(p => {
-                  const icons = { Azure:"☁️", AWS:"⚡", Snowflake:"❄️" };
-                  const active = platform === p;
+              <label style={{ color:"#94a3b8", fontSize:12, fontWeight:600, textTransform:"uppercase", letterSpacing:"0.06em", display:"block", marginBottom:10 }}>Role *</label>
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
+                {ROLES.map(r => {
+                  const active = role === r.id;
                   return (
-                    <button key={p} onClick={() => setPlatform(p)}
-                      style={{ padding:"14px 8px", borderRadius:10, border: active ? "2px solid #3b82f6" : "2px solid #334155",
-                        background: active ? "#1d3a5e" : "#0f172a", color: active ? "#93c5fd" : "#64748b",
-                        cursor:"pointer", fontSize:13, fontWeight:600, display:"flex", flexDirection:"column", alignItems:"center", gap:6 }}>
-                      <span style={{ fontSize:22 }}>{icons[p]}</span>{p}
+                    <button key={r.id} onClick={()=>{ setRole(r.id); setPlatform(null); }}
+                      style={{ padding:"14px 10px", borderRadius:10, border:active?"2px solid #3b82f6":"2px solid #334155",
+                        background:active?"#1d3a5e":"#0f172a", color:active?"#93c5fd":"#64748b",
+                        cursor:"pointer", fontSize:13, fontWeight:600, display:"flex", flexDirection:"column", alignItems:"center", gap:6, textAlign:"center" }}>
+                      <span style={{ fontSize:24 }}>{r.icon}</span>
+                      <span style={{ color:active?"#e2e8f0":"#94a3b8", fontWeight:700 }}>{r.label}</span>
+                      <span style={{ color:"#475569", fontSize:11 }}>{r.desc}</span>
                     </button>
                   );
                 })}
               </div>
             </div>
+
+            {/* Platform / Tool */}
+            {role && (
+              <div>
+                <label style={{ color:"#94a3b8", fontSize:12, fontWeight:600, textTransform:"uppercase", letterSpacing:"0.06em", display:"block", marginBottom:10 }}>
+                  {role === "analyst" ? "Analytics Tool *" : "Cloud Platform *"}
+                </label>
+                <div style={{ display:"grid", gridTemplateColumns: role==="analyst" ? "1fr 1fr 1fr" : "1fr 1fr 1fr", gap:10 }}>
+                  {platformOptions.map(p => {
+                    const active = platform === p;
+                    return (
+                      <button key={p} onClick={()=>setPlatform(p)}
+                        style={{ padding:"14px 8px", borderRadius:10, border:active?"2px solid #3b82f6":"2px solid #334155",
+                          background:active?"#1d3a5e":"#0f172a", color:active?"#93c5fd":"#64748b",
+                          cursor:"pointer", fontSize:12, fontWeight:600, display:"flex", flexDirection:"column", alignItems:"center", gap:6 }}>
+                        <span style={{ fontSize:22 }}>{platformIcons[p]}</span>
+                        <span style={{ fontSize:11 }}>{p}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* Band */}
-            <div>
-              <label style={{ color:"#94a3b8", fontSize:12, fontWeight:600, textTransform:"uppercase", letterSpacing:"0.06em", display:"block", marginBottom:10 }}>Experience Band *</label>
-              <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
-                {BANDS.map(b => {
-                  const active = band === b.id;
-                  return (
-                    <button key={b.id} onClick={() => setBand(b.id)}
-                      style={{ padding:"12px 16px", borderRadius:10, border: active ? `2px solid ${b.color}` : "2px solid #334155",
-                        background:"#0f172a", color: active ? "#f1f5f9" : "#64748b", cursor:"pointer", fontSize:14, fontWeight:500,
-                        display:"flex", alignItems:"center", gap:12, textAlign:"left" }}>
-                      <span style={{ fontSize:18 }}>{b.emoji}</span>
-                      <span><span style={{ color: active ? b.color : "#64748b", fontWeight:700 }}>{b.label}</span>
-                        <span style={{ color:"#475569", marginLeft:8, fontSize:12 }}>{b.title}</span></span>
-                    </button>
-                  );
-                })}
+            {role && platform && (
+              <div>
+                <label style={{ color:"#94a3b8", fontSize:12, fontWeight:600, textTransform:"uppercase", letterSpacing:"0.06em", display:"block", marginBottom:10 }}>Experience Band *</label>
+                <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+                  {BANDS.map(b => {
+                    const active = band === b.id;
+                    return (
+                      <button key={b.id} onClick={()=>setBand(b.id)}
+                        style={{ padding:"12px 16px", borderRadius:10, border:active?`2px solid ${b.color}`:"2px solid #334155",
+                          background:"#0f172a", color:active?"#f1f5f9":"#64748b",
+                          cursor:"pointer", fontSize:14, fontWeight:500, display:"flex", alignItems:"center", gap:12, textAlign:"left" }}>
+                        <span style={{ fontSize:18 }}>{b.emoji}</span>
+                        <span>
+                          <span style={{ color:active?b.color:"#64748b", fontWeight:700 }}>{b.label}</span>
+                          <span style={{ color:"#475569", marginLeft:8, fontSize:12 }}>{b.title}</span>
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
+            )}
 
-            <button onClick={handleStart} disabled={!platform || !band || !candidateName.trim() || !yearsExp.trim()}
+            <button onClick={handleStart} disabled={!canStart}
               style={{ padding:"14px", borderRadius:10, border:"none",
-                background: (platform && band && candidateName.trim() && yearsExp.trim()) ? "linear-gradient(135deg,#3b82f6,#2563eb)" : "#1e293b",
-                color: (platform && band && candidateName.trim() && yearsExp.trim()) ? "#fff" : "#475569",
-                cursor: (platform && band && candidateName.trim() && yearsExp.trim()) ? "pointer" : "not-allowed",
-                fontSize:15, fontWeight:700, boxShadow: (platform && band && candidateName.trim() && yearsExp.trim()) ? "0 4px 20px rgba(59,130,246,0.3)" : "none" }}>
-              Begin Interview →
+                background:canStart?"linear-gradient(135deg,#3b82f6,#2563eb)":"#1e293b",
+                color:canStart?"#fff":"#475569", cursor:canStart?"pointer":"not-allowed",
+                fontSize:15, fontWeight:700, boxShadow:canStart?"0 4px 20px rgba(59,130,246,0.3)":"none",
+                transition:"all 0.2s" }}>
+              {canStart ? `Begin Interview →` : "Complete all fields above"}
             </button>
           </div>
         </div>
@@ -417,9 +530,8 @@ export default function App() {
     );
   }
 
-  // ─── INTERVIEW SCREEN ────────────────────────────────────────────────
-  const currentQuestion = questions[currentQ];
-  const catInfo = CATEGORIES[currentQuestion?.cat];
+  // ─── INTERVIEW ────────────────────────────────────────────────────────
+  const catInfo   = getCatInfo(role, currentQuestion?.cat);
   const allAnswered = questions.every(q => answers[q.id]?.trim());
 
   return (
@@ -434,13 +546,12 @@ export default function App() {
         <span style={{ color:"#64748b", fontSize:13 }}>Q{currentQ+1} of {questions.length}</span>
       </div>
 
-      {/* Progress bar */}
+      {/* Progress */}
       <div style={{ height:3, background:"#1e293b" }}>
-        <div style={{ height:"100%", background:"linear-gradient(90deg,#3b82f6,#8b5cf6)", width:`${((currentQ)/questions.length)*100}%`, transition:"width 0.3s" }} />
+        <div style={{ height:"100%", background:"linear-gradient(90deg,#3b82f6,#8b5cf6)", width:`${(currentQ/questions.length)*100}%`, transition:"width 0.3s" }} />
       </div>
 
       <div style={{ maxWidth:760, margin:"0 auto", padding:"2rem" }}>
-        {/* Category pill */}
         <div style={{ marginBottom:"1.25rem" }}>
           <span style={{ background:catInfo?.color+"22", color:catInfo?.color, fontSize:12, fontWeight:700, padding:"4px 12px", borderRadius:20, textTransform:"uppercase", letterSpacing:"0.06em" }}>
             {catInfo?.tag}
@@ -448,30 +559,26 @@ export default function App() {
           <span style={{ color:"#475569", fontSize:13, marginLeft:10 }}>Question {currentQ+1}</span>
         </div>
 
-        {/* Question */}
         <div style={{ background:"#1e293b", border:"1px solid #334155", borderRadius:16, padding:"1.75rem", marginBottom:"1.25rem" }}>
           <p style={{ color:"#e2e8f0", fontSize:18, lineHeight:1.7, margin:0, fontWeight:500 }}>{currentQuestion?.q}</p>
         </div>
 
-        {/* Answer */}
         <div style={{ marginBottom:"1.5rem" }}>
           <label style={{ color:"#94a3b8", fontSize:12, fontWeight:600, textTransform:"uppercase", letterSpacing:"0.06em", display:"block", marginBottom:8 }}>Your Answer</label>
-          <textarea value={answers[currentQuestion?.id] || ""} onChange={e => setAnswers(prev => ({...prev, [currentQuestion.id]: e.target.value}))}
+          <textarea value={answers[currentQuestion?.id]||""} onChange={e=>setAnswers(p=>({...p,[currentQuestion.id]:e.target.value}))}
             placeholder="Type your answer here..." rows={6}
-            style={{ width:"100%", background:"#1e293b", border:"1px solid #334155", borderRadius:12, padding:"14px 16px", color:"#e2e8f0",
-              fontSize:15, lineHeight:1.6, resize:"vertical", outline:"none", fontFamily:"inherit", boxSizing:"border-box" }} />
+            style={{ width:"100%", background:"#1e293b", border:"1px solid #334155", borderRadius:12, padding:"14px 16px",
+              color:"#e2e8f0", fontSize:15, lineHeight:1.6, resize:"vertical", outline:"none", fontFamily:"inherit", boxSizing:"border-box" }} />
         </div>
 
-        {/* Navigation */}
         <div style={{ display:"flex", justifyContent:"space-between", gap:12 }}>
-          <button onClick={() => setCurrentQ(q => Math.max(0, q-1))} disabled={currentQ === 0}
+          <button onClick={()=>setCurrentQ(q=>Math.max(0,q-1))} disabled={currentQ===0}
             style={{ flex:1, padding:"12px", borderRadius:10, border:"1px solid #334155", background:"#1e293b",
-              color: currentQ === 0 ? "#334155" : "#94a3b8", cursor: currentQ === 0 ? "not-allowed" : "pointer", fontSize:14, fontWeight:600 }}>
+              color:currentQ===0?"#334155":"#94a3b8", cursor:currentQ===0?"not-allowed":"pointer", fontSize:14, fontWeight:600 }}>
             ← Previous
           </button>
-
-          {currentQ < questions.length - 1 ? (
-            <button onClick={() => setCurrentQ(q => q+1)}
+          {currentQ < questions.length-1 ? (
+            <button onClick={()=>setCurrentQ(q=>q+1)}
               style={{ flex:1, padding:"12px", borderRadius:10, border:"none", background:"linear-gradient(135deg,#3b82f6,#2563eb)",
                 color:"#fff", cursor:"pointer", fontSize:14, fontWeight:700, boxShadow:"0 4px 14px rgba(59,130,246,0.3)" }}>
               Next Question →
@@ -479,21 +586,21 @@ export default function App() {
           ) : (
             <button onClick={handleSubmit}
               style={{ flex:1, padding:"12px", borderRadius:10, border:"none",
-                background: allAnswered ? "linear-gradient(135deg,#22c55e,#16a34a)" : "linear-gradient(135deg,#3b82f6,#2563eb)",
+                background:allAnswered?"linear-gradient(135deg,#22c55e,#16a34a)":"linear-gradient(135deg,#3b82f6,#2563eb)",
                 color:"#fff", cursor:"pointer", fontSize:14, fontWeight:700,
-                boxShadow:`0 4px 14px ${allAnswered ? "rgba(34,197,94,0.3)" : "rgba(59,130,246,0.3)"}` }}>
-              {allAnswered ? "Submit Answers ✓" : "Submit Answers →"}
+                boxShadow:`0 4px 14px ${allAnswered?"rgba(34,197,94,0.3)":"rgba(59,130,246,0.3)"}` }}>
+              {allAnswered?"Submit Answers ✓":"Submit Answers →"}
             </button>
           )}
         </div>
 
         {/* Dot nav */}
         <div style={{ display:"flex", justifyContent:"center", gap:6, marginTop:"1.5rem", flexWrap:"wrap" }}>
-          {questions.map((q, i) => (
-            <button key={q.id} onClick={() => setCurrentQ(i)}
-              style={{ width:28, height:28, borderRadius:"50%", border: i === currentQ ? "2px solid #3b82f6" : "2px solid #334155",
-                background: answers[q.id]?.trim() ? "#22c55e33" : (i === currentQ ? "#1d3a5e" : "#0f172a"),
-                color: i === currentQ ? "#3b82f6" : answers[q.id]?.trim() ? "#22c55e" : "#475569",
+          {questions.map((q,i) => (
+            <button key={q.id} onClick={()=>setCurrentQ(i)}
+              style={{ width:28, height:28, borderRadius:"50%", border:i===currentQ?"2px solid #3b82f6":"2px solid #334155",
+                background:answers[q.id]?.trim()?"#22c55e33":(i===currentQ?"#1d3a5e":"#0f172a"),
+                color:i===currentQ?"#3b82f6":answers[q.id]?.trim()?"#22c55e":"#475569",
                 cursor:"pointer", fontSize:12, fontWeight:700, display:"flex", alignItems:"center", justifyContent:"center" }}>
               {i+1}
             </button>
