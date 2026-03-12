@@ -1,0 +1,50 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+```
+
+4. Click **Commit changes** → **Commit changes**
+
+---
+
+## Next: Enable GitHub Pages
+
+1. Click **Settings** tab in your repo
+2. Click **Pages** in the left sidebar
+3. Under **Source** select branch: **gh-pages**, folder: **/ (root)**
+4. Click **Save**
+
+---
+
+## Finally: Watch it Build
+
+1. Click the **Actions** tab
+2. Wait for the green checkmark ✅ (2–3 minutes)
+3. Your link will be live at:
+```
+https://shubhi97.github.io/data-engineer-assessment
