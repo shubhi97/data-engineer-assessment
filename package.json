@@ -1,0 +1,23 @@
+{
+  "name": "data-engineer-interview",
+  "private": false,
+  "version": "1.0.0",
+  "type": "module",
+  "homepage": "https://shubhi97.github.io/data-engineer-assessment",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.0.0",
+    "gh-pages": "^5.0.0",
+    "vite": "^4.4.0"
+  }
+}
