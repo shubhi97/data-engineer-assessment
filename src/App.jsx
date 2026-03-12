@@ -10,9 +10,9 @@ const PLATFORMS_ENG = ["Azure", "AWS", "Snowflake"];
 const TOOLS_ANALYST = ["Power BI", "Tableau", "Qlik Sense"];
 
 const BANDS = [
-  { id: "junior", label: "0–3 Years", color: "#10b981", emoji: "🟢", title: "Junior / Entry Level" },
-  { id: "mid",    label: "3–5 Years", color: "#f59e0b", emoji: "🟠", title: "Mid-Level" },
-  { id: "senior", label: "5+ Years",  color: "#8b5cf6", emoji: "🟣", title: "Senior / Lead" },
+  { id: "junior", label: "Entry Level", color: "#10b981", emoji: "🟢", title: "Entry Level" },
+  { id: "mid",    label: "Mid-Level",   color: "#f59e0b", emoji: "🟠", title: "Mid-Level" },
+  { id: "senior", label: "Senior/Lead", color: "#8b5cf6", emoji: "🟣", title: "Senior / Lead" },
 ];
 
 const ENG_CATEGORIES = {
