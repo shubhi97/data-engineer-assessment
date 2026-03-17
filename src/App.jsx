@@ -10,23 +10,23 @@ const PLATFORMS_ENG = ["Azure", "AWS", "Snowflake"];
 const TOOLS_ANALYST = ["Power BI", "Tableau", "Qlik Sense"];
 
 const BANDS = [
-  { id: "junior", label: "Entry Level", color: "#10b981", emoji: "🟢", title: "Entry Level", years: [0, 2] },
-  { id: "mid",    label: "Mid-Level",   color: "#f59e0b", emoji: "🟠", title: "Mid-Level",   years: [3, 5] },
-  { id: "senior", label: "Senior/Lead", color: "#8b5cf6", emoji: "🟣", title: "Senior / Lead", years: [6, 99] },
+  { id: "junior", label: "Entry Level", color: "#10b981", emoji: "🟢", title: "Entry Level" },
+  { id: "mid",    label: "Mid-Level",   color: "#f59e0b", emoji: "🟠", title: "Mid-Level" },
+  { id: "senior", label: "Senior/Lead", color: "#8b5cf6", emoji: "🟣", title: "Senior / Lead" },
 ];
 
 const ENG_CATEGORIES = {
-  SQL:         { color: "#38bdf8", tag: "SQL",              icon: "🗄️" },
-  Cloud:       { color: "#34d399", tag: "Cloud Technology", icon: "☁️" },
-  Python:      { color: "#a78bfa", tag: "Python",           icon: "🐍" },
-  Stakeholder: { color: "#f472b6", tag: "Stakeholder Mgmt", icon: "🤝" },
+  SQL:         { color: "#38bdf8", tag: "SQL" },
+  Cloud:       { color: "#34d399", tag: "Cloud Technology" },
+  Python:      { color: "#a78bfa", tag: "Python" },
+  Stakeholder: { color: "#f472b6", tag: "Stakeholder Mgmt" },
 };
 
 const ANALYST_CATEGORIES = {
-  SQL:         { color: "#38bdf8", tag: "SQL",               icon: "🗄️" },
-  Tool:        { color: "#fb923c", tag: "Analytics Tool",    icon: "📊" },
-  Analytics:   { color: "#34d399", tag: "Analytics & Insight", icon: "📈" },
-  Stakeholder: { color: "#f472b6", tag: "Stakeholder Mgmt",  icon: "🤝" },
+  SQL:         { color: "#38bdf8", tag: "SQL" },
+  Tool:        { color: "#fb923c", tag: "Analytics Tool" },
+  Analytics:   { color: "#34d399", tag: "Analytics & Insight" },
+  Stakeholder: { color: "#f472b6", tag: "Stakeholder Mgmt" },
 };
 
 // ─── ENGINEER QUESTIONS ───────────────────────────────────────────────
@@ -229,90 +229,66 @@ const ANALYST_QUESTIONS = {
   },
 };
 
-// ─── HELPERS ──────────────────────────────────────────────────────────
-const STORAGE_KEY = "interview_session_v3";
+const STORAGE_KEY = "interview_session_v2";
 const GITHUB_TOKEN = import.meta.env.VITE_GITHUB_TOKEN;
-
-const shuffleArray = (arr) => [...arr].sort(() => Math.random() - 0.5);
-
 
 const saveToGist = async (data) => {
   const filename = `interview_${data.candidateName.replace(/\s+/g, "_")}_${Date.now()}.json`;
   const response = await fetch("https://api.github.com/gists", {
     method: "POST",
-    headers: { Authorization: `Bearer ${GITHUB_TOKEN}`, "Content-Type": "application/json" },
+    headers: {
+      Authorization: `Bearer ${GITHUB_TOKEN}`,
+      "Content-Type": "application/json",
+    },
     body: JSON.stringify({
       description: `Interview — ${data.candidateName} · ${data.platform} · ${data.band}`,
       public: false,
-      files: { [filename]: { content: JSON.stringify(data, null, 2) } },
+      files: {
+        [filename]: {
+          content: JSON.stringify(data, null, 2),
+        },
+      },
     }),
   });
   if (!response.ok) throw new Error("Gist save failed");
-  return (await response.json()).html_url;
+  const gist = await response.json();
+  return gist.html_url;
 };
+const saveSession = (data) => { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {} };
+const loadSession = () => { try { const d = localStorage.getItem(STORAGE_KEY); return d ? JSON.parse(d) : null; } catch(e) { return null; } };
 
-const saveSession  = (d) => { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(d)); } catch(e) {} };
-const loadSession  = () => { try { const d = localStorage.getItem(STORAGE_KEY); return d ? JSON.parse(d) : null; } catch(e) { return null; } };
-const getCatInfo   = (role, cat) => role === "analyst" ? ANALYST_CATEGORIES[cat] : ENG_CATEGORIES[cat];
+const getCatInfo = (role, cat) => role === "analyst" ? ANALYST_CATEGORIES[cat] : ENG_CATEGORIES[cat];
 
-// Build the final 8-question set — fully random from selected skill pool
-const buildQuestionSet = (role, platform, band, selectedCats) => {
-  const allQs = role === "analyst"
-    ? (ANALYST_QUESTIONS[platform]?.[band] || [])
-    : (ENG_QUESTIONS[platform]?.[band] || []);
-
-  // Filter to only questions in selected categories, then shuffle and pick 8
-  const pool = allQs.filter(q => selectedCats.includes(q.cat));
-
-  // If pool too small, pad with remaining questions from unselected categories
-  if (pool.length >= 8) return shuffleArray(pool).slice(0, 8);
-
-  const usedIds = new Set(pool.map(q => q.id));
-  const padding = shuffleArray(allQs.filter(q => !usedIds.has(q.id)));
-  return shuffleArray([...pool, ...padding.slice(0, 8 - pool.length)]);
-};
-
-// ─── MAIN APP ─────────────────────────────────────────────────────────
 export default function App() {
   const isInterviewer = typeof window !== "undefined" && window.location.search.includes("interviewer=true");
 
-  const [step,           setStep]           = useState("setup");  // setup | interview | submitting | thankyou
-  const [role,           setRole]           = useState(null);
-  const [platform,       setPlatform]       = useState(null);
-  const [band,           setBand]           = useState(null);
-  const [candidateName,  setCandidateName]  = useState("");
-  const [yearsExp,       setYearsExp]       = useState("");
-  const [selectedCats,   setSelectedCats]   = useState([]);
-  const [questions,      setQuestions]      = useState([]);
-  const [currentQ,       setCurrentQ]       = useState(0);
-  const [answers,        setAnswers]        = useState({});
-  const [scores,         setScores]         = useState({});
-  const [session,        setSession]        = useState(null);
-  const [gistUrl,        setGistUrl]        = useState(null);
+  const [step, setStep]               = useState("setup");
+  const [role, setRole]               = useState(null);
+  const [platform, setPlatform]       = useState(null);
+  const [band, setBand]               = useState(null);
+  const [candidateName, setCandidateName] = useState("");
+  const [yearsExp, setYearsExp]       = useState("");
+  const [currentQ, setCurrentQ]       = useState(0);
+  const [answers, setAnswers]         = useState({});
+  const [scores, setScores]           = useState({});
+  const [session, setSession]         = useState(null);
+  const [gistUrl, setGistUrl]         = useState(null);
 
-  // Reset skill selections when role/platform changes
-  useEffect(() => { setSelectedCats([]); }, [role, platform]);
+  useEffect(() => {
+    if (isInterviewer) { setSession(loadSession()); }
+  }, [isInterviewer]);
 
-  useEffect(() => { if (isInterviewer) setSession(loadSession()); }, [isInterviewer]);
-
-  const availableCats = role === "analyst"
-    ? Object.keys(ANALYST_CATEGORIES)
-    : Object.keys(ENG_CATEGORIES);
-
-  const catMeta = role === "analyst" ? ANALYST_CATEGORIES : ENG_CATEGORIES;
-
-  const toggleCat = (cat) => {
-    setSelectedCats(prev =>
-      prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]
-    );
+  const getQuestions = (r, p, b) => {
+    if (!r || !p || !b) return [];
+    return r === "analyst" ? (ANALYST_QUESTIONS[p]?.[b] || []) : (ENG_QUESTIONS[p]?.[b] || []);
   };
 
-  const canStart = role && platform && band && candidateName.trim() && yearsExp.trim() && selectedCats.length > 0;
+  const questions    = getQuestions(role, platform, band);
+  const selectedBand = BANDS.find(b => b.id === band);
+  const currentQuestion = questions[currentQ];
 
   const handleStart = () => {
-    if (!canStart) return;
-    const qs = buildQuestionSet(role, platform, band, selectedCats);
-    setQuestions(qs);
+    if (!role || !platform || !band || !candidateName.trim() || !yearsExp.trim()) return;
     setStep("interview");
     setCurrentQ(0);
     setAnswers({});
@@ -320,8 +296,12 @@ export default function App() {
 
   const handleSubmit = async () => {
     const sessionData = {
-      candidateName, yearsExp, role, platform, band,
-      selectedCats, answers, questions,
+      candidateName,
+      yearsExp,
+      role,
+      platform,
+      band,
+      answers,
       submittedAt: new Date().toISOString(),
     };
     try {
@@ -330,21 +310,17 @@ export default function App() {
       saveSession({ ...sessionData, gistUrl: url });
       setGistUrl(url);
       setStep("thankyou");
-    } catch {
+    } catch (err) {
       alert("Submission failed. Please try again.");
       setStep("interview");
     }
   };
 
-  const currentQuestion = questions[currentQ];
-  const selectedBand    = BANDS.find(b => b.id === band);
-  const allAnswered     = questions.length > 0 && questions.every(q => answers[q.id]?.trim());
-
-  // ─── INTERVIEWER VIEW ───────────────────────────────────────────────
+  // ─── INTERVIEWER VIEW ─────────────────────────────────────────────────
   if (isInterviewer) {
     if (!session) {
       return (
-        <div style={S.centered}>
+        <div style={{ minHeight:"100vh", background:"#0f172a", display:"flex", alignItems:"center", justifyContent:"center", fontFamily:"'DM Sans','Segoe UI',sans-serif" }}>
           <div style={{ textAlign:"center", color:"#64748b" }}>
             <div style={{ fontSize:56, marginBottom:16 }}>📭</div>
             <h2 style={{ color:"#f1f5f9", fontSize:22, margin:"0 0 8px" }}>No Submission Yet</h2>
@@ -353,13 +329,14 @@ export default function App() {
         </div>
       );
     }
-    const qs     = session.questions || [];
-    const cats   = [...new Set(qs.map(q => q.cat))];
+    const qs   = getQuestions(session.role, session.platform, session.band);
+    const cats = [...new Set(qs.map(q => q.cat))];
     const catMap = session.role === "analyst" ? ANALYST_CATEGORIES : ENG_CATEGORIES;
 
     return (
       <div style={{ minHeight:"100vh", background:"#0f172a", fontFamily:"'DM Sans','Segoe UI',sans-serif", padding:"2rem" }}>
         <div style={{ maxWidth:780, margin:"0 auto" }}>
+          {/* Header */}
           <div style={{ background:"#1e293b", border:"1px solid #334155", borderRadius:16, padding:"1.5rem", marginBottom:"1.5rem" }}>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", flexWrap:"wrap", gap:12 }}>
               <div>
@@ -369,30 +346,22 @@ export default function App() {
                   {session.role === "analyst" ? "📊 Data Analyst" : "⚙️ Data Engineer"} · {session.platform} · {BANDS.find(b=>b.id===session.band)?.title}
                   {session.yearsExp && <span> · {session.yearsExp} yrs exp</span>}
                 </div>
-                {session.selectedCats?.length > 0 && (
-                  <div style={{ marginTop:8, display:"flex", gap:6, flexWrap:"wrap" }}>
-                    {session.selectedCats.map(cat => {
-                      const info = catMap[cat] || {};
-                      return <span key={cat} style={{ background:info.color+"22", color:info.color, fontSize:11, fontWeight:700, padding:"2px 9px", borderRadius:20 }}>{info.tag}</span>;
-                    })}
-                  </div>
-                )}
-                <div style={{ color:"#475569", fontSize:12, marginTop:6 }}>Submitted: {new Date(session.submittedAt).toLocaleString()}</div>
+                <div style={{ color:"#475569", fontSize:12, marginTop:4 }}>Submitted: {new Date(session.submittedAt).toLocaleString()}</div>
               </div>
               <div style={{ background:"#0f172a", border:"1px solid #334155", borderRadius:12, padding:"1rem 1.5rem", textAlign:"center" }}>
                 <div style={{ color:"#94a3b8", fontSize:11, textTransform:"uppercase", letterSpacing:"0.06em", marginBottom:4 }}>Answered</div>
-                <div style={{ color:"#f1f5f9", fontSize:32, fontWeight:800 }}>{Object.keys(session.answers||{}).length}<span style={{ color:"#475569", fontSize:16 }}>/{qs.length}</span></div>
+                <div style={{ color:"#f1f5f9", fontSize:32, fontWeight:800 }}>{Object.keys(session.answers).length}<span style={{ color:"#475569", fontSize:16 }}>/{qs.length}</span></div>
               </div>
             </div>
           </div>
 
           <div style={{ background:"#1e293b", borderLeft:"3px solid #f59e0b", borderRadius:"0 12px 12px 0", padding:"12px 16px", marginBottom:"1.5rem" }}>
-            <p style={{ color:"#fcd34d", fontSize:13, margin:0 }}>📋 <strong>Interviewer Mode</strong> — Review answers and score each question 1–4.</p>
+            <p style={{ color:"#fcd34d", fontSize:13, margin:0 }}>📋 <strong>Interviewer Mode</strong> — Review answers and score each question 1–4. Results update in real time.</p>
           </div>
 
           {qs.map((q, i) => {
             const info   = catMap[q.cat] || { color:"#94a3b8", tag: q.cat };
-            const answer = session.answers?.[q.id];
+            const answer = session.answers[q.id];
             return (
               <div key={q.id} style={{ background:"#1e293b", border:"1px solid #334155", borderRadius:14, padding:"1.25rem", marginBottom:"1rem" }}>
                 <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", gap:12 }}>
@@ -430,6 +399,7 @@ export default function App() {
             );
           })}
 
+          {/* Summary */}
           {Object.keys(scores).length > 0 && (() => {
             const allVals = Object.values(scores).map(Number);
             const overall = (allVals.reduce((a,b)=>a+b,0)/allVals.length).toFixed(2);
@@ -438,10 +408,10 @@ export default function App() {
               return vals.length && (vals.reduce((a,b)=>a+b,0)/vals.length) < 2;
             });
             const verdict = parseFloat(overall)>=3.0&&!anyBelow2
-              ?{text:"RECOMMENDED TO PROCEED",color:"#16a34a"}
+              ?{text:"RECOMMENDED TO PROCEED",color:"#16a34a",bg:"#f0fdf4"}
               :parseFloat(overall)>=2.5
-              ?{text:"BORDERLINE — REVIEW CAREFULLY",color:"#d97706"}
-              :{text:"NOT RECOMMENDED AT THIS LEVEL",color:"#dc2626"};
+              ?{text:"BORDERLINE — REVIEW CAREFULLY",color:"#d97706",bg:"#fffbeb"}
+              :{text:"NOT RECOMMENDED AT THIS LEVEL",color:"#dc2626",bg:"#fef2f2"};
             return (
               <div style={{ background:"#1e293b", border:"1px solid #334155", borderRadius:16, padding:"1.5rem", marginTop:"1.5rem" }}>
                 <h3 style={{ color:"#f1f5f9", fontSize:18, fontWeight:700, margin:"0 0 1rem" }}>Score Summary</h3>
@@ -459,7 +429,7 @@ export default function App() {
                     );
                   })}
                 </div>
-                <div style={{ background:"#0f172a", border:`2px solid ${verdict.color}40`, borderRadius:12, padding:"1.25rem", textAlign:"center" }}>
+                <div style={{ background:verdict.bg, border:`2px solid ${verdict.color}40`, borderRadius:12, padding:"1.25rem", textAlign:"center" }}>
                   <div style={{ fontSize:32, fontWeight:800, color:verdict.color }}>{overall}<span style={{ fontSize:16, color:"#94a3b8" }}>/4</span></div>
                   <div style={{ color:verdict.color, fontWeight:700, fontSize:13, letterSpacing:"0.08em", textTransform:"uppercase", marginTop:4 }}>{verdict.text}</div>
                   <div style={{ color:"#64748b", fontSize:12, marginTop:4 }}>Min 3.0 avg · No category below 2.0</div>
@@ -471,11 +441,10 @@ export default function App() {
       </div>
     );
   }
-
-  // ─── SUBMITTING ─────────────────────────────────────────────────────
-  if (step === "submitting") {
+if (step === "submitting") {
     return (
-      <div style={S.centered}>
+      <div style={{ minHeight:"100vh", background:"#0f172a", display:"flex",
+        alignItems:"center", justifyContent:"center", fontFamily:"'DM Sans','Segoe UI',sans-serif" }}>
         <div style={{ textAlign:"center" }}>
           <div style={{ fontSize:48, marginBottom:16 }}>⏳</div>
           <p style={{ color:"#94a3b8", fontSize:16 }}>Saving your answers...</p>
@@ -483,21 +452,21 @@ export default function App() {
       </div>
     );
   }
-
-  // ─── THANK YOU ───────────────────────────────────────────────────────
+  // ─── THANK YOU ────────────────────────────────────────────────────────
   if (step === "thankyou") {
     return (
-      <div style={S.centered}>
+      <div style={{ minHeight:"100vh", background:"#0f172a", display:"flex", alignItems:"center", justifyContent:"center", fontFamily:"'DM Sans','Segoe UI',sans-serif", padding:"2rem" }}>
         <div style={{ maxWidth:480, width:"100%", textAlign:"center" }}>
           <div style={{ fontSize:64, marginBottom:24 }}>✅</div>
           <h1 style={{ color:"#f1f5f9", fontSize:28, fontWeight:800, margin:"0 0 12px" }}>Thank You, {candidateName}!</h1>
-          <p style={{ color:"#64748b", fontSize:16, lineHeight:1.7, margin:"0 0 24px" }}>Your answers have been submitted. The interviewer will review your responses shortly.</p>
+          <p style={{ color:"#64748b", fontSize:16, lineHeight:1.7, margin:"0 0 24px" }}>Your answers have been successfully submitted. The interviewer will review your responses shortly.</p>
           <div style={{ background:"#1e293b", border:"1px solid #334155", borderRadius:14, padding:"1.25rem" }}>
-            <p style={{ color:"#94a3b8", fontSize:14, margin:"0 0 12px" }}>📬 You may now close this window.</p>
+            <p style={{ color:"#94a3b8", fontSize:14, margin:"0 0 12px" }}>📬 Your submission has been recorded.<br/>You may now close this window.</p>
             {gistUrl && (
               <div style={{ borderTop:"1px solid #334155", paddingTop:12, marginTop:4 }}>
                 <p style={{ color:"#64748b", fontSize:12, margin:"0 0 6px" }}>🔗 Interviewer review link:</p>
-                <a href={gistUrl} target="_blank" rel="noreferrer" style={{ color:"#3b82f6", fontSize:12, wordBreak:"break-all" }}>{gistUrl}</a>
+                <a href={gistUrl} target="_blank" rel="noreferrer"
+                  style={{ color:"#3b82f6", fontSize:12, wordBreak:"break-all" }}>{gistUrl}</a>
               </div>
             )}
           </div>
@@ -506,59 +475,52 @@ export default function App() {
     );
   }
 
-  // ─── SETUP ───────────────────────────────────────────────────────────
+  // ─── SETUP ────────────────────────────────────────────────────────────
   if (step === "setup") {
     const platformOptions = role === "analyst" ? TOOLS_ANALYST : PLATFORMS_ENG;
     const platformIcons   = { Azure:"☁️", AWS:"⚡", Snowflake:"❄️", "Power BI":"📊", "Tableau":"📈", "Qlik Sense":"🔵" };
+    const canStart = role && platform && band && candidateName.trim() && yearsExp.trim();
 
     return (
-      <div style={{ minHeight:"100vh", background:"#0f172a", display:"flex", alignItems:"center",
-        justifyContent:"center", fontFamily:"'DM Sans','Segoe UI',sans-serif", padding:"2rem" }}>
-        <div style={{ width:"100%", maxWidth:560 }}>
-
-          {/* Header */}
+      <div style={{ minHeight:"100vh", background:"#0f172a", display:"flex", alignItems:"center", justifyContent:"center", fontFamily:"'DM Sans','Segoe UI',sans-serif", padding:"2rem" }}>
+        <div style={{ width:"100%", maxWidth:540 }}>
           <div style={{ textAlign:"center", marginBottom:"2rem" }}>
-            <div style={{ display:"inline-flex", alignItems:"center", gap:8, background:"#1e293b",
-              border:"1px solid #334155", borderRadius:8, padding:"6px 14px", marginBottom:16 }}>
-              <span style={{ width:8, height:8, borderRadius:"50%", background:"#22c55e",
-                display:"inline-block", boxShadow:"0 0 6px #22c55e" }}></span>
+            <div style={{ display:"inline-flex", alignItems:"center", gap:8, background:"#1e293b", border:"1px solid #334155", borderRadius:8, padding:"6px 14px", marginBottom:16 }}>
+              <span style={{ width:8, height:8, borderRadius:"50%", background:"#22c55e", display:"inline-block", boxShadow:"0 0 6px #22c55e" }}></span>
               <span style={{ color:"#94a3b8", fontSize:12, letterSpacing:"0.08em", textTransform:"uppercase" }}>Technical Interview</span>
             </div>
             <h1 style={{ color:"#f1f5f9", fontSize:26, fontWeight:800, margin:"0 0 8px" }}>Welcome</h1>
-            <p style={{ color:"#64748b", fontSize:14, margin:0 }}>Tell us about yourself and select your skills</p>
+            <p style={{ color:"#64748b", fontSize:14, margin:0 }}>Please fill in your details to begin</p>
           </div>
 
-          <div style={{ background:"#1e293b", border:"1px solid #334155", borderRadius:16,
-            padding:"2rem", display:"flex", flexDirection:"column", gap:"1.5rem" }}>
-
+          <div style={{ background:"#1e293b", border:"1px solid #334155", borderRadius:16, padding:"2rem", display:"flex", flexDirection:"column", gap:"1.5rem" }}>
             {/* Name */}
             <div>
-              <label style={S.label}>Full Name *</label>
-              <input placeholder="e.g. Alex Johnson" value={candidateName}
-                onChange={e => setCandidateName(e.target.value)} style={S.input} />
+              <label style={{ color:"#94a3b8", fontSize:12, fontWeight:600, textTransform:"uppercase", letterSpacing:"0.06em", display:"block", marginBottom:8 }}>Full Name *</label>
+              <input placeholder="e.g. Alex Johnson" value={candidateName} onChange={e=>setCandidateName(e.target.value)}
+                style={{ width:"100%", background:"#0f172a", border:"1px solid #334155", borderRadius:8, padding:"10px 14px", color:"#f1f5f9", fontSize:15, outline:"none", boxSizing:"border-box" }} />
             </div>
 
-            {/* Years of experience */}
+            {/* Years */}
             <div>
-              <label style={S.label}>Years of Experience *</label>
-              <input placeholder="e.g. 4" type="number" min="0" max="40" value={yearsExp}
-                onChange={e => setYearsExp(e.target.value)}
-                style={S.input} />
+              <label style={{ color:"#94a3b8", fontSize:12, fontWeight:600, textTransform:"uppercase", letterSpacing:"0.06em", display:"block", marginBottom:8 }}>Years of Experience *</label>
+              <input placeholder="e.g. 4" type="number" min="0" max="40" value={yearsExp} onChange={e=>setYearsExp(e.target.value)}
+                style={{ width:"100%", background:"#0f172a", border:"1px solid #334155", borderRadius:8, padding:"10px 14px", color:"#f1f5f9", fontSize:15, outline:"none", boxSizing:"border-box" }} />
             </div>
 
             {/* Role */}
             <div>
-              <label style={S.label}>Role *</label>
+              <label style={{ color:"#94a3b8", fontSize:12, fontWeight:600, textTransform:"uppercase", letterSpacing:"0.06em", display:"block", marginBottom:10 }}>Role *</label>
               <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
                 {ROLES.map(r => {
                   const active = role === r.id;
                   return (
-                    <button key={r.id} onClick={() => { setRole(r.id); setPlatform(null); }}
+                    <button key={r.id} onClick={()=>{ setRole(r.id); setPlatform(null); }}
                       style={{ padding:"14px 10px", borderRadius:10, border:active?"2px solid #3b82f6":"2px solid #334155",
-                        background:active?"#1d3a5e":"#0f172a", cursor:"pointer", display:"flex",
-                        flexDirection:"column", alignItems:"center", gap:6, textAlign:"center" }}>
+                        background:active?"#1d3a5e":"#0f172a", color:active?"#93c5fd":"#64748b",
+                        cursor:"pointer", fontSize:13, fontWeight:600, display:"flex", flexDirection:"column", alignItems:"center", gap:6, textAlign:"center" }}>
                       <span style={{ fontSize:24 }}>{r.icon}</span>
-                      <span style={{ color:active?"#e2e8f0":"#94a3b8", fontWeight:700, fontSize:13 }}>{r.label}</span>
+                      <span style={{ color:active?"#e2e8f0":"#94a3b8", fontWeight:700 }}>{r.label}</span>
                       <span style={{ color:"#475569", fontSize:11 }}>{r.desc}</span>
                     </button>
                   );
@@ -566,20 +528,22 @@ export default function App() {
               </div>
             </div>
 
-            {/* Platform */}
+            {/* Platform / Tool */}
             {role && (
               <div>
-                <label style={S.label}>{role === "analyst" ? "Analytics Tool *" : "Cloud Platform *"}</label>
-                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:10 }}>
+                <label style={{ color:"#94a3b8", fontSize:12, fontWeight:600, textTransform:"uppercase", letterSpacing:"0.06em", display:"block", marginBottom:10 }}>
+                  {role === "analyst" ? "Analytics Tool *" : "Cloud Platform *"}
+                </label>
+                <div style={{ display:"grid", gridTemplateColumns: role==="analyst" ? "1fr 1fr 1fr" : "1fr 1fr 1fr", gap:10 }}>
                   {platformOptions.map(p => {
                     const active = platform === p;
                     return (
-                      <button key={p} onClick={() => setPlatform(p)}
+                      <button key={p} onClick={()=>setPlatform(p)}
                         style={{ padding:"14px 8px", borderRadius:10, border:active?"2px solid #3b82f6":"2px solid #334155",
-                          background:active?"#1d3a5e":"#0f172a", cursor:"pointer", display:"flex",
-                          flexDirection:"column", alignItems:"center", gap:6 }}>
+                          background:active?"#1d3a5e":"#0f172a", color:active?"#93c5fd":"#64748b",
+                          cursor:"pointer", fontSize:12, fontWeight:600, display:"flex", flexDirection:"column", alignItems:"center", gap:6 }}>
                         <span style={{ fontSize:22 }}>{platformIcons[p]}</span>
-                        <span style={{ color:active?"#93c5fd":"#64748b", fontSize:11, fontWeight:600 }}>{p}</span>
+                        <span style={{ fontSize:11 }}>{p}</span>
                       </button>
                     );
                   })}
@@ -587,19 +551,18 @@ export default function App() {
               </div>
             )}
 
-            {/* Experience Band — manual pick only */}
+            {/* Band */}
             {role && platform && (
               <div>
-                <label style={S.label}>Experience Band *</label>
+                <label style={{ color:"#94a3b8", fontSize:12, fontWeight:600, textTransform:"uppercase", letterSpacing:"0.06em", display:"block", marginBottom:10 }}>Experience Band *</label>
                 <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
                   {BANDS.map(b => {
                     const active = band === b.id;
                     return (
-                      <button key={b.id} onClick={() => setBand(b.id)}
-                        style={{ padding:"12px 16px", borderRadius:10,
-                          border:active?`2px solid ${b.color}`:"2px solid #334155",
-                          background:"#0f172a", cursor:"pointer", display:"flex",
-                          alignItems:"center", gap:12, textAlign:"left" }}>
+                      <button key={b.id} onClick={()=>setBand(b.id)}
+                        style={{ padding:"12px 16px", borderRadius:10, border:active?`2px solid ${b.color}`:"2px solid #334155",
+                          background:"#0f172a", color:active?"#f1f5f9":"#64748b",
+                          cursor:"pointer", fontSize:14, fontWeight:500, display:"flex", alignItems:"center", gap:12, textAlign:"left" }}>
                         <span style={{ fontSize:18 }}>{b.emoji}</span>
                         <span>
                           <span style={{ color:active?b.color:"#64748b", fontWeight:700 }}>{b.label}</span>
@@ -612,81 +575,13 @@ export default function App() {
               </div>
             )}
 
-            {/* Skill Selection */}
-            {role && platform && band && (
-              <div>
-                <label style={S.label}>
-                  Select Skills to be Assessed *
-                  <span style={{ color:"#475569", fontWeight:400, marginLeft:6, fontSize:11 }}>
-                    (pick at least 1 — 8 random questions will be drawn)
-                  </span>
-                </label>
-                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
-                  {availableCats.map(cat => {
-                    const info   = catMeta[cat];
-                    const active = selectedCats.includes(cat);
-                    return (
-                      <button key={cat} onClick={() => toggleCat(cat)}
-                        style={{ padding:"14px 12px", borderRadius:12,
-                          border:active?`2px solid ${info.color}`:"2px solid #334155",
-                          background:active?`${info.color}18`:"#0f172a", cursor:"pointer",
-                          display:"flex", alignItems:"center", gap:10, textAlign:"left",
-                          transition:"all 0.15s" }}>
-                        <span style={{ fontSize:20 }}>{info.icon}</span>
-                        <div style={{ flex:1 }}>
-                          <div style={{ color:active?info.color:"#94a3b8", fontWeight:700, fontSize:13 }}>{info.tag}</div>
-                        </div>
-                        <div style={{ width:20, height:20, borderRadius:6,
-                          border:active?`2px solid ${info.color}`:"2px solid #475569",
-                          background:active?info.color:"transparent",
-                          display:"flex", alignItems:"center", justifyContent:"center",
-                          flexShrink:0 }}>
-                          {active && <span style={{ color:"#fff", fontSize:12, fontWeight:900 }}>✓</span>}
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {/* All / None shortcuts */}
-                <div style={{ display:"flex", gap:8, marginTop:8 }}>
-                  <button onClick={() => setSelectedCats([...availableCats])}
-                    style={{ flex:1, padding:"7px", borderRadius:8, border:"1px solid #334155",
-                      background:"#0f172a", color:"#64748b", cursor:"pointer", fontSize:12 }}>
-                    Select All
-                  </button>
-                  <button onClick={() => setSelectedCats([])}
-                    style={{ flex:1, padding:"7px", borderRadius:8, border:"1px solid #334155",
-                      background:"#0f172a", color:"#64748b", cursor:"pointer", fontSize:12 }}>
-                    Clear All
-                  </button>
-                </div>
-
-                {selectedCats.length > 0 && (
-                  <div style={{ background:"#0f172a", border:"1px solid #334155", borderRadius:10,
-                    padding:"10px 14px", marginTop:8 }}>
-                    <span style={{ color:"#64748b", fontSize:12 }}>
-                      📋 <strong style={{ color:"#94a3b8" }}>8 questions</strong> will be drawn
-                      {selectedCats.length === 1
-                        ? " entirely from "
-                        : ` (~${Math.floor(8/selectedCats.length)}–${Math.ceil(8/selectedCats.length)} per skill) from `}
-                      <span style={{ color:"#e2e8f0" }}>
-                        {selectedCats.map(c => catMeta[c]?.tag).join(", ")}
-                      </span>
-                    </span>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Start button */}
             <button onClick={handleStart} disabled={!canStart}
               style={{ padding:"14px", borderRadius:10, border:"none",
                 background:canStart?"linear-gradient(135deg,#3b82f6,#2563eb)":"#1e293b",
                 color:canStart?"#fff":"#475569", cursor:canStart?"pointer":"not-allowed",
                 fontSize:15, fontWeight:700, boxShadow:canStart?"0 4px 20px rgba(59,130,246,0.3)":"none",
                 transition:"all 0.2s" }}>
-              {canStart ? "Begin Interview →" : "Complete all fields above"}
+              {canStart ? `Begin Interview →` : "Complete all fields above"}
             </button>
           </div>
         </div>
@@ -695,13 +590,13 @@ export default function App() {
   }
 
   // ─── INTERVIEW ────────────────────────────────────────────────────────
-  const catInfo = getCatInfo(role, currentQuestion?.cat);
+  const catInfo   = getCatInfo(role, currentQuestion?.cat);
+  const allAnswered = questions.every(q => answers[q.id]?.trim());
 
   return (
     <div style={{ minHeight:"100vh", background:"#0f172a", fontFamily:"'DM Sans','Segoe UI',sans-serif" }}>
       {/* Top bar */}
-      <div style={{ background:"#1e293b", borderBottom:"1px solid #334155", padding:"1rem 2rem",
-        display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+      <div style={{ background:"#1e293b", borderBottom:"1px solid #334155", padding:"1rem 2rem", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
         <div>
           <span style={{ color:"#f1f5f9", fontWeight:700 }}>{candidateName}</span>
           <span style={{ color:"#475569", margin:"0 8px" }}>·</span>
@@ -710,16 +605,14 @@ export default function App() {
         <span style={{ color:"#64748b", fontSize:13 }}>Q{currentQ+1} of {questions.length}</span>
       </div>
 
-      {/* Progress bar */}
+      {/* Progress */}
       <div style={{ height:3, background:"#1e293b" }}>
-        <div style={{ height:"100%", background:"linear-gradient(90deg,#3b82f6,#8b5cf6)",
-          width:`${((currentQ+1)/questions.length)*100}%`, transition:"width 0.3s" }} />
+        <div style={{ height:"100%", background:"linear-gradient(90deg,#3b82f6,#8b5cf6)", width:`${(currentQ/questions.length)*100}%`, transition:"width 0.3s" }} />
       </div>
 
       <div style={{ maxWidth:760, margin:"0 auto", padding:"2rem" }}>
         <div style={{ marginBottom:"1.25rem" }}>
-          <span style={{ background:catInfo?.color+"22", color:catInfo?.color, fontSize:12, fontWeight:700,
-            padding:"4px 12px", borderRadius:20, textTransform:"uppercase", letterSpacing:"0.06em" }}>
+          <span style={{ background:catInfo?.color+"22", color:catInfo?.color, fontSize:12, fontWeight:700, padding:"4px 12px", borderRadius:20, textTransform:"uppercase", letterSpacing:"0.06em" }}>
             {catInfo?.tag}
           </span>
           <span style={{ color:"#475569", fontSize:13, marginLeft:10 }}>Question {currentQ+1}</span>
@@ -730,27 +623,23 @@ export default function App() {
         </div>
 
         <div style={{ marginBottom:"1.5rem" }}>
-          <label style={S.label}>Your Answer</label>
-          <textarea value={answers[currentQuestion?.id]||""} rows={6}
-            onChange={e => setAnswers(p => ({ ...p, [currentQuestion.id]: e.target.value }))}
-            placeholder="Type your answer here..."
-            style={{ width:"100%", background:"#1e293b", border:"1px solid #334155", borderRadius:12,
-              padding:"14px 16px", color:"#e2e8f0", fontSize:15, lineHeight:1.6,
-              resize:"vertical", outline:"none", fontFamily:"inherit", boxSizing:"border-box" }} />
+          <label style={{ color:"#94a3b8", fontSize:12, fontWeight:600, textTransform:"uppercase", letterSpacing:"0.06em", display:"block", marginBottom:8 }}>Your Answer</label>
+          <textarea value={answers[currentQuestion?.id]||""} onChange={e=>setAnswers(p=>({...p,[currentQuestion.id]:e.target.value}))}
+            placeholder="Type your answer here..." rows={6}
+            style={{ width:"100%", background:"#1e293b", border:"1px solid #334155", borderRadius:12, padding:"14px 16px",
+              color:"#e2e8f0", fontSize:15, lineHeight:1.6, resize:"vertical", outline:"none", fontFamily:"inherit", boxSizing:"border-box" }} />
         </div>
 
         <div style={{ display:"flex", justifyContent:"space-between", gap:12 }}>
-          <button onClick={() => setCurrentQ(q => Math.max(0, q-1))} disabled={currentQ===0}
+          <button onClick={()=>setCurrentQ(q=>Math.max(0,q-1))} disabled={currentQ===0}
             style={{ flex:1, padding:"12px", borderRadius:10, border:"1px solid #334155", background:"#1e293b",
-              color:currentQ===0?"#334155":"#94a3b8", cursor:currentQ===0?"not-allowed":"pointer",
-              fontSize:14, fontWeight:600 }}>
+              color:currentQ===0?"#334155":"#94a3b8", cursor:currentQ===0?"not-allowed":"pointer", fontSize:14, fontWeight:600 }}>
             ← Previous
           </button>
           {currentQ < questions.length-1 ? (
-            <button onClick={() => setCurrentQ(q => q+1)}
-              style={{ flex:1, padding:"12px", borderRadius:10, border:"none",
-                background:"linear-gradient(135deg,#3b82f6,#2563eb)", color:"#fff",
-                cursor:"pointer", fontSize:14, fontWeight:700, boxShadow:"0 4px 14px rgba(59,130,246,0.3)" }}>
+            <button onClick={()=>setCurrentQ(q=>q+1)}
+              style={{ flex:1, padding:"12px", borderRadius:10, border:"none", background:"linear-gradient(135deg,#3b82f6,#2563eb)",
+                color:"#fff", cursor:"pointer", fontSize:14, fontWeight:700, boxShadow:"0 4px 14px rgba(59,130,246,0.3)" }}>
               Next Question →
             </button>
           ) : (
@@ -759,61 +648,24 @@ export default function App() {
                 background:allAnswered?"linear-gradient(135deg,#22c55e,#16a34a)":"linear-gradient(135deg,#3b82f6,#2563eb)",
                 color:"#fff", cursor:"pointer", fontSize:14, fontWeight:700,
                 boxShadow:`0 4px 14px ${allAnswered?"rgba(34,197,94,0.3)":"rgba(59,130,246,0.3)"}` }}>
-              {allAnswered ? "Submit Answers ✓" : "Submit Answers →"}
+              {allAnswered?"Submit Answers ✓":"Submit Answers →"}
             </button>
           )}
         </div>
 
         {/* Dot nav */}
         <div style={{ display:"flex", justifyContent:"center", gap:6, marginTop:"1.5rem", flexWrap:"wrap" }}>
-          {questions.map((q, i) => {
-            const ci = getCatInfo(role, q.cat);
-            return (
-              <button key={q.id} onClick={() => setCurrentQ(i)}
-                style={{ width:28, height:28, borderRadius:"50%",
-                  border:i===currentQ?`2px solid ${ci?.color||"#3b82f6"}`:"2px solid #334155",
-                  background:answers[q.id]?.trim()?`${ci?.color||"#22c55e"}33`:(i===currentQ?"#1d3a5e":"#0f172a"),
-                  color:i===currentQ?(ci?.color||"#3b82f6"):answers[q.id]?.trim()?(ci?.color||"#22c55e"):"#475569",
-                  cursor:"pointer", fontSize:12, fontWeight:700,
-                  display:"flex", alignItems:"center", justifyContent:"center" }}>
-                {i+1}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Category legend */}
-        <div style={{ display:"flex", justifyContent:"center", gap:12, marginTop:"1rem", flexWrap:"wrap" }}>
-          {selectedCats.map(cat => {
-            const info = catMeta[cat];
-            return (
-              <span key={cat} style={{ display:"flex", alignItems:"center", gap:5, color:"#475569", fontSize:11 }}>
-                <span style={{ width:8, height:8, borderRadius:"50%", background:info.color, display:"inline-block" }}></span>
-                {info.tag}
-              </span>
-            );
-          })}
+          {questions.map((q,i) => (
+            <button key={q.id} onClick={()=>setCurrentQ(i)}
+              style={{ width:28, height:28, borderRadius:"50%", border:i===currentQ?"2px solid #3b82f6":"2px solid #334155",
+                background:answers[q.id]?.trim()?"#22c55e33":(i===currentQ?"#1d3a5e":"#0f172a"),
+                color:i===currentQ?"#3b82f6":answers[q.id]?.trim()?"#22c55e":"#475569",
+                cursor:"pointer", fontSize:12, fontWeight:700, display:"flex", alignItems:"center", justifyContent:"center" }}>
+              {i+1}
+            </button>
+          ))}
         </div>
       </div>
     </div>
   );
 }
-
-// ─── SHARED STYLES ────────────────────────────────────────────────────
-const S = {
-  centered: {
-    minHeight:"100vh", background:"#0f172a", display:"flex",
-    alignItems:"center", justifyContent:"center",
-    fontFamily:"'DM Sans','Segoe UI',sans-serif", padding:"2rem",
-  },
-  label: {
-    color:"#94a3b8", fontSize:12, fontWeight:600,
-    textTransform:"uppercase", letterSpacing:"0.06em",
-    display:"block", marginBottom:8,
-  },
-  input: {
-    width:"100%", background:"#0f172a", border:"1px solid #334155",
-    borderRadius:8, padding:"10px 14px", color:"#f1f5f9",
-    fontSize:15, outline:"none", boxSizing:"border-box",
-  },
-};
