@@ -259,6 +259,8 @@ const loadSession = () => { try { const d = localStorage.getItem(STORAGE_KEY); r
 
 const getCatInfo = (role, cat) => role === "analyst" ? ANALYST_CATEGORIES[cat] : ENG_CATEGORIES[cat];
 
+const shuffleAndPick = (arr, n) => [...arr].sort(() => Math.random() - 0.5).slice(0, n);
+
 export default function App() {
   const isInterviewer = typeof window !== "undefined" && window.location.search.includes("interviewer=true");
 
@@ -283,12 +285,14 @@ export default function App() {
     return r === "analyst" ? (ANALYST_QUESTIONS[p]?.[b] || []) : (ENG_QUESTIONS[p]?.[b] || []);
   };
 
-  const questions    = getQuestions(role, platform, band);
+  const [questions, setQuestions] = useState([]);
   const selectedBand = BANDS.find(b => b.id === band);
   const currentQuestion = questions[currentQ];
 
   const handleStart = () => {
     if (!role || !platform || !band || !candidateName.trim() || !yearsExp.trim()) return;
+    const allQs = getQuestions(role, platform, band);
+    setQuestions(shuffleAndPick(allQs, 8));
     setStep("interview");
     setCurrentQ(0);
     setAnswers({});
@@ -301,6 +305,7 @@ export default function App() {
       role,
       platform,
       band,
+      questions,
       answers,
       submittedAt: new Date().toISOString(),
     };
@@ -329,7 +334,7 @@ export default function App() {
         </div>
       );
     }
-    const qs   = getQuestions(session.role, session.platform, session.band);
+    const qs   = session.questions?.length ? session.questions : getQuestions(session.role, session.platform, session.band);
     const cats = [...new Set(qs.map(q => q.cat))];
     const catMap = session.role === "analyst" ? ANALYST_CATEGORIES : ENG_CATEGORIES;
 
