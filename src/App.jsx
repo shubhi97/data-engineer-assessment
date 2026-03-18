@@ -229,37 +229,39 @@ const ANALYST_QUESTIONS = {
   },
 };
 
+// ─── STORAGE ──────────────────────────────────────────────────────────
 const STORAGE_KEY = "interview_session_v2";
-const GITHUB_TOKEN = import.meta.env.VITE_GITHUB_TOKEN;
-
-const saveToGist = async (data) => {
-  const filename = `interview_${data.candidateName.replace(/\s+/g, "_")}_${Date.now()}.json`;
-  const response = await fetch("https://api.github.com/gists", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${GITHUB_TOKEN}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      description: `Interview — ${data.candidateName} · ${data.platform} · ${data.band}`,
-      public: false,
-      files: {
-        [filename]: {
-          content: JSON.stringify(data, null, 2),
-        },
-      },
-    }),
-  });
-  if (!response.ok) throw new Error("Gist save failed");
-  const gist = await response.json();
-  return gist.html_url;
-};
 const saveSession = (data) => { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {} };
 const loadSession = () => { try { const d = localStorage.getItem(STORAGE_KEY); return d ? JSON.parse(d) : null; } catch(e) { return null; } };
 
 const getCatInfo = (role, cat) => role === "analyst" ? ANALYST_CATEGORIES[cat] : ENG_CATEGORIES[cat];
 
-const shuffleAndPick = (arr, n) => [...arr].sort(() => Math.random() - 0.5).slice(0, n);
+// ─── ORDER QUESTIONS: SQL → Cloud/Tool/Analytics → Stakeholder ────────
+// Pick N questions from each group in the fixed order, then interleave
+// so the candidate always gets: SQL Qs first, Cloud/Tool Qs next, Stakeholder last.
+const orderQuestions = (allQs) => {
+  // Determine category groups by role
+  const sqlQs         = allQs.filter(q => q.cat === "SQL");
+  const techQs        = allQs.filter(q => ["Cloud", "Python", "Tool", "Analytics"].includes(q.cat));
+  const stakeholderQs = allQs.filter(q => q.cat === "Stakeholder");
+
+  // Shuffle within each group for variety, then pick proportionally
+  const shuffle = arr => [...arr].sort(() => Math.random() - 0.5);
+
+  const picked = [
+    ...shuffle(sqlQs).slice(0, 2),
+    ...shuffle(techQs).slice(0, 4),
+    ...shuffle(stakeholderQs).slice(0, 2),
+  ];
+
+  // If any group was short, fill up to 8 from leftovers
+  const chosen = new Set(picked.map(q => q.id));
+  const remaining = shuffle(allQs.filter(q => !chosen.has(q.id)));
+  const final = [...picked];
+  while (final.length < 8 && remaining.length > 0) final.push(remaining.shift());
+
+  return final;
+};
 
 export default function App() {
   const isInterviewer = typeof window !== "undefined" && window.location.search.includes("interviewer=true");
@@ -274,7 +276,6 @@ export default function App() {
   const [answers, setAnswers]         = useState({});
   const [scores, setScores]           = useState({});
   const [session, setSession]         = useState(null);
-  const [gistUrl, setGistUrl]         = useState(null);
 
   useEffect(() => {
     if (isInterviewer) { setSession(loadSession()); }
@@ -292,13 +293,13 @@ export default function App() {
   const handleStart = () => {
     if (!role || !platform || !band || !candidateName.trim() || !yearsExp.trim()) return;
     const allQs = getQuestions(role, platform, band);
-    setQuestions(shuffleAndPick(allQs, 8));
+    setQuestions(orderQuestions(allQs));
     setStep("interview");
     setCurrentQ(0);
     setAnswers({});
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     const sessionData = {
       candidateName,
       yearsExp,
@@ -309,16 +310,8 @@ export default function App() {
       answers,
       submittedAt: new Date().toISOString(),
     };
-    try {
-      setStep("submitting");
-      const url = await saveToGist(sessionData);
-      saveSession({ ...sessionData, gistUrl: url });
-      setGistUrl(url);
-      setStep("thankyou");
-    } catch (err) {
-      alert("Submission failed. Please try again.");
-      setStep("interview");
-    }
+    saveSession(sessionData);
+    setStep("thankyou");
   };
 
   // ─── INTERVIEWER VIEW ─────────────────────────────────────────────────
@@ -446,17 +439,7 @@ export default function App() {
       </div>
     );
   }
-if (step === "submitting") {
-    return (
-      <div style={{ minHeight:"100vh", background:"#0f172a", display:"flex",
-        alignItems:"center", justifyContent:"center", fontFamily:"'DM Sans','Segoe UI',sans-serif" }}>
-        <div style={{ textAlign:"center" }}>
-          <div style={{ fontSize:48, marginBottom:16 }}>⏳</div>
-          <p style={{ color:"#94a3b8", fontSize:16 }}>Saving your answers...</p>
-        </div>
-      </div>
-    );
-  }
+
   // ─── THANK YOU ────────────────────────────────────────────────────────
   if (step === "thankyou") {
     return (
@@ -466,14 +449,7 @@ if (step === "submitting") {
           <h1 style={{ color:"#f1f5f9", fontSize:28, fontWeight:800, margin:"0 0 12px" }}>Thank You, {candidateName}!</h1>
           <p style={{ color:"#64748b", fontSize:16, lineHeight:1.7, margin:"0 0 24px" }}>Your answers have been successfully submitted. The interviewer will review your responses shortly.</p>
           <div style={{ background:"#1e293b", border:"1px solid #334155", borderRadius:14, padding:"1.25rem" }}>
-            <p style={{ color:"#94a3b8", fontSize:14, margin:"0 0 12px" }}>📬 Your submission has been recorded.<br/>You may now close this window.</p>
-            {gistUrl && (
-              <div style={{ borderTop:"1px solid #334155", paddingTop:12, marginTop:4 }}>
-                <p style={{ color:"#64748b", fontSize:12, margin:"0 0 6px" }}>🔗 Interviewer review link:</p>
-                <a href={gistUrl} target="_blank" rel="noreferrer"
-                  style={{ color:"#3b82f6", fontSize:12, wordBreak:"break-all" }}>{gistUrl}</a>
-              </div>
-            )}
+            <p style={{ color:"#94a3b8", fontSize:14, margin:0 }}>📬 Your submission has been recorded.<br/>You may now close this window.</p>
           </div>
         </div>
       </div>
@@ -539,7 +515,7 @@ if (step === "submitting") {
                 <label style={{ color:"#94a3b8", fontSize:12, fontWeight:600, textTransform:"uppercase", letterSpacing:"0.06em", display:"block", marginBottom:10 }}>
                   {role === "analyst" ? "Analytics Tool *" : "Cloud Platform *"}
                 </label>
-                <div style={{ display:"grid", gridTemplateColumns: role==="analyst" ? "1fr 1fr 1fr" : "1fr 1fr 1fr", gap:10 }}>
+                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:10 }}>
                   {platformOptions.map(p => {
                     const active = platform === p;
                     return (
