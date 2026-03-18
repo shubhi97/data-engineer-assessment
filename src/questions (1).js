@@ -1,0 +1,2561 @@
+// AUTO-GENERATED — 417 questions
+export const QUESTION_BANK = {
+  "SQL": {
+    "junior": [
+      {
+        "id": "sqlj_0",
+        "cat": "SQL",
+        "q": "What is SQL and what are its main types of commands?",
+        "wtlf": "SQL (Structured Query Language) is a standard language used to manage and manipulate relational databases. Its main command types are: DDL (Data Definition Language) - CREATE, ALTER, DROP; DML (Data Manipulation Language) - SELECT, INSERT, UPDATE, DELETE; DCL (Data Control Language) - GRANT, REVOKE; TCL (Transaction Control Language) - COMMIT, ROLLBACK, SAVEPOINT.  Understanding SQL command categories is foundational. DDL defines structure, DML handles data, DCL manages permissions, and TCL handles transaction control. Every SQL developer must know this classification to write organized, maintainable database code."
+      },
+      {
+        "id": "sqlj_1",
+        "cat": "SQL",
+        "q": "What is the difference between WHERE and HAVING clause?",
+        "wtlf": "WHERE filters rows before grouping (used with individual rows), whereas HAVING filters groups after a GROUP BY has been applied (used with aggregate functions).  WHERE cannot be used with aggregate functions like COUNT, SUM, AVG. HAVING is specifically designed to filter on aggregated results. Example: WHERE salary > 50000 filters individual rows; HAVING COUNT(*) > 5 filters groups."
+      },
+      {
+        "id": "sqlj_2",
+        "cat": "SQL",
+        "q": "Explain the different types of JOINs in SQL.",
+        "wtlf": "INNER JOIN: returns matching rows in both tables. LEFT JOIN: all rows from left + matching from right. RIGHT JOIN: all rows from right + matching from left. FULL OUTER JOIN: all rows from both tables. CROSS JOIN: cartesian product of both tables.  JOINs are how relational databases combine data. Understanding the difference between INNER, LEFT, RIGHT, and FULL OUTER JOIN is critical for writing accurate queries that retrieve the correct dataset. Choosing the wrong JOIN type is a common source of bugs."
+      },
+      {
+        "id": "sqlj_3",
+        "cat": "SQL",
+        "q": "What is a Primary Key and a Foreign Key?",
+        "wtlf": "A Primary Key uniquely identifies each row in a table and cannot be NULL. A Foreign Key is a column (or set of columns) in one table that references the Primary Key of another table, establishing a relationship between the two tables.  Primary Keys enforce entity integrity, ensuring no duplicate records. Foreign Keys enforce referential integrity, ensuring that relationships between tables remain consistent. Together they form the backbone of a relational database schema."
+      },
+      {
+        "id": "sqlj_4",
+        "cat": "SQL",
+        "q": "What is the difference between CHAR and VARCHAR data types?",
+        "wtlf": "CHAR is a fixed-length character type — it always uses the declared storage space. VARCHAR is variable-length — it uses only the space needed plus a small overhead. Example: CHAR(10) storing 'Hi' uses 10 bytes; VARCHAR(10) storing 'Hi' uses only ~4 bytes.  CHAR is faster for fixed-length data like country codes or status flags. VARCHAR is more space-efficient for variable-length strings. Choosing the right type reduces storage and can improve query performance."
+      },
+      {
+        "id": "sqlj_5",
+        "cat": "SQL",
+        "q": "What is the difference between DELETE, TRUNCATE, and DROP?",
+        "wtlf": "DELETE removes specific rows (can use WHERE, is logged, can be rolled back). TRUNCATE removes all rows from a table quickly (cannot use WHERE, minimal logging, generally cannot be rolled back). DROP removes the entire table structure and data permanently.  DELETE is DML and participates in transactions. TRUNCATE is DDL, faster since it doesn't log each row. DROP destroys the table completely. Misusing these commands can lead to catastrophic data loss, so understanding the distinction is essential."
+      },
+      {
+        "id": "sqlj_6",
+        "cat": "SQL",
+        "q": "What are aggregate functions in SQL? Give examples.",
+        "wtlf": "Aggregate functions perform calculations on a set of values and return a single value. Examples: COUNT() - counts rows, SUM() - sums values, AVG() - average, MIN() / MAX() - minimum/maximum values.  Aggregate functions are used with GROUP BY to summarize data. They are foundational for reporting and analytics queries. NULL values are generally ignored by aggregate functions (except COUNT(*))."
+      },
+      {
+        "id": "sqlj_7",
+        "cat": "SQL",
+        "q": "What is a NULL value in SQL? How is it different from 0 or empty string?",
+        "wtlf": "NULL represents the absence of a value — it means 'unknown' or 'not applicable'. It is different from 0 (a numeric value) or an empty string '' (a string with no characters). NULL does not equal anything, even itself.  Using = NULL in a condition is always false; you must use IS NULL or IS NOT NULL. This trips up many beginners. NULL propagates through arithmetic (5 + NULL = NULL) and comparisons, requiring special handling with COALESCE or ISNULL."
+      },
+      {
+        "id": "sqlj_8",
+        "cat": "SQL",
+        "q": "Write a query to find all employees with salary greater than 50000.",
+        "wtlf": "SELECT * FROM employees WHERE salary > 50000;  This is a basic SELECT with a WHERE filter. The WHERE clause evaluates each row and returns only those that satisfy the condition. This is the most common pattern for data retrieval in SQL."
+      },
+      {
+        "id": "sqlj_9",
+        "cat": "SQL",
+        "q": "Write a query to count the number of employees in each department.",
+        "wtlf": "SELECT department_id, COUNT(*) AS employee_count FROM employees GROUP BY department_id;  GROUP BY groups rows with the same department_id. COUNT(*) counts all rows in each group. The alias AS employee_count makes the result readable. This pattern — SELECT group column + aggregate, GROUP BY same column — is extremely common in reporting."
+      },
+      {
+        "id": "sqlj_10",
+        "cat": "SQL",
+        "q": "Write a query to find the second highest salary from an employee table.",
+        "wtlf": "SELECT MAX(salary) FROM employees WHERE salary < (SELECT MAX(salary) FROM employees);  The inner subquery finds the maximum salary. The outer query finds the maximum salary that is less than the overall max — giving the second highest. This is a classic interview question testing knowledge of subqueries and aggregate functions."
+      },
+      {
+        "id": "sqlj_11",
+        "cat": "SQL",
+        "q": "Write a query to fetch all employees who joined in the year 2023.",
+        "wtlf": "SELECT * FROM employees WHERE YEAR(join_date) = 2023;  The YEAR() function extracts the year portion from a date column. This is one way to filter by year. Alternatively, a range filter (join_date BETWEEN '2023-01-01' AND '2023-12-31') is often more index-friendly and portable across databases."
+      },
+      {
+        "id": "sqlj_12",
+        "cat": "SQL",
+        "q": "Write a query to find duplicate email addresses in a users table.",
+        "wtlf": "SELECT email, COUNT(*) AS cnt FROM users GROUP BY email HAVING COUNT(*) > 1;  Grouping by email and filtering with HAVING COUNT(*) > 1 identifies emails that appear more than once. This is the standard technique for finding duplicates and is used frequently in data quality checks."
+      },
+      {
+        "id": "sqlj_13",
+        "cat": "SQL",
+        "q": "Write a query to get all employees along with their department name using JOIN.",
+        "wtlf": "SELECT e.name, d.department_name FROM employees e INNER JOIN departments d ON e.department_id = d.id;  INNER JOIN combines rows from both tables where the ON condition matches. Table aliases (e, d) make the query shorter and more readable. This is the most basic JOIN pattern used in almost every real-world application."
+      },
+      {
+        "id": "sqlj_14",
+        "cat": "SQL",
+        "q": "Write a query to update the salary of all employees in the IT department by 10%.",
+        "wtlf": "UPDATE employees SET salary = salary * 1.10 WHERE department_id = (SELECT id FROM departments WHERE department_name = 'IT');  The subquery dynamically retrieves the IT department's ID, making the query flexible. Multiplying by 1.10 increases salary by 10%. Always use a WHERE clause in UPDATE to avoid accidentally modifying all rows."
+      },
+      {
+        "id": "sqlj_15",
+        "cat": "SQL",
+        "q": "What is the difference between UNION and UNION ALL?",
+        "wtlf": "UNION combines results of two SELECT statements and removes duplicate rows. UNION ALL combines results but keeps all rows including duplicates. UNION ALL is faster because it skips the deduplication step.  Use UNION when you need unique results; use UNION ALL for performance when duplicates are acceptable or impossible. Both queries must have the same number of columns with compatible data types."
+      },
+      {
+        "id": "sqlj_16",
+        "cat": "SQL",
+        "q": "What is a subquery? What are its types?",
+        "wtlf": "A subquery is a query nested inside another SQL query. Types: Scalar subquery (returns one value), Row subquery (returns one row), Column subquery (returns one column), Table subquery (returns a result set used like a table).  Subqueries allow breaking complex problems into smaller steps. They can appear in SELECT, FROM, WHERE, or HAVING clauses. Correlated subqueries reference the outer query and execute once per outer row, making them potentially slower than joins."
+      },
+      {
+        "id": "sqlj_17",
+        "cat": "SQL",
+        "q": "Write a query to display the top 5 highest-paid employees.",
+        "wtlf": "SELECT * FROM employees ORDER BY salary DESC LIMIT 5;  ORDER BY salary DESC sorts from highest to lowest. LIMIT 5 restricts the result to 5 rows. In SQL Server, the equivalent is SELECT TOP 5 * FROM employees ORDER BY salary DESC. This is a very common pattern for leaderboards and rankings."
+      },
+      {
+        "id": "sqlj_18",
+        "cat": "SQL",
+        "q": "What is an INDEX in SQL and why is it used?",
+        "wtlf": "An index is a database object that improves the speed of data retrieval on a table at the cost of additional storage and slightly slower write operations. It works like a book index — instead of scanning every page, the database jumps directly to the relevant data.  Without indexes, a query must perform a full table scan (O(n)). With an index, retrieval becomes much faster (O(log n) for B-tree indexes). Indexes should be created on columns frequently used in WHERE, JOIN, and ORDER BY clauses. Over-indexing slows down INSERT/UPDATE/DELETE."
+      },
+      {
+        "id": "sqlj_19",
+        "cat": "SQL",
+        "q": "Write a query to find employees whose name starts with 'A'.",
+        "wtlf": "SELECT * FROM employees WHERE name LIKE 'A%';  The LIKE operator with wildcard % matches any sequence of characters. 'A%' means 'starts with A'. '%A' means 'ends with A'. '%A%' means 'contains A'. LIKE is case-sensitive in some databases (e.g., PostgreSQL) but case-insensitive in others (e.g., MySQL by default)."
+      },
+      {
+        "id": "scenj_0",
+        "cat": "SQL",
+        "q": "You work at an e-commerce company. The database has two tables: customers (customer_id, name, city) and orders (order_id, customer_id, order_date, total_amount). The manager asks for a list of all customers from 'Delhi' who placed at least one order.",
+        "wtlf": "1. Join customers with orders on customer_id.,2. Filter customers where city = 'Delhi'.,3. Use DISTINCT to avoid duplicate names if a customer placed multiple orders.  INNER JOIN ensures we only get customers who have at least one matching order. DISTINCT removes duplicate names that would appear if a customer placed multiple orders. The WHERE clause filters only Delhi customers. This is a foundational real-world JOIN scenario."
+      },
+      {
+        "id": "scenj_1",
+        "cat": "SQL",
+        "q": "Your company wants to track performance month by month. The sales table has columns: sale_id, sale_date, amount, and product_id. The business team needs total sales grouped by month for the current year.",
+        "wtlf": "1. Extract the month from sale_date using MONTH() or DATE_FORMAT().,2. Filter for the current year using YEAR(sale_date).,3. Use GROUP BY on the month and SUM() for total revenue.,4. Order by month number for chronological display.  YEAR(CURDATE()) dynamically gets the current year, avoiding hardcoded values. Grouping by MONTH() produces one row per month. MONTHNAME() makes the output readable. This pattern is extremely common in business reporting dashboards."
+      },
+      {
+        "id": "scenj_2",
+        "cat": "SQL",
+        "q": "A subscription-based platform has a customers table (customer_id, name, email) and a logins table (login_id, customer_id, login_date). The retention team wants to identify customers who have NOT logged in during the last 90 days.",
+        "wtlf": "1. Use LEFT JOIN to include all customers, even those with no login record.,2. Filter rows where no login exists in the last 90 days.,3. Alternatively, use NOT EXISTS for cleaner logic.  NOT EXISTS returns customers for whom there is NO login record in the last 90 days — this correctly includes customers who have NEVER logged in. The INTERVAL 90 DAY syntax is portable across MySQL and PostgreSQL. This query is commonly used for churn analysis and re-engagement campaigns."
+      },
+      {
+        "id": "scenj_3",
+        "cat": "SQL",
+        "q": "You manage an inventory system. The products table has: product_id, product_name, category, stock_quantity, reorder_level. The warehouse team needs a daily alert listing products where current stock has fallen below the reorder level.",
+        "wtlf": "1. Compare stock_quantity with reorder_level in the WHERE clause.,2. Calculate the stock deficit (reorder_level - stock_quantity) as an extra column.,3. Order by stock_quantity ASC to show most critical items first.  The computed column deficit tells the warehouse team exactly how many units to reorder. Ordering by stock_quantity ASC surfaces the most urgent items at the top. This pattern is a very practical use of computed columns within a SELECT without needing a subquery."
+      },
+      {
+        "id": "scenj_4",
+        "cat": "SQL",
+        "q": "A school's database has a students table (student_id, name) and a marks table (mark_id, student_id, subject, marks_obtained). The school wants to classify each student as 'Distinction' (>=75% avg), 'Pass' (>=40%), or 'Fail' (<40%) based on average marks across all subjects.",
+        "wtlf": "1. JOIN students with marks.,2. Use AVG() with GROUP BY student_id to compute average marks.,3. Use CASE WHEN to classify based on the average.  CASE WHEN inside SELECT acts as an inline conditional — no need for separate tables or procedures. GROUP BY computes the average per student. ROUND() formats the average to 2 decimal places. This scenario tests understanding of aggregate functions, GROUP BY, and CASE expressions together."
+      },
+      {
+        "id": "scenj_5",
+        "cat": "SQL",
+        "q": "After a data migration, the users table (id, email, name, created_at) has duplicate email entries. Each email should be unique. You need to identify duplicates and keep only the earliest record (smallest id) for each email.",
+        "wtlf": "Step 1: Identify duplicates using GROUP BY + HAVING.,Step 2: DELETE rows whose id is NOT the minimum id for their email group.  The subquery finds the canonical (oldest) record per email. The DELETE removes all rows NOT matching those minimum IDs. Always run the SELECT version first to preview what will be deleted. In production, wrap in a transaction so you can ROLLBACK if needed."
+      },
+      {
+        "id": "scenj_6",
+        "cat": "SQL",
+        "q": "The sales_reps table has: rep_id, name, region. The deals table has: deal_id, rep_id, deal_value, closed_date. The sales manager wants to see the top-earning salesperson (by total deal value) in each region.",
+        "wtlf": "1. Aggregate total deal value per rep using SUM() + GROUP BY.,2. Join with sales_reps to get region info.,3. Use a subquery or window function to rank within each region.,4. Filter to keep only rank 1 per region.  The inner query computes total_value per rep and assigns a RANK within each region using PARTITION BY. The outer query filters rnk = 1 to return only the top performer per region. RANK() is used instead of ROW_NUMBER() so that tied reps both appear if their totals are equal."
+      },
+      {
+        "id": "scenj_7",
+        "cat": "SQL",
+        "q": "An order management system has an orders table (order_id, customer_id, status, order_date) where status can be 'Pending', 'Shipped', 'Delivered', or 'Cancelled'. Management wants a summary count for each status for the last 30 days.",
+        "wtlf": "1. Filter orders placed within the last 30 days.,2. GROUP BY status.,3. Use COUNT(*) to count orders per status.  The window function SUM(COUNT(*)) OVER() computes the grand total across all statuses, allowing each row to show its percentage contribution. This is a common pattern for distribution reports. No separate subquery is needed for the total — the window function handles it elegantly."
+      },
+      {
+        "id": "scenj_8",
+        "cat": "SQL",
+        "q": "The HR system has an employees table: emp_id, name, hire_date, department, status ('Active'/'Resigned'). HR wants a report of all active employees showing their tenure in years and months to plan anniversary recognitions.",
+        "wtlf": "1. Filter WHERE status = 'Active'.,2. Use DATEDIFF or TIMESTAMPDIFF to calculate tenure.,3. Compute years as FLOOR(months / 12), remaining months as MOD.  TIMESTAMPDIFF(YEAR,...) returns the complete years of tenure. MOD(..., 12) gives the remaining months beyond complete years. Ordering by hire_date ASC shows the most senior employees first. These date functions are built into MySQL; PostgreSQL uses AGE() function instead."
+      },
+      {
+        "id": "scenj_9",
+        "cat": "SQL",
+        "q": "A blogging platform has authors (author_id, name) and posts (post_id, author_id, publish_date, views). The content team wants to know the top 3 authors by total views for posts published this year, along with their post count.",
+        "wtlf": "1. Filter posts for the current year.,2. JOIN with authors.,3. GROUP BY author to get SUM(views) and COUNT(posts).,4. ORDER BY total views DESC and LIMIT 3.  This combines JOIN, WHERE with a date filter, GROUP BY, multiple aggregates (COUNT + SUM), ORDER BY, and LIMIT — all the core SQL skills tested in junior interviews. The dynamic YEAR(CURDATE()) avoids hardcoding the year, making the query reusable."
+      }
+    ],
+    "mid": [
+      {
+        "id": "sqlm_0",
+        "cat": "SQL",
+        "q": "What are Window Functions in SQL? Explain with an example.",
+        "wtlf": "Window functions perform calculations across a set of rows related to the current row, without collapsing the rows like GROUP BY does. Common functions: ROW_NUMBER(), RANK(), DENSE_RANK(), LEAD(), LAG(), SUM() OVER(), AVG() OVER().  Unlike aggregate functions, window functions retain individual rows. The OVER() clause defines the window (partition and ordering). They are essential for ranking, running totals, moving averages, and comparing a row with neighboring rows — all without self-joins or subqueries."
+      },
+      {
+        "id": "sqlm_1",
+        "cat": "SQL",
+        "q": "Explain database normalization and its normal forms (1NF, 2NF, 3NF).",
+        "wtlf": "Normalization is the process of organizing a database to reduce redundancy and improve data integrity. 1NF: Atomic values, no repeating groups. 2NF: 1NF + no partial dependencies (every non-key column depends on the entire primary key). 3NF: 2NF + no transitive dependencies (non-key columns don't depend on other non-key columns).  Normalization prevents anomalies (insertion, update, deletion). 1NF ensures each cell has a single value. 2NF matters for composite primary keys. 3NF removes chains of dependencies. Over-normalization can hurt performance — in analytics/reporting, denormalization is sometimes preferred for read speed."
+      },
+      {
+        "id": "sqlm_2",
+        "cat": "SQL",
+        "q": "What is a CTE (Common Table Expression) and how is it different from a subquery?",
+        "wtlf": "A CTE is a named temporary result set defined with the WITH clause. It improves readability and can be referenced multiple times in the same query. Unlike a subquery, a CTE is defined before the main query and can be recursive.  CTEs make complex queries more modular and easier to debug. They are especially useful for recursive queries (e.g., hierarchical data like org charts). While performance is often similar to subqueries, CTEs are generally preferred for clarity and maintainability."
+      },
+      {
+        "id": "sqlm_3",
+        "cat": "SQL",
+        "q": "What is the difference between clustered and non-clustered indexes?",
+        "wtlf": "A clustered index determines the physical order of data in the table — there can be only one per table (usually the primary key). A non-clustered index is a separate structure with pointers to the actual data rows — multiple can exist per table.  Clustered indexes are faster for range queries since data is physically ordered. Non-clustered indexes require an extra lookup (bookmark lookup) to fetch the actual row data. Choosing the right clustered index key (low cardinality change column like ID) is critical for performance."
+      },
+      {
+        "id": "sqlm_4",
+        "cat": "SQL",
+        "q": "What are ACID properties in a database?",
+        "wtlf": "ACID stands for: Atomicity (a transaction is all-or-nothing), Consistency (data moves from one valid state to another), Isolation (transactions don't interfere with each other), Durability (committed data persists even after a crash).  ACID ensures reliable transaction processing. Atomicity prevents partial updates. Consistency enforces business rules. Isolation levels (Read Uncommitted, Read Committed, Repeatable Read, Serializable) control how concurrent transactions interact. Durability is achieved through write-ahead logging."
+      },
+      {
+        "id": "sqlm_5",
+        "cat": "SQL",
+        "q": "Explain the difference between RANK(), DENSE_RANK(), and ROW_NUMBER().",
+        "wtlf": "ROW_NUMBER() assigns a unique sequential number to each row. RANK() assigns the same rank to tied rows but leaves gaps after ties (1,1,3). DENSE_RANK() assigns the same rank to tied rows but does NOT leave gaps (1,1,2).  ROW_NUMBER() is useful for pagination. RANK() is used in competitions where ties cause gaps (1st, 1st, 3rd place). DENSE_RANK() is used when you want continuous ranks despite ties (1st, 1st, 2nd). All three are window functions requiring OVER() with ORDER BY."
+      },
+      {
+        "id": "sqlm_6",
+        "cat": "SQL",
+        "q": "Write a query to find employees earning more than the average salary of their department.",
+        "wtlf": "Use a CTE or subquery to compute department averages, then join/filter.  This tests correlated subquery or CTE knowledge. The correlated subquery runs once per row of the outer query — efficient for small datasets. For large datasets, the CTE or JOIN version is preferred as the subquery in the WHERE correlates per row and can be slow."
+      },
+      {
+        "id": "sqlm_7",
+        "cat": "SQL",
+        "q": "Write a query to find the Nth highest salary using DENSE_RANK.",
+        "wtlf": "Use a CTE with DENSE_RANK and filter by rank = N.  DENSE_RANK handles ties correctly. The WITH clause makes it readable. Replace N with the desired rank (e.g., 3 for 3rd highest). This is more robust than chained LIMIT/OFFSET approaches since it handles salary ties gracefully."
+      },
+      {
+        "id": "sqlm_8",
+        "cat": "SQL",
+        "q": "Write a query to pivot data — show total sales per product per quarter in columns.",
+        "wtlf": "Use conditional aggregation with CASE WHEN to simulate a pivot.  SQL doesn't have a universal PIVOT syntax (SQL Server does, but MySQL/PostgreSQL don't). Conditional aggregation using CASE WHEN inside SUM() is the portable approach. It reads each row and contributes to the correct column based on a condition."
+      },
+      {
+        "id": "sqlm_9",
+        "cat": "SQL",
+        "q": "Write a query using LAG() to find the difference between current and previous month's revenue.",
+        "wtlf": "Use LAG() window function to access the previous row's revenue value.  LAG(column, offset, default) returns a value from a previous row in the partition. It eliminates the need for self-joins to compare consecutive rows. This is widely used in time-series analysis, trend detection, and financial reporting."
+      },
+      {
+        "id": "sqlm_10",
+        "cat": "SQL",
+        "q": "What are stored procedures? How are they different from functions?",
+        "wtlf": "A stored procedure is a precompiled set of SQL statements stored in the database that can be executed with EXEC/CALL. A function always returns a value (scalar or table) and can be used inside SQL expressions; a stored procedure may not return a value and cannot be used inside a SELECT.  Stored procedures are used for complex business logic, encapsulation, and security. Functions are used for reusable computations within queries. Procedures can use transactions and output parameters; functions are generally side-effect-free (in SQL Server, not all DBs agree). Functions can be called in WHERE clauses; procedures cannot."
+      },
+      {
+        "id": "sqlm_11",
+        "cat": "SQL",
+        "q": "What is query optimization? What are some common techniques?",
+        "wtlf": "Query optimization is the process of improving query performance. Key techniques: use indexes on filtered/joined columns, avoid SELECT *, avoid functions on indexed columns in WHERE, use JOINs instead of correlated subqueries, use EXISTS instead of IN for large sets, analyze query execution plans.  The query optimizer generates an execution plan. Poor queries cause full table scans. Using EXPLAIN (MySQL/PostgreSQL) or EXPLAIN ANALYZE reveals bottlenecks. Index seek vs. scan, hash join vs. nested loop — understanding execution plans is key for mid-level engineers."
+      },
+      {
+        "id": "sqlm_12",
+        "cat": "SQL",
+        "q": "What is a VIEW in SQL? What are its advantages and limitations?",
+        "wtlf": "A VIEW is a virtual table based on a stored SQL query. It doesn't store data itself — it re-executes the underlying query when accessed. Advantages: simplifies complex queries, provides security by limiting column access, aids reusability. Limitations: performance overhead, some views are not updatable.  Views abstract complexity and provide a security layer — users query the view without seeing the underlying tables. Updatable views require specific conditions (no aggregates, DISTINCT, GROUP BY, UNION). Materialized views (available in some DBs) cache the result for better performance."
+      },
+      {
+        "id": "sqlm_13",
+        "cat": "SQL",
+        "q": "Write a recursive CTE to find all subordinates of an employee in an org chart.",
+        "wtlf": "Use a recursive CTE with a base case (top manager) and recursive member.  Recursive CTEs have two parts: the anchor (base query, runs once) and the recursive member (references the CTE itself, runs until no more rows). They are the standard way to query hierarchical data like org charts, BOMs, or category trees in SQL."
+      },
+      {
+        "id": "sqlm_14",
+        "cat": "SQL",
+        "q": "Write a query to delete duplicate rows keeping only the row with the smallest ID.",
+        "wtlf": "Use a subquery or CTE to identify the minimum ID per duplicate group, then delete the rest.  The key insight is identifying duplicates with GROUP BY and keeping only MIN(id). The DELETE with NOT IN or using a self-join deletes all rows that are NOT the minimum ID for each duplicate group. Always back up data and test with SELECT before DELETE."
+      },
+      {
+        "id": "sqlm_15",
+        "cat": "SQL",
+        "q": "What is the difference between INNER JOIN and EXISTS?",
+        "wtlf": "INNER JOIN returns matched rows from both tables and can multiply rows if multiple matches exist. EXISTS is a semi-join that returns TRUE/FALSE for each outer row — it stops at the first match and doesn't multiply rows. EXISTS is often faster for checking existence without needing columns from the subquery.  If a manager has 10 employees, INNER JOIN manager ON employee.mgr_id = manager.id returns 10 rows per manager. EXISTS would return the manager once. Use EXISTS when you only care about existence, not the matched data — it's more semantically clear and often more efficient."
+      },
+      {
+        "id": "sqlm_16",
+        "cat": "SQL",
+        "q": "Explain transaction isolation levels and the anomalies they prevent.",
+        "wtlf": "Isolation levels from weakest to strongest: Read Uncommitted (allows dirty reads), Read Committed (prevents dirty reads), Repeatable Read (prevents non-repeatable reads), Serializable (prevents phantom reads). Higher isolation = safer but slower due to more locking.  Dirty read: reading uncommitted data. Non-repeatable read: same query returns different values in same transaction. Phantom read: a query returns different rows due to concurrent inserts. Most databases default to Read Committed. PostgreSQL uses MVCC to achieve higher isolation without heavy locking."
+      },
+      {
+        "id": "sqlm_17",
+        "cat": "SQL",
+        "q": "Write a query to calculate a running total of sales by date.",
+        "wtlf": "Use SUM() as a window function with ORDER BY and ROWS UNBOUNDED PRECEDING.  The window frame clause ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW defines the running total. Without ROWS clause, the default window is RANGE UNBOUNDED PRECEDING TO CURRENT ROW, which can give unexpected results with ties. Running totals are a classic window function use case."
+      },
+      {
+        "id": "sqlm_18",
+        "cat": "SQL",
+        "q": "What is a materialized view? How does it differ from a regular view?",
+        "wtlf": "A materialized view stores the query result physically on disk and is refreshed periodically or on demand. A regular view is virtual and re-executes its query every time it is accessed. Materialized views offer much faster read performance at the cost of storage and potential staleness.  Materialized views are critical in data warehouses and reporting systems where the underlying query is expensive (e.g., large aggregations over millions of rows). They trade data freshness for query speed. Supported natively in PostgreSQL, Oracle; approximated with indexed views in SQL Server."
+      },
+      {
+        "id": "sqlm_19",
+        "cat": "SQL",
+        "q": "Write a query to find customers who have never placed an order (using LEFT JOIN and NOT EXISTS).",
+        "wtlf": "Two approaches: LEFT JOIN filtering NULLs, or NOT EXISTS subquery.  LEFT JOIN approach: customers with no orders have NULL in the orders columns — filter with WHERE o.id IS NULL. NOT EXISTS is often more readable and can be more efficient since it short-circuits. Both are valid and commonly used in real-world queries for finding 'missing' relationships."
+      },
+      {
+        "id": "sqlm_20",
+        "cat": "SQL",
+        "q": "Write a query to find employees whose salary is in the top 10% of their department.",
+        "wtlf": "Use NTILE(10) or PERCENT_RANK() window function to identify top 10%.  PERCENT_RANK() returns a value between 0 and 1 representing the relative rank. Filtering WHERE percent_rank >= 0.9 gives the top 10%. NTILE(10) divides rows into 10 equal buckets — NTILE = 10 is the top bucket. Both are window functions partitioned by department."
+      }
+    ],
+    "senior": [
+      {
+        "id": "sqls_0",
+        "cat": "SQL",
+        "q": "What are Window Functions in SQL? Explain with an example.",
+        "wtlf": "Window functions perform calculations across a set of rows related to the current row, without collapsing the rows like GROUP BY does. Common functions: ROW_NUMBER(), RANK(), DENSE_RANK(), LEAD(), LAG(), SUM() OVER(), AVG() OVER().  Unlike aggregate functions, window functions retain individual rows. The OVER() clause defines the window (partition and ordering). They are essential for ranking, running totals, moving averages, and comparing a row with neighboring rows — all without self-joins or subqueries."
+      },
+      {
+        "id": "sqls_1",
+        "cat": "SQL",
+        "q": "Explain database normalization and its normal forms (1NF, 2NF, 3NF).",
+        "wtlf": "Normalization is the process of organizing a database to reduce redundancy and improve data integrity. 1NF: Atomic values, no repeating groups. 2NF: 1NF + no partial dependencies (every non-key column depends on the entire primary key). 3NF: 2NF + no transitive dependencies (non-key columns don't depend on other non-key columns).  Normalization prevents anomalies (insertion, update, deletion). 1NF ensures each cell has a single value. 2NF matters for composite primary keys. 3NF removes chains of dependencies. Over-normalization can hurt performance — in analytics/reporting, denormalization is sometimes preferred for read speed."
+      },
+      {
+        "id": "sqls_2",
+        "cat": "SQL",
+        "q": "What is a CTE (Common Table Expression) and how is it different from a subquery?",
+        "wtlf": "A CTE is a named temporary result set defined with the WITH clause. It improves readability and can be referenced multiple times in the same query. Unlike a subquery, a CTE is defined before the main query and can be recursive.  CTEs make complex queries more modular and easier to debug. They are especially useful for recursive queries (e.g., hierarchical data like org charts). While performance is often similar to subqueries, CTEs are generally preferred for clarity and maintainability."
+      },
+      {
+        "id": "sqls_3",
+        "cat": "SQL",
+        "q": "What is the difference between clustered and non-clustered indexes?",
+        "wtlf": "A clustered index determines the physical order of data in the table — there can be only one per table (usually the primary key). A non-clustered index is a separate structure with pointers to the actual data rows — multiple can exist per table.  Clustered indexes are faster for range queries since data is physically ordered. Non-clustered indexes require an extra lookup (bookmark lookup) to fetch the actual row data. Choosing the right clustered index key (low cardinality change column like ID) is critical for performance."
+      },
+      {
+        "id": "sqls_4",
+        "cat": "SQL",
+        "q": "What are ACID properties in a database?",
+        "wtlf": "ACID stands for: Atomicity (a transaction is all-or-nothing), Consistency (data moves from one valid state to another), Isolation (transactions don't interfere with each other), Durability (committed data persists even after a crash).  ACID ensures reliable transaction processing. Atomicity prevents partial updates. Consistency enforces business rules. Isolation levels (Read Uncommitted, Read Committed, Repeatable Read, Serializable) control how concurrent transactions interact. Durability is achieved through write-ahead logging."
+      },
+      {
+        "id": "sqls_5",
+        "cat": "SQL",
+        "q": "Explain the difference between RANK(), DENSE_RANK(), and ROW_NUMBER().",
+        "wtlf": "ROW_NUMBER() assigns a unique sequential number to each row. RANK() assigns the same rank to tied rows but leaves gaps after ties (1,1,3). DENSE_RANK() assigns the same rank to tied rows but does NOT leave gaps (1,1,2).  ROW_NUMBER() is useful for pagination. RANK() is used in competitions where ties cause gaps (1st, 1st, 3rd place). DENSE_RANK() is used when you want continuous ranks despite ties (1st, 1st, 2nd). All three are window functions requiring OVER() with ORDER BY."
+      },
+      {
+        "id": "sqls_6",
+        "cat": "SQL",
+        "q": "Write a query to find employees earning more than the average salary of their department.",
+        "wtlf": "Use a CTE or subquery to compute department averages, then join/filter.  This tests correlated subquery or CTE knowledge. The correlated subquery runs once per row of the outer query — efficient for small datasets. For large datasets, the CTE or JOIN version is preferred as the subquery in the WHERE correlates per row and can be slow."
+      },
+      {
+        "id": "sqls_7",
+        "cat": "SQL",
+        "q": "Write a query to find the Nth highest salary using DENSE_RANK.",
+        "wtlf": "Use a CTE with DENSE_RANK and filter by rank = N.  DENSE_RANK handles ties correctly. The WITH clause makes it readable. Replace N with the desired rank (e.g., 3 for 3rd highest). This is more robust than chained LIMIT/OFFSET approaches since it handles salary ties gracefully."
+      },
+      {
+        "id": "sqls_8",
+        "cat": "SQL",
+        "q": "Write a query to pivot data — show total sales per product per quarter in columns.",
+        "wtlf": "Use conditional aggregation with CASE WHEN to simulate a pivot.  SQL doesn't have a universal PIVOT syntax (SQL Server does, but MySQL/PostgreSQL don't). Conditional aggregation using CASE WHEN inside SUM() is the portable approach. It reads each row and contributes to the correct column based on a condition."
+      },
+      {
+        "id": "sqls_9",
+        "cat": "SQL",
+        "q": "Write a query using LAG() to find the difference between current and previous month's revenue.",
+        "wtlf": "Use LAG() window function to access the previous row's revenue value.  LAG(column, offset, default) returns a value from a previous row in the partition. It eliminates the need for self-joins to compare consecutive rows. This is widely used in time-series analysis, trend detection, and financial reporting."
+      },
+      {
+        "id": "sqls_10",
+        "cat": "SQL",
+        "q": "What are stored procedures? How are they different from functions?",
+        "wtlf": "A stored procedure is a precompiled set of SQL statements stored in the database that can be executed with EXEC/CALL. A function always returns a value (scalar or table) and can be used inside SQL expressions; a stored procedure may not return a value and cannot be used inside a SELECT.  Stored procedures are used for complex business logic, encapsulation, and security. Functions are used for reusable computations within queries. Procedures can use transactions and output parameters; functions are generally side-effect-free (in SQL Server, not all DBs agree). Functions can be called in WHERE clauses; procedures cannot."
+      },
+      {
+        "id": "sqls_11",
+        "cat": "SQL",
+        "q": "What is query optimization? What are some common techniques?",
+        "wtlf": "Query optimization is the process of improving query performance. Key techniques: use indexes on filtered/joined columns, avoid SELECT *, avoid functions on indexed columns in WHERE, use JOINs instead of correlated subqueries, use EXISTS instead of IN for large sets, analyze query execution plans.  The query optimizer generates an execution plan. Poor queries cause full table scans. Using EXPLAIN (MySQL/PostgreSQL) or EXPLAIN ANALYZE reveals bottlenecks. Index seek vs. scan, hash join vs. nested loop — understanding execution plans is key for mid-level engineers."
+      },
+      {
+        "id": "sqls_12",
+        "cat": "SQL",
+        "q": "What is a VIEW in SQL? What are its advantages and limitations?",
+        "wtlf": "A VIEW is a virtual table based on a stored SQL query. It doesn't store data itself — it re-executes the underlying query when accessed. Advantages: simplifies complex queries, provides security by limiting column access, aids reusability. Limitations: performance overhead, some views are not updatable.  Views abstract complexity and provide a security layer — users query the view without seeing the underlying tables. Updatable views require specific conditions (no aggregates, DISTINCT, GROUP BY, UNION). Materialized views (available in some DBs) cache the result for better performance."
+      },
+      {
+        "id": "sqls_13",
+        "cat": "SQL",
+        "q": "Write a recursive CTE to find all subordinates of an employee in an org chart.",
+        "wtlf": "Use a recursive CTE with a base case (top manager) and recursive member.  Recursive CTEs have two parts: the anchor (base query, runs once) and the recursive member (references the CTE itself, runs until no more rows). They are the standard way to query hierarchical data like org charts, BOMs, or category trees in SQL."
+      },
+      {
+        "id": "sqls_14",
+        "cat": "SQL",
+        "q": "Write a query to delete duplicate rows keeping only the row with the smallest ID.",
+        "wtlf": "Use a subquery or CTE to identify the minimum ID per duplicate group, then delete the rest.  The key insight is identifying duplicates with GROUP BY and keeping only MIN(id). The DELETE with NOT IN or using a self-join deletes all rows that are NOT the minimum ID for each duplicate group. Always back up data and test with SELECT before DELETE."
+      },
+      {
+        "id": "sqls_15",
+        "cat": "SQL",
+        "q": "What is the difference between INNER JOIN and EXISTS?",
+        "wtlf": "INNER JOIN returns matched rows from both tables and can multiply rows if multiple matches exist. EXISTS is a semi-join that returns TRUE/FALSE for each outer row — it stops at the first match and doesn't multiply rows. EXISTS is often faster for checking existence without needing columns from the subquery.  If a manager has 10 employees, INNER JOIN manager ON employee.mgr_id = manager.id returns 10 rows per manager. EXISTS would return the manager once. Use EXISTS when you only care about existence, not the matched data — it's more semantically clear and often more efficient."
+      },
+      {
+        "id": "sqls_16",
+        "cat": "SQL",
+        "q": "Explain transaction isolation levels and the anomalies they prevent.",
+        "wtlf": "Isolation levels from weakest to strongest: Read Uncommitted (allows dirty reads), Read Committed (prevents dirty reads), Repeatable Read (prevents non-repeatable reads), Serializable (prevents phantom reads). Higher isolation = safer but slower due to more locking.  Dirty read: reading uncommitted data. Non-repeatable read: same query returns different values in same transaction. Phantom read: a query returns different rows due to concurrent inserts. Most databases default to Read Committed. PostgreSQL uses MVCC to achieve higher isolation without heavy locking."
+      },
+      {
+        "id": "sqls_17",
+        "cat": "SQL",
+        "q": "Write a query to calculate a running total of sales by date.",
+        "wtlf": "Use SUM() as a window function with ORDER BY and ROWS UNBOUNDED PRECEDING.  The window frame clause ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW defines the running total. Without ROWS clause, the default window is RANGE UNBOUNDED PRECEDING TO CURRENT ROW, which can give unexpected results with ties. Running totals are a classic window function use case."
+      },
+      {
+        "id": "sqls_18",
+        "cat": "SQL",
+        "q": "What is a materialized view? How does it differ from a regular view?",
+        "wtlf": "A materialized view stores the query result physically on disk and is refreshed periodically or on demand. A regular view is virtual and re-executes its query every time it is accessed. Materialized views offer much faster read performance at the cost of storage and potential staleness.  Materialized views are critical in data warehouses and reporting systems where the underlying query is expensive (e.g., large aggregations over millions of rows). They trade data freshness for query speed. Supported natively in PostgreSQL, Oracle; approximated with indexed views in SQL Server."
+      },
+      {
+        "id": "sqls_19",
+        "cat": "SQL",
+        "q": "Write a query to find customers who have never placed an order (using LEFT JOIN and NOT EXISTS).",
+        "wtlf": "Two approaches: LEFT JOIN filtering NULLs, or NOT EXISTS subquery.  LEFT JOIN approach: customers with no orders have NULL in the orders columns — filter with WHERE o.id IS NULL. NOT EXISTS is often more readable and can be more efficient since it short-circuits. Both are valid and commonly used in real-world queries for finding 'missing' relationships."
+      },
+      {
+        "id": "sqls_20",
+        "cat": "SQL",
+        "q": "Write a query to find employees whose salary is in the top 10% of their department.",
+        "wtlf": "Use NTILE(10) or PERCENT_RANK() window function to identify top 10%.  PERCENT_RANK() returns a value between 0 and 1 representing the relative rank. Filtering WHERE percent_rank >= 0.9 gives the top 10%. NTILE(10) divides rows into 10 equal buckets — NTILE = 10 is the top bucket. Both are window functions partitioned by department."
+      },
+      {
+        "id": "scens_0",
+        "cat": "SQL",
+        "q": "A SaaS company tracks user signups and logins. Tables: users (user_id, signup_date) and sessions (session_id, user_id, session_date). The product team wants a cohort retention report: for users who signed up in a given month, what % returned in each of the next 3 months?",
+        "wtlf": "1. Assign each user to a cohort based on their signup month using DATE_FORMAT or TRUNC.,2. Compute months since signup for each session.,3. Use conditional aggregation (COUNT + CASE WHEN) to pivot into month columns.,4. Divide by cohort size to get retention percentage.  Cohort analysis is one of the most important product analytics queries. CTEs break the problem into stages: first define cohorts, then compute months since signup per session, then pivot into retention columns using COUNT DISTINCT + CASE WHEN. The TIMESTAMPDIFF(MONTH,...) maps each login to how many months post-signup it occurred."
+      },
+      {
+        "id": "scens_1",
+        "cat": "SQL",
+        "q": "A bank has a transactions table: txn_id, account_id, txn_date, txn_type ('debit'/'credit'), amount. Risk management needs to flag accounts where debit transactions in the last 7 days exceed 3x their average daily debit over the past 90 days.",
+        "wtlf": "1. Calculate total debits per account for last 7 days.,2. Calculate average daily debits per account over last 90 days.,3. Compare: if 7-day total / 7 > 3 * 90-day daily average, flag the account.,4. Use CTEs for clarity and separation of logic.  Two CTEs compute each metric independently, then the main query joins and applies the spike condition. Dividing by 90.0 (not 90) avoids integer division in some databases. Ordering by the spike ratio descending surfaces the most suspicious accounts first. This pattern is widely used in real-time fraud scoring pipelines."
+      },
+      {
+        "id": "scens_2",
+        "cat": "SQL",
+        "q": "An e-commerce platform has: customers, products, and orders (with order_items). The marketing team wants to find pairs of products frequently bought together (market basket analysis) to build a 'Customers also bought' feature.",
+        "wtlf": "1. Self-join order_items on order_id to create product pairs.,2. Ensure no duplicate pairs (p1.product_id < p2.product_id).,3. GROUP BY the pair and filter by COUNT >= 50.,4. Join with products table to show names.  The self-join on order_items pairs every product with every other product in the same order. The condition oi1.product_id < oi2.product_id ensures each pair appears only once and prevents a product pairing with itself. HAVING filters only frequent pairs. This is a simplified affinity analysis used in recommendation engines."
+      },
+      {
+        "id": "scens_3",
+        "cat": "SQL",
+        "q": "A telecom company has: subscribers (sub_id, plan_type, signup_date) and usage_logs (log_id, sub_id, log_date, data_used_gb, call_minutes). Product management wants to segment subscribers as 'High Risk' (usage dropped >50% last month vs previous month), 'Moderate Risk' (10–50% drop), or 'Stable' (<10% drop or any increase).",
+        "wtlf": "1. Aggregate data_used_gb per subscriber per month.,2. Use LAG() to get the previous month's usage.,3. Calculate percentage change.,4. Apply CASE WHEN to classify churn risk.,5. Filter for the most recent month only.  LAG() is the key technique here — it retrieves the previous month's data per subscriber. NULLIF prevents division-by-zero. CASE WHEN categorizes the risk. Filtering for the latest complete month and excluding NULLs (new subscribers with no prior month) ensures data quality. This is a real pattern used by telecom data analysts."
+      },
+      {
+        "id": "scens_4",
+        "cat": "SQL",
+        "q": "A hospital database has: patients (patient_id, name, age) and admissions (admission_id, patient_id, admit_date, discharge_date, diagnosis). A quality team wants to find patients who were readmitted within 30 days of a previous discharge (a key hospital quality metric).",
+        "wtlf": "1. Use LAG() to get the previous discharge date per patient.,2. Compare the current admit_date with the previous discharge_date.,3. Flag admissions where the gap is 30 days or fewer.,4. Join with patients for demographic info.  LAG(discharge_date) OVER (PARTITION BY patient_id ORDER BY admit_date) gets each patient's previous discharge. DATEDIFF measures the gap. Filtering prev_discharge_date IS NOT NULL excludes first-ever admissions. The 30-day readmission rate is a standard CMS quality measure and a common interview problem in healthcare analytics."
+      },
+      {
+        "id": "scens_5",
+        "cat": "SQL",
+        "q": "A logistics company has: products (product_id, name, category, unit_cost), inventory (product_id, warehouse_id, quantity_on_hand, last_restocked_date), and shipments (shipment_id, product_id, shipped_date, quantity_shipped). Finance wants to identify 'slow movers' — products with high inventory but very few shipments in the last 6 months.",
+        "wtlf": "1. Aggregate shipments per product for the last 6 months.,2. LEFT JOIN with inventory to include products with zero shipments.,3. Filter by stock > 500 AND shipped_qty < 50.,4. Compute inventory_value = quantity_on_hand * unit_cost.  LEFT JOIN on the shipments CTE correctly includes products with zero shipments (rs.units_shipped_6m will be NULL, handled by COALESCE). Ordering by inventory_value DESC surfaces the most expensive idle inventory first — exactly what finance needs for write-down decisions. COALESCE is the correct way to handle NULLs from LEFT JOINs."
+      },
+      {
+        "id": "scens_6",
+        "cat": "SQL",
+        "q": "A social platform has: posts (post_id, user_id, created_at, content), reactions (reaction_id, post_id, user_id, reaction_type, reacted_at), and shares (share_id, post_id, user_id, shared_at). A post is 'viral' if it gained more than 1000 reactions AND more than 500 shares within 24 hours of posting.",
+        "wtlf": "1. Filter reactions and shares within 24 hours of the post's created_at.,2. Aggregate per post_id.,3. Apply HAVING conditions for viral thresholds.,4. Use a subquery to find the timestamp of the 1000th reaction.  Separating the reaction and share CTEs keeps logic clean and each CTE applies HAVING independently. Joining both CTEs with INNER JOIN ensures only posts meeting both criteria are included. The time window filter (within 24 hours) is applied per-post by comparing with each post's own created_at, not a fixed timestamp — a common mistake to avoid."
+      },
+      {
+        "id": "scens_7",
+        "cat": "SQL",
+        "q": "The company org chart is stored in an employees table: emp_id, name, manager_id (NULL for the CEO). HR wants to understand: (1) the depth of the org chart (how many reporting levels exist), and (2) which managers have a span of control greater than 10 direct reports.",
+        "wtlf": "1. Recursive CTE to assign hierarchy levels (CEO = level 1).,2. Separate query to count direct reports per manager.,3. JOIN the two to show level + direct report count for flagged managers.  The recursive CTE traverses the tree top-down, incrementing the level counter. The direct_reports CTE identifies over-stretched managers using HAVING. The final JOIN combines both analyses. Maximum org depth can be found with SELECT MAX(level) FROM hierarchy. This is a classic real-world HR analytics scenario requiring recursive SQL."
+      },
+      {
+        "id": "scens_8",
+        "cat": "SQL",
+        "q": "A finance system records all ledger entries in a transactions table: txn_id, account_id, txn_date, txn_type ('DR' or 'CR'), amount. The accounting team needs a statement showing each transaction with a running balance per account.",
+        "wtlf": "1. Use a CASE WHEN to convert debits to negative amounts.,2. Apply SUM() as a window function with ORDER BY txn_date for running total.,3. ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW ensures correct cumulative sum.  The CASE WHEN converts each transaction to its signed value (positive for credits, negative for debits). The window SUM() accumulates these signed values in date order per account. Including txn_id in ORDER BY ensures deterministic ordering when multiple transactions happen on the same date. ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW prevents issues with ties in RANGE mode."
+      },
+      {
+        "id": "scens_9",
+        "cat": "SQL",
+        "q": "An IoT sensor records temperature readings every 15 minutes in a readings table: reading_id, sensor_id, recorded_at (timestamp), temperature. Due to connectivity issues, some readings are missing. The ops team wants to find gaps larger than 30 minutes for each sensor.",
+        "wtlf": "1. Use LAG() to get the previous reading's timestamp per sensor.,2. Compute the gap using TIMESTAMPDIFF(MINUTE,...).,3. Filter for gaps > 30 minutes.,4. Show sensor_id, gap start, gap end, and gap duration.  LAG() is partitioned by sensor_id to compare each reading only with the previous one from the same sensor. TIMESTAMPDIFF(MINUTE,...) calculates the exact gap. Filtering NULL prev values excludes the very first reading of each sensor. This is a common IoT/monitoring data quality pattern and demonstrates practical window function usage beyond analytics."
+      },
+      {
+        "id": "scens_10",
+        "cat": "SQL",
+        "q": "A SaaS business tracks subscriptions: subscriptions table (sub_id, customer_id, plan_price, start_date, end_date). Monthly Recurring Revenue (MRR) changes when customers upgrade, downgrade, churn, or are new. Finance wants MRR movements for last month: New MRR, Churned MRR, Expansion MRR (upgrades), Contraction MRR (downgrades).",
+        "wtlf": "1. Identify active subscriptions in the previous month vs two months ago.,2. New MRR = plan_price of customers who had no prior subscription.,3. Churned MRR = plan_price of customers who were active but are not now.,4. Expansion/Contraction MRR = difference in plan_price for retained customers.  Two CTEs define the active customer base for each month. A FULL OUTER JOIN catches all movements: customers only in curr_month are NEW; only in prev_month have CHURNED; in both but with different MRR show expansion or contraction. This MRR waterfall analysis is a core SaaS finance metric and a sophisticated SQL challenge."
+      }
+    ]
+  },
+  "Azure": {
+    "junior": [
+      {
+        "id": "azj_0",
+        "cat": "Cloud",
+        "q": "What is Microsoft Azure and what are its core service categories?",
+        "wtlf": "Microsoft Azure is Microsoft's cloud computing platform offering over 200 products and services. Core categories: Compute (VMs, App Service, Functions), Storage (Blob, File, Queue, Table), Networking (VNet, Load Balancer, VPN Gateway), Databases (Azure SQL, Cosmos DB, MySQL), AI/ML (Azure ML, Cognitive Services), Security (Azure AD, Key Vault), DevOps (Azure DevOps, Pipelines), and Analytics (Synapse, Data Factory, Power BI).  Azure organises services into logical categories. Interviewers often ask this to gauge breadth of knowledge. Knowing the major services in each category — even at a high level — demonstrates you understand the ecosystem rather than just one tool.  Pro Tip: Always pair a service name with its primary use case: 'Azure Blob Storage for unstructured object storage, Azure SQL for relational workloads, Cosmos DB for globally distributed NoSQL.'"
+      },
+      {
+        "id": "azj_1",
+        "cat": "Cloud",
+        "q": "What is the difference between IaaS, PaaS, and SaaS in Azure?",
+        "wtlf": "IaaS (Infrastructure as a Service): You manage OS, runtime, and applications; Azure provides VMs, networking, storage. Example: Azure Virtual Machines. PaaS (Platform as a Service): Azure manages OS and runtime; you manage the application and data. Example: Azure App Service, Azure SQL Database. SaaS (Software as a Service): Azure manages everything; you just use the software. Example: Microsoft 365, Dynamics 365.  The shared responsibility model shifts based on the service tier. IaaS gives maximum control but maximum responsibility. PaaS removes patching and OS management. SaaS is fully managed. Most modern cloud-native apps use PaaS to reduce operational overhead. Azure also offers serverless (Functions, Logic Apps) which sits beyond PaaS in terms of abstraction.  Pro Tip: In interviews, link each tier to a real Azure service: IaaS = VMs, PaaS = App Service, SaaS = M365."
+      },
+      {
+        "id": "azj_2",
+        "cat": "Cloud",
+        "q": "What is an Azure Resource Group and why is it used?",
+        "wtlf": "A Resource Group is a logical container in Azure that holds related resources for an application or workload. Every Azure resource must belong to exactly one Resource Group. It enables unified lifecycle management — you can deploy, update, monitor, and delete all resources in a group together. It also supports tagging, RBAC, and cost tracking at the group level.  Resource Groups are the fundamental organisational unit in Azure. Best practice is to group resources by lifecycle and environment (e.g., one RG per application per environment: myapp-dev, myapp-prod). Deleting a Resource Group deletes all resources inside it — a powerful but dangerous operation. ARM (Azure Resource Manager) uses Resource Groups as the scope for deployments.  Pro Tip: Never mix environments (dev/prod) in the same Resource Group. Use Tags for cross-cutting metadata like CostCenter or Team."
+      },
+      {
+        "id": "azj_3",
+        "cat": "Cloud",
+        "q": "What is Azure Active Directory (Azure AD / Entra ID)?",
+        "wtlf": "Azure Active Directory (now called Microsoft Entra ID) is Microsoft's cloud-based identity and access management service. It provides Single Sign-On (SSO), Multi-Factor Authentication (MFA), Conditional Access, and B2B/B2C identity federation. It is the identity backbone for Azure, Microsoft 365, and thousands of third-party SaaS apps. It differs from on-premises Windows Server AD — it is HTTP/HTTPS-based and uses OAuth 2.0 / OpenID Connect / SAML.  Azure AD is not just a user directory — it is the zero-trust security foundation for Azure. Every Azure resource access is authenticated through Azure AD. Service principals and managed identities are Azure AD objects used by applications and Azure services to authenticate without storing credentials. Understanding Azure AD is critical for any Azure role.  Pro Tip: Differentiate Azure AD from on-prem AD: Azure AD has no Group Policy Objects, no OUs, no LDAP. It is cloud-native, protocol-based identity."
+      },
+      {
+        "id": "azj_4",
+        "cat": "Cloud",
+        "q": "What is Azure Blob Storage and what are its access tiers?",
+        "wtlf": "Azure Blob Storage is Microsoft's object storage service for unstructured data — images, videos, documents, backups, logs. It organises data into Storage Accounts > Containers > Blobs. Access tiers: Hot (frequent access, highest storage cost, lowest access cost), Cool (infrequent access, stored 30 days minimum), Cold (rarely accessed, 90 days minimum), Archive (offline, cheapest storage, highest retrieval cost and latency, 180 days minimum).  Choosing the right tier is a cost optimisation decision. Lifecycle Management policies automate tier transitions (e.g., move to Cool after 30 days, Archive after 90 days). Blob types: Block blobs (general files), Append blobs (log streaming), Page blobs (VM disks). Redundancy options: LRS, ZRS, GRS, RA-GRS protect against hardware and regional failures.  Pro Tip: Archive tier has rehydration latency of hours — never use it for data that needs to be accessed quickly."
+      },
+      {
+        "id": "azj_5",
+        "cat": "Cloud",
+        "q": "What is the difference between Azure SQL Database and Azure SQL Managed Instance?",
+        "wtlf": "Azure SQL Database: Fully managed PaaS, single database or elastic pool. Best for new cloud-native apps. Limited SQL Server feature set (no SQL Agent, limited cross-db queries). Azure SQL Managed Instance: Fully managed PaaS but with near-100% SQL Server compatibility. Supports SQL Agent, linked servers, cross-database queries, CLR, Service Broker. Designed for lift-and-shift migrations from on-premises SQL Server.  Azure SQL Database is the right choice for greenfield apps needing a managed relational database. Managed Instance is for existing SQL Server workloads that use features not available in Azure SQL Database. There is also SQL Server on Azure VM (IaaS) for full control. DTUs vs vCores are the two purchasing models for Azure SQL Database.  Pro Tip: If a migration scenario mentions SQL Agent jobs or cross-database queries, the answer is almost always Managed Instance, not Azure SQL Database."
+      },
+      {
+        "id": "azj_6",
+        "cat": "Cloud",
+        "q": "What is an Azure Virtual Network (VNet) and why is it needed?",
+        "wtlf": "Azure Virtual Network (VNet) is the fundamental networking building block in Azure. It provides isolation, segmentation, and connectivity for Azure resources. Resources inside a VNet can communicate with each other by default, with on-premises networks via VPN Gateway or ExpressRoute, and with the internet with controlled access. Subnets divide a VNet into segments. Network Security Groups (NSGs) control inbound/outbound traffic.  VNets are required to place VMs and other services in a private network. VNet Peering connects VNets within or across regions. Service Endpoints and Private Endpoints restrict service access to VNet traffic only (preventing public internet exposure). Azure deploys default routing within a VNet; custom route tables (UDRs) override this for network virtual appliances.  Pro Tip: Always use Private Endpoints for PaaS services (Blob, SQL, KeyVault) in production — it eliminates public internet exposure for sensitive data."
+      },
+      {
+        "id": "azj_7",
+        "cat": "Cloud",
+        "q": "What is Azure Functions and what is serverless computing?",
+        "wtlf": "Azure Functions is a serverless compute service where you write small units of code (functions) that are triggered by events (HTTP request, timer, queue message, blob upload, etc.) without managing any server infrastructure. You are billed only for execution time and the number of executions. Azure automatically scales from zero to thousands of instances. Other Azure serverless services: Logic Apps, Event Grid, Service Bus.  Serverless shifts the operational model — no VMs to patch, no capacity planning. Azure Functions supports multiple languages: C#, JavaScript, Python, Java, PowerShell. Consumption Plan (auto-scale, pay-per-use), Premium Plan (pre-warmed instances, VNet integration), and Dedicated Plan (always-on) offer different trade-offs. Cold start latency is a known limitation of the Consumption Plan.  Pro Tip: Cold start can be 2–10 seconds for the first invocation. For latency-sensitive APIs, use Premium Plan with pre-warmed instances."
+      },
+      {
+        "id": "azj_8",
+        "cat": "Cloud",
+        "q": "What is Azure Cosmos DB and when would you choose it over Azure SQL?",
+        "wtlf": "Azure Cosmos DB is a fully managed, globally distributed NoSQL database service. It supports multiple APIs: Core SQL (document), MongoDB, Cassandra, Gremlin (graph), and Table. Key features: single-digit millisecond latency at any scale, multi-region writes, five consistency levels (Strong, Bounded Staleness, Session, Consistent Prefix, Eventual), and SLA-backed 99.999% availability.  Choose Cosmos DB when: data is document/key-value/graph shaped (not tabular), you need global distribution with low latency across regions, or schema flexibility is required. Choose Azure SQL when: data is relational, you need ACID transactions, JOINs are frequent, or team is familiar with SQL. Cosmos DB uses Request Units (RUs) as the throughput currency — provisioning the right RUs is a key cost consideration.  Pro Tip: Cosmos DB's partition key choice is critical. A poor partition key (e.g., a boolean field) creates hot partitions and kills performance."
+      },
+      {
+        "id": "azj_9",
+        "cat": "Cloud",
+        "q": "What is Azure Monitor and what are its components?",
+        "wtlf": "Azure Monitor is the unified monitoring platform in Azure for collecting, analysing, and acting on telemetry. Components: Metrics (numeric time-series data, stored 93 days), Logs (Azure Monitor Logs / Log Analytics Workspace — stores structured log data queried with KQL), Application Insights (APM for apps — traces, requests, dependencies, exceptions), Alerts (notify via email/SMS/webhook/action groups), Dashboards and Workbooks for visualisation.  Every Azure service emits Metrics (CPU, memory, requests) and Diagnostic Logs automatically once enabled. Log Analytics Workspace is the central store for logs from VMs, containers, and services. KQL (Kusto Query Language) is used to query Log Analytics. Application Insights is the go-to for end-to-end request tracing in web apps and APIs — it supports sampling to control data volume and cost.  Pro Tip: Always configure Diagnostic Settings to route service logs to a Log Analytics Workspace. Without this, you lose visibility into platform events."
+      },
+      {
+        "id": "azj_10",
+        "cat": "Cloud",
+        "q": "What is Azure Key Vault and what does it store?",
+        "wtlf": "Azure Key Vault is a managed service for securely storing and accessing: Secrets (connection strings, API keys, passwords), Keys (cryptographic keys for encryption, backed by HSM optionally), and Certificates (TLS/SSL certificates with automatic renewal). Applications and services access Key Vault using managed identities, eliminating the need to store credentials in code or config files.  Key Vault solves the 'secret zero' problem — how to securely provide an app with its first credential. Using Managed Identities, an Azure resource (e.g., a Function App) can authenticate to Key Vault without any stored secret. Access Policies or Azure RBAC control who/what can read or manage keys and secrets. Soft-delete and purge protection prevent accidental or malicious deletion.  Pro Tip: Never store secrets in application code or appsettings files. Always reference Key Vault secrets via Key Vault references in App Service/Functions configuration."
+      },
+      {
+        "id": "azj_11",
+        "cat": "Cloud",
+        "q": "What is the difference between Azure Service Bus and Azure Event Hub?",
+        "wtlf": "Azure Service Bus: Enterprise message broker for reliable message queuing and pub/sub. Supports queues (point-to-point), topics/subscriptions (pub/sub), FIFO ordering, dead-letter queues, sessions, and message lock. Best for transactional business workflows (order processing, payment events). Azure Event Hub: High-throughput event streaming platform (like Apache Kafka). Designed for telemetry, logs, IoT, and analytics ingestion. Supports millions of events/second, partitioned consumer groups, and 1–90 day retention.  Service Bus is for command-and-control messaging where each message should be processed by exactly one consumer and reliability is paramount. Event Hub is for event streaming where many consumers can read the same data stream independently. Event Hub is natively Kafka-compatible. Azure Event Grid is a third messaging service optimised for reactive event routing between Azure services with low latency.  Pro Tip: Quick rule: transactional workflow = Service Bus; high-volume telemetry/streaming = Event Hub; Azure-service event routing = Event Grid."
+      },
+      {
+        "id": "azj_12",
+        "cat": "Cloud",
+        "q": "What is Azure DevOps and what are its main services?",
+        "wtlf": "Azure DevOps is a set of developer services for planning, building, testing, and deploying software. Services: Azure Boards (Kanban/Scrum work tracking), Azure Repos (Git or TFVC source control), Azure Pipelines (CI/CD pipelines, supports any language and cloud), Azure Test Plans (manual and automated testing), Azure Artifacts (package management — NuGet, npm, Maven, Python).  Azure Pipelines is the most commonly used component — it supports YAML-based pipelines checked into source control, multi-stage CI/CD, parallel jobs, and integration with GitHub, Bitbucket, and external registries. Classic (GUI) pipelines are being deprecated in favour of YAML. Azure Boards integrates with Repos so commits can be linked to work items.  Pro Tip: In interviews, know the difference between a Build Pipeline (CI — compiles, tests, packages) and a Release Pipeline (CD — deploys to environments with approvals)."
+      },
+      {
+        "id": "azj_13",
+        "cat": "Cloud",
+        "q": "What is Azure Kubernetes Service (AKS)?",
+        "wtlf": "Azure Kubernetes Service (AKS) is a managed Kubernetes container orchestration service. Azure manages the Kubernetes control plane (master nodes) at no cost; you pay only for agent (worker) nodes. AKS handles upgrades, patching, and scaling of the control plane. You deploy containerised applications as Pods, organised into Deployments and Services, with auto-scaling via Horizontal Pod Autoscaler (HPA) and Cluster Autoscaler.  AKS simplifies Kubernetes operations by removing control plane management. Integration with Azure AD enables RBAC for cluster access. Azure CNI or kubenet handle networking. Azure Monitor Container Insights provides cluster telemetry. Common use cases: microservices, APIs, ML inference serving, batch workloads. AKS supports both Linux and Windows node pools.  Pro Tip: Know the difference between HPA (scales pods based on CPU/memory), VPA (adjusts pod resource requests), and Cluster Autoscaler (scales nodes)."
+      },
+      {
+        "id": "azj_14",
+        "cat": "Cloud",
+        "q": "What is Azure Data Factory (ADF) and what is it used for?",
+        "wtlf": "Azure Data Factory is a cloud-based ETL and data integration service. It allows you to create data pipelines that ingest, transform, and load data across 90+ connectors (Azure, AWS, on-premises, SaaS). Key components: Pipelines (workflow of activities), Activities (Copy, Data Flow, Notebook, Stored Procedure), Datasets (data source/sink definitions), Linked Services (connection definitions), Integration Runtimes (execution engine — Azure, Self-hosted, SSIS).  ADF is the Azure equivalent of SSIS in the cloud. It supports code-free visual pipeline building and code-based (ARM/JSON) definitions. Mapping Data Flows provide code-free Spark-based transformations. Self-hosted Integration Runtime enables connectivity to on-premises data sources behind firewalls. ADF integrates natively with Azure Synapse, Databricks, and Power BI for end-to-end analytics pipelines.  Pro Tip: ADF is an orchestration tool, not a transformation engine. For heavy transformations, use Mapping Data Flows (Spark) or call Azure Databricks notebooks from ADF pipelines."
+      },
+      {
+        "id": "azj_15",
+        "cat": "Cloud",
+        "q": "What is the Azure pricing model and how do you estimate costs?",
+        "wtlf": "Azure pricing is consumption-based (pay-as-you-go) or commitment-based (Reserved Instances, Savings Plans). Key pricing dimensions: Compute (per vCore/hour or per GB-hour), Storage (per GB/month + transactions), Networking (egress charged, ingress free), Licensing (BYOL via Azure Hybrid Benefit reduces Windows/SQL licence costs). The Azure Pricing Calculator estimates monthly costs. Azure Cost Management + Billing tracks actual spend, sets budgets, and generates alerts.  Cost optimisation is a key Azure skill. Reserved Instances (1 or 3 year) save up to 72% on VMs vs pay-as-you-go. Azure Spot VMs offer up to 90% savings for interruptible workloads. Right-sizing VMs using Azure Advisor recommendations avoids over-provisioning. Tagging resources enables cost allocation to teams/projects. Egress costs (data leaving Azure) are often overlooked and can be significant.  Pro Tip: Always factor in egress costs when architecting cross-region or Azure-to-on-premises data flows — they can surprise teams used to on-premises networking."
+      },
+      {
+        "id": "azj_16",
+        "cat": "Cloud",
+        "q": "What is Azure Load Balancer and how does it differ from Azure Application Gateway?",
+        "wtlf": "Azure Load Balancer (Layer 4): distributes TCP/UDP traffic across VMs in a backend pool based on IP address and port. Operates at the transport layer. Supports internal (private) and external (public) load balancing. No SSL termination or URL-based routing. Azure Application Gateway (Layer 7): distributes HTTP/HTTPS traffic with URL path-based routing, host-based routing, SSL termination, Web Application Firewall (WAF), session affinity, and autoscaling. Operates at the application layer.  Use Load Balancer for non-HTTP workloads (SQL, RDP, game servers) or when you need ultra-low latency L4 distribution. Use Application Gateway for web applications that need WAF protection, URL routing (/api vs /images), or SSL offloading. Azure Front Door is a global L7 load balancer with CDN capabilities for globally distributed applications. Azure Traffic Manager is DNS-based global routing.  Pro Tip: Application Gateway + WAF is the standard pattern for internet-facing web apps in Azure. Always enable WAF in Prevention mode (not just Detection) for production."
+      },
+      {
+        "id": "azj_17",
+        "cat": "Cloud",
+        "q": "What is Azure RBAC and how does it work?",
+        "wtlf": "Azure Role-Based Access Control (RBAC) is the authorization system for controlling access to Azure resources. It uses three concepts: Security Principal (who: user, group, service principal, managed identity), Role Definition (what: a set of permissions — actions/notActions/dataActions), and Scope (where: management group, subscription, resource group, or resource). Built-in roles: Owner, Contributor, Reader, and hundreds of service-specific roles.  Azure RBAC is additive — a user's effective permissions are the union of all role assignments. Deny assignments (rare) can block specific actions. The principle of least privilege applies: assign the most restrictive role that satisfies the requirement. Managed Identities are preferred over service principals for Azure-to-Azure authentication as credentials are managed automatically by Azure.  Pro Tip: Use the built-in Reader role for monitoring/audit users, Contributor for developers (no access management), and Owner only for administrators who need to manage permissions."
+      },
+      {
+        "id": "azj_18",
+        "cat": "Cloud",
+        "q": "What is Azure Synapse Analytics and how is it different from Azure SQL Data Warehouse?",
+        "wtlf": "Azure Synapse Analytics is the evolution of Azure SQL Data Warehouse. It is an integrated analytics platform combining: Synapse SQL (dedicated SQL pools for data warehousing, serverless SQL pools for ad-hoc querying), Apache Spark Pools (big data processing), Data Integration (built-in ADF-like pipelines), and Synapse Link (real-time analytical queries over operational data in Cosmos DB or Dataverse).  Azure SQL Data Warehouse became Synapse Analytics in 2020. Dedicated SQL Pools use MPP (Massively Parallel Processing) architecture — data is distributed across 60 distributions. Serverless SQL Pool is pay-per-query, great for querying data lake files (Parquet, CSV). Synapse integrates natively with Power BI, Azure ML, and Azure Data Lake Storage Gen2. It is the central hub for modern Azure analytics architectures.  Pro Tip: Dedicated SQL Pool is expensive when running 24/7 — always pause it when not in use (e.g., outside business hours) to save costs."
+      },
+      {
+        "id": "azj_19",
+        "cat": "Cloud",
+        "q": "What is Infrastructure as Code (IaC) in Azure and what tools are available?",
+        "wtlf": "Infrastructure as Code means defining Azure infrastructure using code/configuration files rather than manual portal clicks. This enables versioning, repeatability, and automation. Azure tools: ARM Templates (JSON-based, native Azure), Bicep (DSL that compiles to ARM, more readable), Terraform (HashiCorp, multi-cloud, HCL language), Azure CLI/PowerShell scripts (imperative, less preferred for IaC). Azure Blueprints enables governance-level IaC across subscriptions.  Bicep is Microsoft's recommended modern IaC tool for Azure-only deployments — it is simpler than ARM JSON and supports modules. Terraform is preferred in multi-cloud or existing Terraform shops. IaC enables CI/CD for infrastructure: pipelines validate (terraform plan/bicep build), review, and deploy infrastructure changes safely. State management (terraform.tfstate) is a critical concept in Terraform.  Pro Tip: Store IaC files in source control, never apply changes manually to production. Use parameter files to manage environment differences (dev/prod)."
+      },
+      {
+        "id": "azj_20",
+        "cat": "Cloud",
+        "q": "What is Azure ExpressRoute and when would you use it over a VPN Gateway?",
+        "wtlf": "Azure ExpressRoute provides a private dedicated network connection between on-premises infrastructure and Azure, bypassing the public internet. It is delivered via a connectivity provider (e.g., BT, AT&T, Equinix). Bandwidth up to 100 Gbps. Offers predictable latency, higher security, and SLA-backed reliability. VPN Gateway uses IPSec tunnels over the public internet — cheaper but limited bandwidth (~10 Gbps max) and variable latency.  ExpressRoute is mandatory for: financial services with regulatory requirements for no internet transit, large data migrations needing sustained high bandwidth, or latency-sensitive applications. It supports Private Peering (Azure VNets) and Microsoft Peering (M365, Azure public services). ExpressRoute Global Reach connects on-premises sites via the Microsoft backbone. Cost is significantly higher than VPN Gateway.  Pro Tip: ExpressRoute does not encrypt traffic by default (it is a private circuit). For defence-in-depth, consider MACsec encryption or IPSec over ExpressRoute."
+      },
+      {
+        "id": "azj_21",
+        "cat": "Cloud",
+        "q": "What are Managed Identities in Azure and why are they preferred over Service Principals with secrets?",
+        "wtlf": "Managed Identities are Azure AD identities automatically managed by Azure for Azure resources. System-assigned: tied to a specific resource, deleted when the resource is deleted. User-assigned: standalone identity reusable across multiple resources. The key advantage: no credentials to store, rotate, or risk leaking. Azure handles token issuance and rotation. Supported by hundreds of Azure services as both identity (requestor) and target (Key Vault, Storage, SQL).  Traditional Service Principals require creating a secret or certificate and storing it securely — this is the 'secret zero' problem. Managed Identities solve this: an Azure Function can access Key Vault or Blob Storage using its system identity without any secret. The MI authenticates via Azure Instance Metadata Service (IMDS), completely transparent to the code. This is the zero-trust, credential-free authentication pattern recommended for all Azure workloads.  Pro Tip: Always prefer System-assigned MI for single-resource scenarios; User-assigned MI for shared identity across multiple resources (e.g., multiple VMs sharing the same DB access)."
+      },
+      {
+        "id": "az_shj0",
+        "cat": "Stakeholder",
+        "q": "A business analyst sends an urgent report request by end of day, but you are already committed to a critical pipeline fix. How do you handle this?",
+        "wtlf": "Communicates proactively, assesses priority with both parties, proposes realistic timeline, does not silently drop either task. Red flags: over-promising or ignoring one stakeholder."
+      },
+      {
+        "id": "az_shj1",
+        "cat": "Stakeholder",
+        "q": "How would you explain to a non-technical stakeholder why a data pipeline failed and what your remediation plan is?",
+        "wtlf": "Plain language (no jargon), clear root cause summary, concrete fix and timeline, reassurance of monitoring. Tests communication adaptability."
+      },
+      {
+        "id": "az_shj2",
+        "cat": "Stakeholder",
+        "q": "Your manager asks for a dashboard by Friday but you discover source data is missing for two of the five required metrics. What do you do?",
+        "wtlf": "Immediately surfaces the gap, quantifies what IS deliverable, proposes interim solution (partial dashboard with caveats), does not hide the problem until Friday."
+      },
+      {
+        "id": "az_shj3",
+        "cat": "Stakeholder",
+        "q": "How do you keep stakeholders informed about the progress of a long-running data migration project?",
+        "wtlf": "Regular status cadence, milestone tracking, risk flagging early, single source of truth (JIRA/Confluence), escalation thresholds defined upfront."
+      }
+    ],
+    "mid": [
+      {
+        "id": "azm_0",
+        "cat": "Cloud",
+        "q": "Design a highly available, fault-tolerant web application architecture on Azure.",
+        "wtlf": "Architecture: Azure Front Door (global L7 load balancing, WAF, CDN) > Azure Application Gateway (regional, WAF, SSL termination) > Azure App Service (multi-region, auto-scale) > Azure SQL Database (Business Critical tier, geo-replication) > Azure Redis Cache (session/data caching) > Azure Blob Storage (static assets) > Azure Key Vault (secrets) > Azure Monitor + Application Insights (observability).  Key HA principles: deploy across Availability Zones within a region (protects against datacenter failure) and across regions (protects against regional failure). Active-passive geo-replication with Azure Traffic Manager for DNS-based failover, or active-active with Azure Front Door. RPO/RTO requirements drive the choice. Business Critical SQL tier includes 4 replicas, built-in HA. Always test failover procedures — untested DR plans fail when needed most.  Pro Tip: Availability Zones protect against datacenter failure (99.99% SLA). Paired regions protect against regional disasters. Use both for critical applications."
+      },
+      {
+        "id": "azm_1",
+        "cat": "Cloud",
+        "q": "What is the Azure Well-Architected Framework and what are its five pillars?",
+        "wtlf": "The Azure Well-Architected Framework is a set of guiding principles for building high-quality cloud solutions. Five pillars: (1) Reliability — design for failure, HA, DR, redundancy. (2) Security — zero trust, defence in depth, least privilege, encryption. (3) Cost Optimization — right-size, reserved capacity, autoscale, eliminate waste. (4) Operational Excellence — IaC, CI/CD, monitoring, runbooks. (5) Performance Efficiency — auto-scale, caching, CDN, right service choice.  Each pillar has a set of design principles and review questions available in the Azure documentation. The Azure Advisor service surfaces automated recommendations across all five pillars for your specific subscriptions. In architecture reviews (design interviews), structure your answers around these pillars — it shows systematic thinking. Microsoft charges for Well-Architected Reviews conducted by partners.  Pro Tip: Memorise the five pillars: Reliability, Security, Cost Optimization, Operational Excellence, Performance Efficiency. They map directly to interview questions."
+      },
+      {
+        "id": "azm_2",
+        "cat": "Cloud",
+        "q": "Explain Azure's Defence-in-Depth security model.",
+        "wtlf": "Defence in depth applies security at multiple layers so that if one layer is breached, others still provide protection. Azure layers: Physical (Microsoft datacenter security), Identity (Azure AD MFA, Conditional Access), Perimeter (DDoS Protection, Azure Firewall), Network (NSGs, VNet segmentation, Private Endpoints), Compute (endpoint protection, patching, JIT VM access), Application (WAF, HTTPS, OWASP top 10 mitigations), Data (encryption at rest and in transit, Key Vault, Transparent Data Encryption).  Microsoft Defender for Cloud (formerly Azure Security Center) provides a Secure Score that rates your security posture and recommends improvements across all layers. Zero Trust is the overarching principle: never trust implicitly, always verify identity, assume breach, minimise blast radius. Conditional Access policies enforce step-up authentication for sensitive resources or unusual sign-in patterns.  Pro Tip: In security interviews, layer your answer: identity, network, compute, data. Show you think in layers, not just perimeter firewalls."
+      },
+      {
+        "id": "azm_3",
+        "cat": "Cloud",
+        "q": "What is Azure Private Endpoint and how does it differ from Service Endpoint?",
+        "wtlf": "Service Endpoint: enables traffic from a VNet to an Azure service (e.g., Azure Storage) over the Microsoft backbone network rather than the internet. The service still has a public IP but traffic stays on Microsoft's network. Access can be restricted to the VNet. Private Endpoint: creates a private IP address inside your VNet for an Azure PaaS service. The service effectively joins your VNet. No public IP needed. DNS resolves the service name to the private IP. Fully eliminates internet exposure.  Private Endpoint is the preferred modern approach — it gives the PaaS service a private IP, making it indistinguishable from a VM inside your VNet. Service Endpoints are simpler but still use the public endpoint of the service. Private DNS Zones must be configured to resolve the private endpoint hostname correctly (e.g., storageaccount.privatelink.blob.core.windows.net). Private Endpoints are required for compliance in highly regulated environments.  Pro Tip: Private DNS Zone integration is the most commonly missed step in Private Endpoint setups — without it, DNS still resolves to the public IP."
+      },
+      {
+        "id": "azm_4",
+        "cat": "Cloud",
+        "q": "Describe the Lambda and Kappa architectures for data processing on Azure. Which Azure services implement each?",
+        "wtlf": "Lambda Architecture: two parallel processing paths — Batch Layer (processes historical data for accuracy, e.g., Azure Synapse/Databricks on ADLS Gen2) + Speed Layer (processes real-time data for low latency, e.g., Azure Stream Analytics or Spark Streaming on Event Hub) + Serving Layer (merges results, e.g., Azure SQL, Cosmos DB). Kappa Architecture: eliminates the batch layer — all processing (historical and real-time) uses a single streaming system (e.g., Azure Event Hub + Databricks Structured Streaming).  Lambda is complex (two codebases to maintain) but proven. Kappa simplifies operations by treating everything as a stream — reprocessing history means replaying the Event Hub log. Delta Lake (on ADLS Gen2 with Databricks or Synapse) enables a modern Lakehouse architecture that blurs the Lambda/Kappa distinction: streaming writes land in Delta tables immediately queryable by batch analytics. Most modern Azure architectures lean Kappa or Lakehouse.  Pro Tip: Lakehouse = Delta Lake + ADLS Gen2 + Databricks/Synapse — this is the dominant modern pattern replacing classic Lambda."
+      },
+      {
+        "id": "azm_5",
+        "cat": "Cloud",
+        "q": "How do you implement Blue-Green or Canary deployments in Azure?",
+        "wtlf": "Blue-Green: maintain two identical production environments. Deploy new version to Green (inactive). Test. Switch all traffic from Blue to Green via Azure Traffic Manager, Front Door, or App Service Deployment Slots (with 100% slot swap). Rollback = swap back. Canary: gradually shift a percentage of traffic to the new version using weighted routing in Azure Front Door (e.g., 5% > 20% > 100%) or App Service slots with partial traffic split.  Azure App Service Deployment Slots are the simplest Blue-Green/Canary implementation for web apps — swap warms up the new slot before receiving traffic. For Kubernetes-based apps, Flagger or NGINX Ingress weighted routes implement canary. Azure DevOps Release Pipelines with gates and approvals automate the promotion steps. Feature flags (Azure App Configuration) complement canary by controlling features independently of deployment.  Pro Tip: App Service Slot swap is the fastest zero-downtime deployment for web apps — the new slot is warmed up before traffic is shifted."
+      },
+      {
+        "id": "azm_6",
+        "cat": "Cloud",
+        "q": "How would you architect an Azure solution to minimise costs for a batch processing workload that runs for 4 hours daily?",
+        "wtlf": "Options: (1) Azure Batch with Spot/Low-priority VMs (up to 80–90% discount — VMs can be preempted but batch retries automatically). (2) AKS with Spot node pools + virtual nodes for burst. (3) Azure Functions Consumption Plan (pay per execution, scales to zero). (4) Azure Synapse Serverless SQL Pool (pay per query, no idle cost). (5) Schedule VMs to start/stop using Azure Automation or Logic Apps to pay only for the 4 hours. (6) Reserved Instances would be wasteful for 4-hour daily workloads.  Cost optimisation for batch is about eliminating idle costs. Spot VMs are ideal for fault-tolerant batch workloads. Azure Batch natively handles Spot preemptions with automatic task retry. For Databricks batch jobs, Spot instance pools reduce cluster cost significantly. Always estimate: 4 hrs/day = 120 hrs/month vs 730 hrs (full month) — right-sizing the commitment avoids paying for 610 idle hours.  Pro Tip: Azure Advisor and Cost Management anomaly detection often surface batch VMs left running accidentally — set auto-shutdown policies as a safety net."
+      },
+      {
+        "id": "azm_7",
+        "cat": "Cloud",
+        "q": "What is Azure Service Fabric and when would you choose it over AKS?",
+        "wtlf": "Azure Service Fabric is a distributed systems platform for building and managing microservices and containerised applications. It was designed before Kubernetes became dominant and offers built-in stateful service programming models (Reliable Services, Reliable Actors) where state is replicated across nodes without external databases. AKS uses Kubernetes, the industry standard, with a stateless-first model where state lives in external stores.  Choose Service Fabric for: legacy Microsoft microservices workloads already on Service Fabric (e.g., Cosmos DB runs on SF internally), stateful services needing the SF programming model, or scenarios requiring guaranteed message delivery via Reliable Collections. Choose AKS for: new microservices, container-first architectures, multi-cloud portability, the rich Kubernetes ecosystem (Helm, Istio, ArgoCD). In practice, AKS is the overwhelmingly more common choice for new projects.  Pro Tip: Service Fabric is niche today. Unless you have existing SF workloads, default to AKS for containerised microservices."
+      },
+      {
+        "id": "azm_8",
+        "cat": "Cloud",
+        "q": "How do you implement distributed tracing and end-to-end observability in Azure?",
+        "wtlf": "Use Application Insights with the OpenTelemetry SDK (or Azure Monitor Exporter) to instrument all services. Each request generates a correlation ID (operation_Id) propagated across HTTP headers and service bus messages. Application Insights Application Map visualises all dependencies. End-to-end transaction search traces a single request across microservices. Log Analytics aggregates logs. Metrics Alerts + Action Groups trigger PagerDuty/Teams notifications. Azure Monitor Workbooks create custom dashboards.  Distributed tracing solves the 'where did this request fail?' problem in microservices. W3C Trace Context headers standardise trace propagation. Application Insights sampling (adaptive sampling) reduces data volume while preserving trace fidelity. For Kubernetes, Container Insights provides cluster-level metrics. Combining Application Insights (app layer) + Container Insights (infra layer) + Log Analytics (platform logs) gives full-stack observability.  Pro Tip: Enable Application Insights auto-instrumentation for Azure App Service and Functions — it requires zero code changes and provides immediate APM coverage."
+      },
+      {
+        "id": "azm_9",
+        "cat": "Cloud",
+        "q": "What is Azure Landing Zone and why is it used in enterprise Azure adoption?",
+        "wtlf": "An Azure Landing Zone is a pre-configured, scalable Azure environment built on enterprise-scale architectural patterns that provides a foundation for hosting workloads. It implements: Management Group hierarchy, Azure Policy for governance, RBAC, networking topology (hub-and-spoke or Virtual WAN), centralised logging, Security Center/Defender, and tagging conventions — all aligned to the Cloud Adoption Framework (CAF).  Without Landing Zones, enterprises end up with uncontrolled sprawl — every team creates resources differently with no governance, inconsistent security, and no cost allocation. Landing Zones establish guardrails via Azure Policy (deny non-compliant configs, require tags, enforce allowed regions). The accelerator (formerly Enterprise Scale) is an open-source GitHub reference implementation deployable via Bicep or Terraform. It is the starting point for all large enterprise Azure migrations.  Pro Tip: Azure Policy 'Deny' effects block non-compliant deployments proactively. 'Audit' effects only report — always move to Deny for critical security policies in production."
+      },
+      {
+        "id": "azm_10",
+        "cat": "Cloud",
+        "q": "Explain the Medallion Architecture in Azure Databricks / Synapse Analytics.",
+        "wtlf": "Medallion Architecture organises data in an Azure Data Lake into three layers: Bronze (raw ingestion — land data exactly as received from sources, no transformation, immutable), Silver (cleaned and conformed — remove duplicates, parse types, apply business rules, join reference data), Gold (curated, aggregated, business-ready — optimised for reporting, analytics, and ML feature stores). All three layers use Delta Lake format for ACID transactions and time travel.  The Medallion Architecture is now the standard data lake pattern in Azure. Delta Lake's ACID support means Bronze data can be corrected without full reprocessing (UPDATE/MERGE). Schema evolution is handled gracefully. Databricks Auto Loader (cloudFiles) incrementally ingests new Bronze files. Streaming and batch pipelines both write to the same Delta tables. Gold tables feed Azure Synapse serverless pools or Power BI Direct Lake for analytics.  Pro Tip: Use Auto Loader for Bronze ingestion (handles schema inference, file tracking, exactly-once processing) rather than manual file listing."
+      },
+      {
+        "id": "azm_11",
+        "cat": "Cloud",
+        "q": "How does Azure Defender for Cloud (Microsoft Defender for Cloud) protect a hybrid environment?",
+        "wtlf": "Microsoft Defender for Cloud (MDfC) provides Cloud Security Posture Management (CSPM) and Cloud Workload Protection Platform (CWPP) across Azure, AWS, GCP, and on-premises. CSPM: Secure Score rates posture, Regulatory Compliance maps to standards (ISO27001, PCI-DSS, CIS), Recommendations suggest fixes. CWPP: Defender plans protect specific workloads — Defender for Servers (threat detection on VMs), Defender for SQL (injection/anomaly detection), Defender for Containers (AKS runtime protection), Defender for Storage (malware scanning).  MDfC uses Azure Arc to extend coverage to non-Azure machines. Defender for Servers integrates with Microsoft Defender for Endpoint (EDR). JIT VM Access reduces the attack surface by opening RDP/SSH ports only when requested and for a limited time. Adaptive Application Controls whitelist approved processes on VMs. Security Alerts integrate with Microsoft Sentinel (SIEM) for investigation and automated response.  Pro Tip: Enable Defender for Cloud's enhanced security features (paid plans) on production subscriptions — free tier only provides CSPM, not workload protection."
+      },
+      {
+        "id": "azm_12",
+        "cat": "Cloud",
+        "q": "What is Azure Virtual WAN and when would you use it over a hub-and-spoke VNet topology?",
+        "wtlf": "Azure Virtual WAN (vWAN) is a Microsoft-managed networking service that provides any-to-any connectivity between branches, VNets, and clouds through a Microsoft-managed hub. It automates branch-to-branch, branch-to-Azure, and Azure-to-Azure routing. Standard vWAN supports Site-to-Site VPN, ExpressRoute, Point-to-Site VPN, and VNet connections from a single managed hub. Hub-and-spoke: customer-managed hub VNet with NVAs/firewalls, requires custom route tables (UDRs) and peerings.  Virtual WAN is preferred when: you have many branch offices connecting to Azure, you want Microsoft to manage the routing complexity, or you need SD-WAN integration. Hub-and-spoke gives more control — you choose the firewall (Azure Firewall, third-party NVA), and manage routing explicitly. Large enterprises with network engineering teams often prefer hub-and-spoke for control; organisations without deep networking expertise prefer vWAN for simplicity.  Pro Tip: Secure Virtual Hub = vWAN hub with Azure Firewall Manager — this is the managed equivalent of deploying Azure Firewall in a hub VNet."
+      },
+      {
+        "id": "azm_13",
+        "cat": "Cloud",
+        "q": "How would you design an event-driven microservices architecture on Azure?",
+        "wtlf": "Components: Azure API Management (gateway) > Azure Service Bus Topics (async messaging, pub/sub) > Azure Functions or AKS-hosted microservices (consumers) > Azure Cosmos DB or Azure SQL (per-service data stores, database-per-service pattern) > Azure Event Grid (service-to-service events) > Azure Cache for Redis (caching layer) > Application Insights (distributed tracing) > Azure Container Registry (image store) > GitHub Actions/Azure DevOps (CI/CD).  Event-driven architecture decouples producers from consumers — a service publishes an event without knowing who processes it. Service Bus Topics with subscriptions enable fan-out. Dead-letter queues handle failed processing. Sagas manage distributed transactions across services (choreography via events or orchestration via a coordinator). Idempotency in consumers is critical — the same event may be delivered more than once. The Outbox pattern ensures events are only published when the DB transaction commits.  Pro Tip: Use Competing Consumers pattern on Service Bus queues for scale-out — multiple function instances process messages in parallel, each message processed exactly once."
+      },
+      {
+        "id": "azm_14",
+        "cat": "Cloud",
+        "q": "What is Azure Policy and how does it enforce governance at scale?",
+        "wtlf": "Azure Policy is a governance service that evaluates Azure resource configurations against defined rules (policy definitions). Effects: Deny (blocks non-compliant deployments), Audit (logs non-compliance), AuditIfNotExists, DeployIfNotExists (auto-remediate by deploying required resources), Append (adds fields to resource requests), Modify (add/replace tags). Initiatives group multiple policies. Policies are assigned at management group, subscription, or resource group scope.  Azure Policy is the guardrail mechanism for Landing Zones. Examples: enforce all Storage Accounts use HTTPS only (Deny effect), require all resources to have a 'CostCenter' tag (Modify/Deny), deploy Log Analytics agent to all VMs (DeployIfNotExists with managed identity for auto-remediation). Policy compliance dashboard shows organisational posture. Built-in initiative for PCI-DSS, HIPAA, and ISO27001 accelerate regulatory compliance.  Pro Tip: DeployIfNotExists (DINE) policies with remediation tasks automatically fix existing non-compliant resources — not just new ones. Assign a managed identity to the policy assignment for DINE policies."
+      },
+      {
+        "id": "azm_15",
+        "cat": "Cloud",
+        "q": "What is Azure Stream Analytics and how does it fit into a real-time analytics pipeline?",
+        "wtlf": "Azure Stream Analytics (ASA) is a fully managed, serverless real-time stream processing service. It ingests data from Event Hub, IoT Hub, or Blob Storage, processes it using SQL-like queries with temporal window functions (Tumbling, Hopping, Sliding, Session), and outputs to Blob, SQL Database, Cosmos DB, Power BI, or Service Bus. Supports complex event processing, anomaly detection, and reference data joins.  ASA is ideal for: IoT telemetry processing, real-time dashboards, fraud detection, and log analytics. Streaming Units (SUs) scale processing throughput. Windowing functions are unique to stream processing: Tumbling (non-overlapping fixed windows), Hopping (overlapping), Sliding (triggered by events). Reference data joins allow enriching streams with slowly-changing dimension data (e.g., device metadata). For more complex ML-enriched streaming, Azure Databricks Structured Streaming is more flexible.  Pro Tip: ASA's built-in Power BI output creates real-time streaming datasets in Power BI — enabling truly real-time dashboards without scheduled refresh."
+      },
+      {
+        "id": "azm_16",
+        "cat": "Cloud",
+        "q": "How would you implement disaster recovery for a Tier-1 application in Azure (RPO=15min, RTO=1hr)?",
+        "wtlf": "Active-passive geo-redundant architecture: Primary region (e.g., UK South) + Secondary region (e.g., UK West). Components: Azure SQL Business Critical + Auto-failover group (RPO ~5 seconds). Azure Storage with GRS/RA-GRS (geo-replicated, 15-min RPO). Azure App Service with Traffic Manager or Front Door for DNS failover. Azure Site Recovery for VM replication (RPO configurable to 30 seconds for Hyper-V). Recovery Plans in ASR automate failover sequencing. Regular DR drills every quarter.  RPO=15min means you can lose at most 15 minutes of data. RTO=1hr means the system must be back online within 1 hour of a disaster. Auto-failover groups handle SQL automatically. App Service must be pre-deployed in secondary region (warm standby). Traffic Manager / Front Door health probes detect primary failure and re-route DNS. Azure Site Recovery enables VM failover with pre-defined recovery plans. Test failover (without affecting production) validates RTO claims.  Pro Tip: Untested DR = no DR. Run regular test failovers to a separate 'recovery test' environment — this validates both RPO and RTO without impacting production."
+      },
+      {
+        "id": "azm_17",
+        "cat": "Cloud",
+        "q": "What is GitOps and how do you implement it for Azure Kubernetes Service?",
+        "wtlf": "GitOps is a practice where the desired state of infrastructure and applications is declared in Git repositories. An automated agent continuously reconciles the actual cluster state with the Git-declared state. For AKS: use Azure Arc-enabled Kubernetes + Flux (GitOps extension) or ArgoCD. The Git repo holds Kubernetes manifests or Helm charts. Changes pushed to Git are automatically applied to the cluster. Pull Requests become the change management process.  GitOps solves cluster configuration drift — if someone manually applies kubectl changes, the GitOps agent detects and reverts them. Azure Arc GitOps extension (Flux v2) is Microsoft's managed GitOps solution for AKS and Arc clusters. It supports multi-cluster management from a single Git repo. Combined with Azure DevOps Pull Request policies and branch protection, it creates a full audit trail of every cluster change.  Pro Tip: Never apply kubectl commands directly to production AKS clusters. All changes must go through Git PRs — this is the core GitOps discipline."
+      },
+      {
+        "id": "azm_18",
+        "cat": "Cloud",
+        "q": "Explain Azure Service Mesh options and when you would use Istio vs Open Service Mesh vs Linkerd.",
+        "wtlf": "A service mesh manages service-to-service communication in Kubernetes: mTLS encryption, traffic management (canary, circuit breaker, retries), observability (traces, metrics). AKS options: Istio add-on (AKS managed, feature-rich, complex), Open Service Mesh (OSM, AKS add-on, lightweight, CNCF graduated, now deprecated in favour of Istio), Linkerd (CNCF, ultra-lightweight, simpler than Istio, not managed by AKS). Consul Connect and others are also available.  Istio is the most feature-rich but operationally complex — large teams with Kubernetes expertise benefit most. Linkerd is simpler, lighter, and faster — good for teams wanting mTLS and observability without Istio complexity. OSM was Microsoft's lightweight choice but is being replaced. AKS managed Istio add-on reduces operational overhead of Istio upgrades. For most enterprise AKS deployments, the AKS Istio add-on is the recommended choice.  Pro Tip: Start without a service mesh — add one only when you have specific needs (mTLS between services, advanced traffic management, or rich L7 observability). Complexity has a cost."
+      },
+      {
+        "id": "azm_19",
+        "cat": "Cloud",
+        "q": "What is Microsoft Sentinel and how does it provide SIEM+SOAR capabilities on Azure?",
+        "wtlf": "Microsoft Sentinel is a cloud-native SIEM (Security Information and Event Management) and SOAR (Security Orchestration, Automation and Response) solution built on Azure Monitor Log Analytics. It ingests security data from Azure services, Microsoft 365, and third-party tools via connectors. Analytics Rules (KQL-based) detect threats. Incidents group related alerts. Playbooks (Logic Apps) automate responses (block user, create ticket, notify Teams). Threat intelligence feeds, UEBA (user/entity behaviour analytics), and ML-based fusion detection are built in.  Sentinel's value is correlating signals across the entire estate — Azure, M365, on-premises, AWS, firewalls — to detect threats that siloed tools miss. KQL is the query language for hunting and detection rules. Microsoft Security Graph API provides Threat Intelligence. Playbooks enable automated triage (auto-close false positives, auto-block IPs via NSG changes). Workspace-based pricing means data ingestion costs must be managed via data collection rules and sampling.  Pro Tip: Use Data Collection Rules (DCR) to filter what data is ingested into Sentinel — raw security log ingestion at full volume can be very expensive."
+      },
+      {
+        "id": "az_shm0",
+        "cat": "Stakeholder",
+        "q": "A downstream team claims your pipeline is producing incorrect numbers that differ from their legacy system. How do you investigate and communicate?",
+        "wtlf": "Data reconciliation process, cross-checks with source, documents findings with evidence, aligns on definition of correct, involves both teams in resolution. Avoids blame."
+      },
+      {
+        "id": "az_shm1",
+        "cat": "Stakeholder",
+        "q": "You have identified a critical architectural improvement requiring 2 weeks of rework. How do you build a business case and get stakeholder buy-in?",
+        "wtlf": "Quantifying technical debt impact, translating to business cost, proposing phased delivery, risk framing, clear ROI. Tests influence without authority."
+      },
+      {
+        "id": "az_shm2",
+        "cat": "Stakeholder",
+        "q": "A data science team is frustrated that your pipelines deliver data too slowly for their ML model retraining schedule. How do you resolve this?",
+        "wtlf": "SLA discussion, root cause analysis (batch vs stream, schedule times), incremental loading option, aligning on acceptable latency, formalising an SLA agreement."
+      },
+      {
+        "id": "az_shm3",
+        "cat": "Stakeholder",
+        "q": "Mid-project, you learn that the data model you built does not meet new compliance requirements. How do you communicate this and re-plan?",
+        "wtlf": "Immediate notification to project lead, impact scope assessment, propose minimal-change remediation, realistic revised timeline, document decision log."
+      }
+    ],
+    "senior": [
+      {
+        "id": "az_s0",
+        "cat": "Cloud",
+        "q": "Design a fault-tolerant, multi-region data platform on Azure with RPO < 5 minutes and RTO < 30 minutes. Walk through every architectural decision.",
+        "wtlf": "Active-passive geo-redundant architecture; Azure Front Door for global routing; App Service with Traffic Manager; Azure SQL Business Critical + auto-failover group (RPO ~5s); Azure Site Recovery for VMs; automated failover runbooks; quarterly DR drills; cost vs resilience trade-off discussion."
+      },
+      {
+        "id": "az_s1",
+        "cat": "Cloud",
+        "q": "How would you implement a Medallion architecture in Azure Databricks at petabyte scale with data quality enforcement at every layer?",
+        "wtlf": "Bronze: raw Delta Lake with schema evolution; Silver: Great Expectations or Databricks data quality rules for deduplication and typing; Gold: aggregated, partitioned, optimised for BI; Unity Catalog for governance; Delta Lake ACID; streaming (Auto Loader) + batch convergence; Z-ORDER clustering on high-cardinality join keys."
+      },
+      {
+        "id": "az_s2",
+        "cat": "Cloud",
+        "q": "Explain Azure Landing Zones and how you would structure a multi-subscription enterprise Azure environment for 50+ teams.",
+        "wtlf": "Management group hierarchy (Root -> Platform -> Landing Zones -> Workloads); Azure Policy for guardrails (Deny non-compliant regions, enforce tags, deploy-if-not-exists for logging); Subscription vending machine via Azure DevOps; hub-and-spoke networking; RBAC aligned to RACI; cost management per subscription."
+      },
+      {
+        "id": "az_s3",
+        "cat": "Cloud",
+        "q": "How do you implement zero-trust security across an Azure data platform at enterprise scale? Reference specific services.",
+        "wtlf": "Entra ID MFA + Conditional Access; Managed Identities for all service-to-service auth; Private Endpoints for all PaaS (no public internet); NSGs + Azure Firewall; Microsoft Defender for Cloud; JIT VM access; Purview sensitivity labels; RBAC least privilege; audit all access via Diagnostic Settings to Log Analytics."
+      },
+      {
+        "id": "az_s4",
+        "cat": "SQL",
+        "q": "Design a SQL strategy for a real-time streaming fact table in Azure Synapse that receives 50,000 events per second, ensuring no data loss and sub-minute query freshness.",
+        "wtlf": "Event Hubs -> Stream Analytics (windowed aggregation) -> ADLS Gen2 Delta table; Synapse Serverless for near-real-time queries on Delta; dedicated pool for historical aggregations; partition by event hour; hash-distribute on device_id; CCI on fact table; monitoring via Azure Monitor alerts on lag."
+      },
+      {
+        "id": "az_s5",
+        "cat": "SQL",
+        "q": "How would you optimise a complex multi-join query in Synapse Dedicated SQL Pool causing tempdb spill and taking 45 minutes to complete?",
+        "wtlf": "Update statistics (CREATE STATISTICS); hash-distribute fact and largest dimension on join key; switch from ROUND_ROBIN to HASH distribution; add Clustered Columnstore Index; partition elimination via date predicate; materialised views for repeated sub-aggregations; reduce data movement steps (check EXPLAIN plan for BroadcastMoveOperation vs ShuffleMoveOperation); CTAS to pre-materialise heavy subqueries."
+      },
+      {
+        "id": "az_s6",
+        "cat": "SQL",
+        "q": "Implement an idempotent incremental load pattern in Azure Synapse Analytics for a 100M-row fact table that receives updates, inserts, and late-arriving records daily.",
+        "wtlf": "Watermark table stores last_processed_timestamp per source; COPY INTO staging from ADLS; MERGE on fact table using business key (not surrogate); late-arriving: staging covers last 3 days (not just delta); idempotency: MERGE is safe to re-run; hash-distribute staging and fact on same key to avoid data movement in MERGE; monitor with sys.dm_pdw_exec_requests."
+      },
+      {
+        "id": "az_s7",
+        "cat": "Stakeholder",
+        "q": "You are the Azure Platform Lead. Three business units each want their own Azure tenant for autonomy but IT Security mandates centralised governance. How do you resolve this?",
+        "wtlf": "Facilitates multi-stakeholder alignment; proposes Azure Landing Zone with Management Groups as compromise (autonomy within guardrails); demonstrates policy inheritance; designs tiered governance (mandatory vs recommended vs elective policies); escalates only unresolvable conflicts; documents agreed model."
+      },
+      {
+        "id": "az_s8",
+        "cat": "Stakeholder",
+        "q": "A critical Azure pipeline has breached its SLA for the third consecutive month. The business is threatening to escalate to the CTO. How do you lead the response?",
+        "wtlf": "Immediate RCA (within 24hrs); transparent communication to stakeholders about findings; short-term mitigation vs long-term fix plan; proposes SLA review (was it realistic?); establishes improved monitoring and alerting; presents post-mortem with preventive measures; rebuilds trust through consistent delivery."
+      },
+      {
+        "id": "az_s9",
+        "cat": "Stakeholder",
+        "q": "How do you present a multi-million pound Azure modernisation business case to a board that is sceptical of cloud costs?",
+        "wtlf": "Total Cost of Ownership (TCO) comparison (on-prem vs cloud, include hidden costs: hardware refresh, datacentre, staff); phased investment with measurable milestones; risk quantification (regulatory fines, outage cost); competitor benchmarking; pilot ROI evidence; addresses scepticism with specific cost control mechanisms (budgets, reserved instances, governance)."
+      },
+      {
+        "id": "az_s10",
+        "cat": "Stakeholder",
+        "q": "You discover mid-project that a key Azure architecture decision made 6 months ago is now creating a compliance risk. Rework would delay delivery by 3 months. How do you handle this?",
+        "wtlf": "Does not hide the issue; immediate risk assessment with legal/compliance team; quantifies rework cost vs compliance breach cost; presents options (rework now, compensating controls, accept risk with sign-off); escalates with a recommendation not just a problem; updates project plan transparently; lessons-learned review on architectural decision process."
+      }
+    ]
+  },
+  "AWS": {
+    "junior": [
+      {
+        "id": "awsj_0",
+        "cat": "Cloud",
+        "q": "What is AWS and what are its global infrastructure components?",
+        "wtlf": "Amazon Web Services (AWS) is Amazon's cloud computing platform with 200+ services. Global infrastructure: Regions (geographic areas with 2+ Availability Zones, e.g., us-east-1), Availability Zones (AZs — one or more discrete datacenters with redundant power/networking in a region), Edge Locations (CDN PoPs for CloudFront and Route 53), Local Zones (low-latency extension of a region near a metro area), and Wavelength Zones (5G edge computing).  AWS has the broadest global footprint with 33+ regions and 100+ AZs. Regions are isolated from each other for fault tolerance. Deploying across AZs (multi-AZ) within a region protects against datacenter failure. Deploying across Regions protects against regional disasters. Choosing the right region involves latency, data residency laws, and service availability.  Pro Tip: Data residency/sovereignty laws (GDPR, India PDPB) often mandate which region your data must reside in. Always verify compliance requirements before region selection."
+      },
+      {
+        "id": "awsj_1",
+        "cat": "Cloud",
+        "q": "What is EC2 and what are the main instance purchasing options?",
+        "wtlf": "Amazon EC2 (Elastic Compute Cloud) provides resizable virtual machines in the cloud. Purchasing options: On-Demand (pay per hour/second, no commitment, most flexible), Reserved Instances (1 or 3 year commitment, up to 72% savings — Standard or Convertible), Savings Plans (flexible commitment on $/hour, up to 66% savings), Spot Instances (bid on spare capacity, up to 90% savings, can be interrupted with 2-min notice), Dedicated Hosts (physical server dedicated to you, licensing compliance), Dedicated Instances (hardware dedicated to your account).  Choosing the right purchasing option is a cost optimisation skill. Spot Instances are ideal for fault-tolerant batch jobs, big data, and CI/CD. Reserved Instances/Savings Plans are for steady-state workloads. On-Demand for unpredictable spikes and dev/test. EC2 instance families: general purpose (t3, m6), compute-optimised (c6), memory-optimised (r6), storage-optimised (i3), accelerated (p4/g4 for GPU).  Pro Tip: Savings Plans are more flexible than Reserved Instances — they apply to EC2, Lambda, and Fargate across any instance family. Prefer Savings Plans for modern environments."
+      },
+      {
+        "id": "awsj_2",
+        "cat": "Cloud",
+        "q": "What is S3 and what are the key S3 storage classes?",
+        "wtlf": "Amazon S3 (Simple Storage Service) is AWS's object storage service for any data type. Objects are stored in Buckets. Storage classes: S3 Standard (frequent access, high durability 11 9s, three AZ replication), S3 Standard-IA (infrequent access, lower storage cost, retrieval fee), S3 One Zone-IA (single AZ, cheaper, less resilient), S3 Intelligent-Tiering (auto-moves objects based on access patterns), S3 Glacier Instant Retrieval (archive, milliseconds), S3 Glacier Flexible Retrieval (minutes to hours), S3 Glacier Deep Archive (cheapest, 12-hour retrieval).  S3 Intelligent-Tiering is best when access patterns are unpredictable — it automatically moves objects between frequent, infrequent, and archive tiers. S3 Lifecycle Policies automate tier transitions on a schedule. S3 is infinitely scalable with no capacity management. Bucket policies and ACLs control access. S3 Block Public Access should be enabled at the account level to prevent accidental public exposure.  Pro Tip: S3 Block Public Access — enable this at the account level on all production accounts. It overrides bucket policies that accidentally make data public."
+      },
+      {
+        "id": "awsj_3",
+        "cat": "Cloud",
+        "q": "What is IAM in AWS and what are its main components?",
+        "wtlf": "AWS IAM (Identity and Access Management) controls authentication and authorisation for AWS resources. Main components: Users (human identities with long-term credentials), Groups (collections of users with shared permissions), Roles (temporary credential identities assumed by services, applications, or users — no long-term passwords/keys), Policies (JSON documents defining permissions — Allow/Deny actions on resources), and Identity Providers (SAML/OIDC federation).  IAM Roles are the preferred identity for EC2 instances, Lambda, and cross-account access — they use temporary credentials via STS (Security Token Service) rather than long-term access keys. The root account should never be used for daily operations (enable MFA, create admin IAM user instead). Permissions boundaries set the maximum permissions an identity can have. Service Control Policies (SCPs) in AWS Organisations restrict permissions at the account level.  Pro Tip: Never use root account credentials. Rotate access keys regularly. Prefer roles with temporary credentials (STS AssumeRole) over long-term access keys for applications."
+      },
+      {
+        "id": "awsj_4",
+        "cat": "Cloud",
+        "q": "What is VPC in AWS and what are its key components?",
+        "wtlf": "AWS VPC (Virtual Private Cloud) is a logically isolated virtual network within AWS. Key components: Subnets (public — internet-accessible via Internet Gateway, private — no direct internet access), Internet Gateway (allows internet access for public subnets), NAT Gateway (allows private subnets to initiate outbound internet traffic), Route Tables (direct traffic between subnets and gateways), Security Groups (stateful firewall at instance level), NACLs (stateless firewall at subnet level), VPC Peering (connects VPCs).  Security Groups vs NACLs: Security Groups are stateful (return traffic automatically allowed), attached to ENIs, support only Allow rules. NACLs are stateless (must explicitly allow return traffic), attached to subnets, support Allow and Deny rules. Multi-tier architecture: web tier in public subnet, app and database tiers in private subnets. Private subnets use NAT Gateway for outbound-only internet access.  Pro Tip: Security Groups are instance-level, stateful, allow-only. NACLs are subnet-level, stateless, allow+deny. Security Groups are sufficient for most use cases; NACLs add defence-in-depth."
+      },
+      {
+        "id": "awsj_5",
+        "cat": "Cloud",
+        "q": "What is the difference between AWS RDS and DynamoDB?",
+        "wtlf": "Amazon RDS: Managed relational database service supporting MySQL, PostgreSQL, Oracle, SQL Server, and MariaDB. Supports SQL, ACID transactions, joins, and stored procedures. Best for structured data with complex relationships. DynamoDB: Fully managed NoSQL key-value and document database. Single-digit millisecond performance at any scale. Auto-scaling with no capacity management. Best for high-throughput, low-latency workloads with simple access patterns (key lookups). RDS Aurora is a MySQL/PostgreSQL-compatible relational DB built for the cloud with up to 5x MySQL performance.  RDS is best when your application is already relational, needs SQL, or requires complex joins and transactions. DynamoDB is best for gaming leaderboards, session stores, shopping carts, IoT telemetry — where you access data by a known key and need massive scale. DynamoDB's partition key design is critical — a hot partition (e.g., all writes to key='US') destroys performance. ElastiCache (Redis/Memcached) complements both as a caching layer.  Pro Tip: DynamoDB's biggest gotcha: it is optimised for known access patterns. If you frequently need to query by non-key attributes, use Global Secondary Indexes (GSIs) or consider RDS instead."
+      },
+      {
+        "id": "awsj_6",
+        "cat": "Cloud",
+        "q": "What is AWS Lambda and what are its key characteristics?",
+        "wtlf": "AWS Lambda is a serverless compute service. You upload code (Node.js, Python, Java, Go, C#, Ruby), configure a trigger, and Lambda runs the function on demand. Key characteristics: Maximum 15-minute execution timeout, 10 GB memory, ephemeral /tmp storage (10 GB), 1000 concurrent executions per region (soft limit), pay per 100ms of execution, scales automatically from 0 to thousands of instances. Supports synchronous (API Gateway) and asynchronous (SQS, SNS, S3 event) invocations.  Lambda Layers share common dependencies across functions. Lambda@Edge and CloudFront Functions run code at edge locations for low latency. Lambda's concurrency model: reserved concurrency guarantees capacity, provisioned concurrency eliminates cold starts. Lambda integrates natively with API Gateway for REST/HTTP APIs, Step Functions for workflows, SQS for event-driven processing. Lambda execution roles (IAM roles) control what AWS services the function can access.  Pro Tip: Lambda cold starts (50ms–10s depending on runtime and memory): use Provisioned Concurrency for latency-sensitive functions, and prefer Python/Node.js over Java for faster cold starts."
+      },
+      {
+        "id": "awsj_7",
+        "cat": "Cloud",
+        "q": "What is Amazon CloudFront and what is it used for?",
+        "wtlf": "Amazon CloudFront is AWS's Content Delivery Network (CDN). It caches content at 400+ Edge Locations globally, delivering it to users with low latency. Use cases: static asset acceleration (S3 + CloudFront), API acceleration, video streaming, DDoS protection (AWS Shield is integrated), Web Application Firewall (WAF), signed URLs/cookies for private content, and Lambda@Edge for edge computation.  CloudFront reduces origin load by caching responses at the edge. Cache behaviour controls which paths are cached and for how long (TTL). Origin Shield adds an additional caching layer to protect origin from high request volumes. CloudFront + S3 Origin Access Control (OAC) ensures S3 content is only accessible via CloudFront, not directly. CloudFront Functions are lightweight V8 functions for simple viewer request/response modifications.  Pro Tip: Always use Origin Access Control (OAC, not the legacy OAI) to lock down S3 origins — it prevents users from bypassing CloudFront to access S3 directly."
+      },
+      {
+        "id": "awsj_8",
+        "cat": "Cloud",
+        "q": "What is AWS CloudFormation and what is it used for?",
+        "wtlf": "AWS CloudFormation is AWS's native Infrastructure as Code (IaC) service. You define AWS infrastructure in JSON or YAML templates. CloudFormation provisions, updates, and deletes resources as a Stack. Key concepts: Templates (describe desired resources), Stacks (deployed instances of templates), StackSets (deploy stacks across multiple accounts/regions), Change Sets (preview changes before applying), Drift Detection (identify manual changes).  CloudFormation enables repeatable, version-controlled infrastructure. Nested stacks break large templates into reusable modules. The AWS CDK (Cloud Development Kit) lets you define CloudFormation in TypeScript, Python, or Java — generating CloudFormation templates. CDK is increasingly preferred over raw YAML/JSON for its type safety and IDE support. Terraform is the dominant multi-cloud IaC alternative.  Pro Tip: Use Change Sets before updating production stacks — they show exactly what will change, add, or be replaced (replacement = temporary downtime for some resources)."
+      },
+      {
+        "id": "awsj_9",
+        "cat": "Cloud",
+        "q": "What is the difference between SQS and SNS in AWS?",
+        "wtlf": "Amazon SQS (Simple Queue Service): message queue for point-to-point decoupling. Messages are stored until a consumer pulls and processes them. Standard queues (at-least-once, best-effort ordering), FIFO queues (exactly-once, ordered). Amazon SNS (Simple Notification Service): pub/sub message service. Publishers send to a Topic; SNS fans out to all subscribers (SQS, Lambda, HTTP, email, SMS, mobile push). Messages are not stored — subscribers must be available.  The Fan-out pattern (SNS + SQS) combines both: SNS fans a message to multiple SQS queues, each processed independently. This is the most common AWS messaging pattern. SQS Dead Letter Queues (DLQ) handle messages that fail processing after N retries. SQS visibility timeout prevents multiple consumers from processing the same message simultaneously. FIFO queues guarantee order and exactly-once processing but have lower throughput (3000 msg/s vs standard's nearly unlimited).  Pro Tip: SNS + SQS Fan-out is the standard pattern: one SNS topic, multiple SQS subscriber queues — decoupled, parallel processing, each queue with its own DLQ."
+      },
+      {
+        "id": "awsj_10",
+        "cat": "Cloud",
+        "q": "What is Amazon EKS vs ECS for container orchestration?",
+        "wtlf": "Amazon ECS (Elastic Container Service): AWS-native container orchestration. Task Definitions define containers. Services manage desired counts and load balancing. Launch types: EC2 (manage underlying instances) or Fargate (serverless containers — no EC2 to manage). Amazon EKS (Elastic Kubernetes Service): Managed Kubernetes on AWS. AWS manages the control plane. You manage node groups (EC2) or use Fargate for serverless pods. Full Kubernetes ecosystem compatibility.  Choose ECS when: team is new to containers, you want simplicity, or AWS-native integration is a priority. Choose EKS when: team knows Kubernetes, you need multi-cloud portability, or you want the full Kubernetes ecosystem (Helm, ArgoCD, Karpenter, Istio). Fargate removes node management for both ECS and EKS. AWS Copilot CLI simplifies ECS application deployment. EKS Blueprints provide opinionated EKS configurations via CDK/Terraform.  Pro Tip: Fargate on ECS is the lowest-friction container platform on AWS — no EC2 to manage, pay per vCPU/GB-hour. Start here for new containerised applications."
+      },
+      {
+        "id": "awsj_11",
+        "cat": "Cloud",
+        "q": "What is AWS Auto Scaling and what types does it support?",
+        "wtlf": "AWS Auto Scaling automatically adjusts resource capacity based on demand. Types: EC2 Auto Scaling Groups (ASG — scale EC2 fleet), Application Auto Scaling (scale ECS services, DynamoDB, Aurora replicas, Lambda concurrency), AWS Auto Scaling (unified interface for all). Scaling policies: Target Tracking (maintain a metric at a target, e.g., CPU 60%), Step Scaling (scale by steps based on CloudWatch alarm thresholds), Scheduled Scaling (scale at known times, e.g., 9am weekdays), Predictive Scaling (ML-based forecast, scales in advance).  Target Tracking is the recommended scaling policy — it is the simplest to configure and AWS adjusts the scaling behaviour automatically. Scale-in protection prevents critical instances from being terminated during scale-in. Lifecycle Hooks pause instance launch/termination so you can run custom actions (e.g., drain connections). Mixed instance policies in ASGs use Spot + On-Demand in configurable ratios for cost optimisation.  Pro Tip: Always set a minimum healthy percentage in ASG rolling updates to avoid deploying all instances at once and causing an outage."
+      },
+      {
+        "id": "awsj_12",
+        "cat": "Cloud",
+        "q": "What is AWS CloudWatch and what are its key features?",
+        "wtlf": "Amazon CloudWatch is AWS's monitoring and observability service. Key features: Metrics (time-series data from AWS services and custom sources), Logs (CloudWatch Logs with Log Groups and Log Streams, searchable with CloudWatch Logs Insights using a SQL-like query language), Alarms (trigger actions when metrics cross thresholds), Dashboards (customisable monitoring views), Events/EventBridge (react to AWS service events), Container Insights, Lambda Insights, and ServiceLens (distributed tracing via X-Ray integration).  CloudWatch Agent enables custom metrics and logs from EC2 (disk, memory — not collected by default). CloudWatch Logs Insights uses a query language to search logs: fields, filter, stats, sort. X-Ray provides distributed tracing across AWS services and Lambda. Container Insights provides cluster/pod-level metrics for ECS and EKS. CloudWatch Synthetics runs canary scripts to monitor API/website availability. Metric filters extract metrics from log data.  Pro Tip: EC2 default metrics do not include memory or disk — install the CloudWatch Agent on EC2 instances to collect these. Memory usage is one of the most important operational metrics."
+      },
+      {
+        "id": "awsj_13",
+        "cat": "Cloud",
+        "q": "What is the AWS Shared Responsibility Model?",
+        "wtlf": "AWS and the customer share security and compliance responsibilities. AWS is responsible for security OF the cloud: physical infrastructure, hardware, hypervisor, managed service software, global network. Customer is responsible for security IN the cloud: data encryption, network configuration, IAM, OS patching (for IaaS), application security, and compliance. The split varies by service: for EC2 (IaaS), customer patches the OS; for RDS (PaaS), AWS patches the database engine.  The shared responsibility model shifts as you move up the stack: IaaS requires most customer responsibility (OS, runtime, app), PaaS less (app only), SaaS least (configuration only). Customers are always responsible for their data and identity. A common mistake: assuming AWS patches Lambda runtime environments — AWS does. But customers are responsible for their Lambda function code and the libraries it uses.  Pro Tip: In any security question, start by identifying where in the shared responsibility model the issue falls — this clarifies whether AWS or the customer needs to act."
+      },
+      {
+        "id": "awsj_14",
+        "cat": "Cloud",
+        "q": "What is Amazon Aurora and how does it differ from standard RDS?",
+        "wtlf": "Amazon Aurora is a MySQL and PostgreSQL-compatible relational database built for the cloud. Key differences from standard RDS: Aurora storage automatically grows in 10 GB increments up to 128 TB (no pre-provisioning). Storage is replicated 6 times across 3 AZs by default. Failover is typically 30 seconds (vs RDS Multi-AZ ~1-2 minutes). Aurora Serverless v2 auto-scales compute in fine-grained increments. Aurora Global Database replicates across Regions with <1 second lag. Aurora offers up to 5x MySQL throughput and 3x PostgreSQL.  Aurora separates compute from storage — the shared storage layer means read replicas add query capacity without additional storage cost. Aurora clusters have a primary (read/write) endpoint and a reader endpoint (load-balances across read replicas). Backtrack allows rolling back a database to any point in time within 72 hours without restoring a snapshot. Aurora Multi-Master is available for multiple write nodes (MySQL-compatible only).  Pro Tip: Aurora Serverless v2 scales in 0.5 ACU increments — it is ideal for development, test, and variable production workloads where you want to avoid paying for idle capacity."
+      },
+      {
+        "id": "awsj_15",
+        "cat": "Cloud",
+        "q": "What is AWS Elastic Load Balancing and what types exist?",
+        "wtlf": "AWS ELB distributes incoming traffic across multiple targets. Types: Application Load Balancer (ALB — Layer 7, HTTP/HTTPS, URL path/host-based routing, WebSockets, Lambda targets, WAF integration), Network Load Balancer (NLB — Layer 4, TCP/UDP/TLS, ultra-low latency, static IP, millions of req/sec), Gateway Load Balancer (GLWB — Layer 3, for deploying third-party network appliances — firewalls, IDS/IPS), Classic Load Balancer (legacy, avoid for new deployments).  ALB is the standard for web applications — it supports content-based routing (send /api/* to one target group, /* to another), sticky sessions, HTTP/2, gRPC. NLB is for non-HTTP protocols, low latency requirements, or when a static IP is needed. GLWB uses GENEVE encapsulation to transparently route all traffic through third-party security appliances before delivering to application targets.  Pro Tip: ALB access logs + CloudWatch metrics show request count, response codes, and latency per target group — essential for SLA monitoring."
+      },
+      {
+        "id": "awsj_16",
+        "cat": "Cloud",
+        "q": "What is Route 53 and what routing policies does it support?",
+        "wtlf": "Amazon Route 53 is AWS's scalable DNS service (named for TCP/UDP port 53 — DNS). Routing policies: Simple (single resource), Weighted (split traffic by percentage — for canary/A-B testing), Latency-based (route to lowest latency region), Failover (active-passive failover with health checks), Geolocation (route based on user's country/continent), Geoproximity (route based on geographic proximity, adjustable bias), Multi-value Answer (returns multiple healthy IPs), IP-based (route by CIDR block).  Route 53 Health Checks monitor endpoint health and feed into Failover and other routing policies. Alias records are Route 53-specific and can resolve to AWS resources (ALB, CloudFront, S3) without additional DNS queries — they also support the zone apex (naked domain). Private Hosted Zones provide internal DNS for VPCs. Route 53 Resolver enables hybrid DNS resolution between on-premises and AWS.  Pro Tip: Alias records are free for AWS resource targets and support the zone apex. Use Alias instead of CNAME wherever possible for AWS resources."
+      },
+      {
+        "id": "awsj_17",
+        "cat": "Cloud",
+        "q": "What is AWS Glue and what is it used for?",
+        "wtlf": "AWS Glue is a serverless ETL service for discovering, preparing, and transforming data for analytics. Components: Glue Data Catalog (centralised metadata repository — tables, schemas, partitions — Hive Metastore-compatible), Glue Crawlers (auto-discover schema from S3, RDS, DynamoDB), Glue ETL Jobs (Spark-based PySpark/Scala scripts, auto-generated or custom), Glue Studio (visual ETL interface), Glue DataBrew (no-code data preparation).  Glue Data Catalog is the metadata layer for the AWS data lake — Athena, EMR, and Redshift Spectrum all query it. Glue Crawlers eliminate manual schema management. Glue ETL is serverless Spark — you pay per DPU-hour with no cluster to manage. Glue Workflows orchestrate multi-step ETL pipelines. For complex ETL with fine-grained Spark tuning, Amazon EMR offers managed Hadoop/Spark clusters. AWS DMS (Database Migration Service) handles database migrations alongside Glue.  Pro Tip: Always partition S3 data (by year/month/day) and Glue-crawl with partition projection — it dramatically reduces Athena query cost and latency."
+      },
+      {
+        "id": "awsj_18",
+        "cat": "Cloud",
+        "q": "What is Amazon Redshift and how does it differ from Amazon RDS?",
+        "wtlf": "Amazon Redshift is a fully managed cloud data warehouse optimised for OLAP (Online Analytical Processing) — large-scale aggregations and complex queries over historical data. It uses columnar storage, MPP (Massively Parallel Processing), and compression. Amazon RDS is optimised for OLTP (Online Transaction Processing) — fast individual row reads/writes for operational applications. Redshift is for analytics (TBs-PBs); RDS is for transactional workloads (GBs-TBs).  Redshift Serverless eliminates capacity management. Redshift Spectrum queries data directly in S3 without loading it into Redshift (extends the warehouse to the data lake). RA3 nodes separate compute from storage — you pay for compute separately from storage, enabling pause/resume. AQUA (Advanced Query Accelerator) is hardware-accelerated query cache. Redshift ML enables building ML models from SQL. Redshift is a strong competitor to Snowflake for AWS-native analytics.  Pro Tip: Avoid loading data into Redshift that you only query occasionally — use Redshift Spectrum on S3 (pay per query) instead of paying for Redshift compute to store cold data."
+      },
+      {
+        "id": "awsj_19",
+        "cat": "Cloud",
+        "q": "What is AWS Organisations and why is it used?",
+        "wtlf": "AWS Organisations is an account management service for managing multiple AWS accounts centrally. Features: hierarchical Organisation Unit (OU) structure, consolidated billing (single invoice, volume discounts), Service Control Policies (SCPs — define maximum permissions for all accounts in an OU, cannot grant more than root), Tag Policies (enforce consistent tagging), Backup Policies, and AI Services Opt-out Policies. Root account = management account; member accounts host workloads.  AWS Organisations is the foundation for enterprise AWS governance. Multi-account strategy isolates workloads (security boundary), limits blast radius, and enables different billing and compliance postures. Common structure: Root > Security OU (Log Archive, Security Tooling accounts) > Prod OU > Dev OU > Sandbox OU. AWS Control Tower automates multi-account landing zone setup with pre-configured guardrails (mandatory SCPs + optional SCPs).  Pro Tip: SCPs do not grant permissions — they only restrict. An SCP denying S3 GetObject cannot be overridden by an IAM policy that allows it. SCPs are the top-level guardrail."
+      },
+      {
+        "id": "awsj_20",
+        "cat": "Cloud",
+        "q": "What is Amazon ElastiCache and when would you use Redis vs Memcached?",
+        "wtlf": "Amazon ElastiCache is a managed in-memory caching service supporting Redis and Memcached. Redis: rich data structures (strings, lists, sets, sorted sets, hashes, streams), persistence, replication, cluster mode (horizontal sharding), pub/sub, Lua scripting, Transactions, and Geo commands. Best for: session store, real-time leaderboards, pub/sub, queues, complex data. Memcached: simple key-value, multi-threaded, horizontal scaling via sharding. Best for: simple caching of plain objects, when simplicity is preferred.  Redis is the dominant choice for most use cases — its additional features (persistence, replication, sorted sets) make it far more versatile. ElastiCache for Redis supports cluster mode with up to 500 nodes. Global Datastore replicates Redis across regions for disaster recovery. Valkey (Redis fork) is now supported in ElastiCache following the Redis licensing change. ElastiCache significantly reduces database load — cache-aside pattern is the most common usage.  Pro Tip: Use ElastiCache for Redis sorted sets (ZADD/ZRANGE) for real-time leaderboards — O(log N) insertions and O(log N + M) range queries make it far superior to SQL for this pattern."
+      },
+      {
+        "id": "aws_shj0",
+        "cat": "Stakeholder",
+        "q": "Your manager asks for a dashboard by Friday but you discover source data is missing for two of the five required metrics. What do you do?",
+        "wtlf": "Immediately surfaces the gap, quantifies what IS deliverable, proposes interim solution (partial dashboard with caveats), does not hide the problem until Friday."
+      },
+      {
+        "id": "aws_shj1",
+        "cat": "Stakeholder",
+        "q": "How do you keep stakeholders informed about the progress of a long-running data migration project?",
+        "wtlf": "Regular status cadence, milestone tracking, risk flagging early, single source of truth (JIRA/Confluence), escalation thresholds defined upfront."
+      },
+      {
+        "id": "aws_shj2",
+        "cat": "Stakeholder",
+        "q": "A business analyst sends an urgent request by end of day but you are committed to a critical fix. How do you handle this?",
+        "wtlf": "Communicates proactively, assesses priority with both parties, proposes realistic timeline, does not silently drop either task."
+      },
+      {
+        "id": "aws_shj3",
+        "cat": "Stakeholder",
+        "q": "How would you explain to a non-technical stakeholder why a data pipeline failed and what your remediation plan is?",
+        "wtlf": "Plain language (no jargon), clear root cause summary, concrete fix and timeline, reassurance of monitoring."
+      }
+    ],
+    "mid": [
+      {
+        "id": "awsm_0",
+        "cat": "Cloud",
+        "q": "Design a fault-tolerant, multi-region e-commerce platform on AWS.",
+        "wtlf": "Primary region (us-east-1) + DR region (us-west-2). Route 53 latency + health-check failover routing. CloudFront + WAF globally. ALB > ECS Fargate or EKS (multi-AZ). Aurora Global Database (primary + replica in DR, RPO <1s). DynamoDB Global Tables (active-active multi-region). ElastiCache Redis (replication group, multi-AZ). S3 Cross-Region Replication for assets. SQS + SNS for async order processing. Step Functions for order workflow. EventBridge for integration events. CloudWatch + X-Ray for observability. Auto Scaling for compute.  Multi-region architectures trade cost for availability. Active-passive (warm standby): primary handles traffic, DR region pre-deployed and idle. Active-active: both regions serve traffic. Aurora Global Database supports 5 secondary regions with <1 second replication lag and 60-second failover. DynamoDB Global Tables provide multi-master active-active. Route 53 health checks detect regional failures in 10-30 seconds and re-route DNS.  Pro Tip: Test your DR runbook quarterly. Document RPO/RTO explicitly and verify them in rehearsals — assumed RPO/RTO without evidence is meaningless."
+      },
+      {
+        "id": "awsm_1",
+        "cat": "Cloud",
+        "q": "What is the AWS Well-Architected Framework and its six pillars?",
+        "wtlf": "Six pillars: (1) Operational Excellence: infrastructure as code, incremental change, learn from failure, anticipate failure. (2) Security: strong identity, enable traceability, apply security at all layers, automate security best practices. (3) Reliability: recover from failure, scale horizontally, stop guessing capacity, manage change with automation. (4) Performance Efficiency: use advanced technologies, go global in minutes, use serverless, experiment more often. (5) Cost Optimization: adopt consumption model, measure efficiency, stop spending on undifferentiated heavy lifting. (6) Sustainability: understand impact, maximise utilisation, anticipate/adopt new hardware, use managed services.  The Well-Architected Tool (in AWS Console) runs workload reviews against the six pillars, generating risk items and improvement recommendations. Well-Architected Framework reviews are conducted regularly, especially before production launches. The sixth pillar (Sustainability) was added in 2021. AWS Solutions Architects conduct formal WAF reviews as part of enterprise support and partner engagements.  Pro Tip: Structure every architecture answer using WAF pillars — it signals structured thinking to interviewers who are themselves Solutions Architects."
+      },
+      {
+        "id": "awsm_2",
+        "cat": "Cloud",
+        "q": "How would you implement a zero-trust security model on AWS?",
+        "wtlf": "Zero Trust: never trust, always verify, assume breach, minimise blast radius. AWS implementation: Identity — AWS SSO/IAM Identity Center, MFA everywhere, least-privilege IAM roles with permission boundaries. Network — no implicit trust based on network location: use VPC endpoints for service access, PrivateLink, Security Groups with least privilege. Data — encryption at rest (KMS) and in transit (TLS 1.2+). Detection — CloudTrail, Config, GuardDuty, Security Hub. Automation — Config Rules auto-remediate. SCPs enforce organisational guardrails.  Traditional perimeter security (firewall = trusted inside) fails against insider threats and lateral movement. Zero Trust requires every request to be authenticated, authorised, and encrypted regardless of network location. AWS PrivateLink keeps traffic on the AWS backbone. VPC endpoint policies restrict which S3 buckets are accessible via the endpoint. GuardDuty uses ML to detect anomalous API calls, instance compromise, and cryptocurrency mining.  Pro Tip: Enable GuardDuty in every region and every account — its ML-based threat detection has near-zero false positive rate and extremely low cost relative to its value."
+      },
+      {
+        "id": "awsm_3",
+        "cat": "Cloud",
+        "q": "Design a serverless data lake architecture on AWS.",
+        "wtlf": "Ingestion: Kinesis Data Firehose (streaming) + AWS DMS/Glue (batch) > S3 (landing zone). Storage: S3 with prefixes organised as Bronze/Silver/Gold (Medallion). Processing: AWS Glue ETL (PySpark, serverless), AWS Lambda (lightweight transforms), Amazon EMR Serverless (large Spark jobs). Cataloguing: AWS Glue Data Catalog. Querying: Amazon Athena (serverless SQL on S3, pay per query). Orchestration: AWS Step Functions + EventBridge Scheduler. Governance: AWS Lake Formation (fine-grained column/row access control). Analytics: Redshift Spectrum, QuickSight, SageMaker.  Lake Formation sits above the Glue Data Catalog and provides table-level, column-level, and row-level access control — critical for GDPR compliance and data democratisation. Athena is ideal for ad-hoc exploration; Redshift for complex warehouse workloads. Parquet + Snappy compression on S3 reduces Athena query cost dramatically vs CSV. AWS Data Zone (launched 2023) adds data mesh governance capabilities on top of this architecture.  Pro Tip: Use Parquet format with Snappy compression and Glue partition projection in Athena — it can reduce query cost by 10-100x compared to scanning raw CSV files."
+      },
+      {
+        "id": "awsm_4",
+        "cat": "Cloud",
+        "q": "How do you implement a complete CI/CD pipeline on AWS?",
+        "wtlf": "Source: AWS CodeCommit or GitHub (repo). Build: AWS CodeBuild (compiles, tests, Docker build, pushes to ECR). Deploy: AWS CodeDeploy (EC2/Lambda) or ECS service update (rolling/blue-green via CodeDeploy ECS deployment). Orchestrate: AWS CodePipeline (visual pipeline connecting all stages). IaC: CDK or CloudFormation deployed via CodePipeline. Notifications: SNS + Slack via Lambda. Feature flags: AWS AppConfig. Secrets: AWS Secrets Manager (rotation). Canary: CodeDeploy + Lambda weighted aliases.  CodePipeline supports manual approval stages before production deployments. CodeBuild uses buildspec.yml to define build steps — similar to GitHub Actions workflow YAML. Blue/green ECS deployments via CodeDeploy allow instant rollback by shifting traffic back to the old task set. CDK Pipelines (aws-cdk-lib/pipelines) create self-mutating pipelines — pushing to main updates both the app and the pipeline itself.  Pro Tip: Use CDK Pipelines for new projects — the pipeline self-mutates on code push, meaning pipeline changes go through the same PR/approval process as application changes."
+      },
+      {
+        "id": "awsm_5",
+        "cat": "Cloud",
+        "q": "Explain the Saga pattern for distributed transactions on AWS. How would you implement it?",
+        "wtlf": "The Saga pattern manages distributed transactions across multiple microservices by decomposing them into a sequence of local transactions with compensating transactions for rollback. Choreography approach (event-driven): each service publishes events consumed by the next service; failures trigger compensating events. Orchestration approach: a central coordinator (AWS Step Functions) calls services and manages compensation. On AWS: Step Functions (orchestration) with Lambda steps and SQS/SNS for event-based choreography.  Traditional distributed 2PC (two-phase commit) is impractical in microservices — it tightly couples services and blocks on coordinator failures. Sagas trade strong consistency for eventual consistency. Each step in the saga must have a compensating transaction (e.g., cancel reservation if payment fails). Step Functions Standard Workflows offer exactly-once execution with audit trail via execution history, making them ideal for saga orchestration.  Pro Tip: Prefer orchestration Sagas (Step Functions) over choreography Sagas for complex flows — they are easier to debug, test, and visualise. Choreography becomes a spaghetti of events quickly."
+      },
+      {
+        "id": "awsm_6",
+        "cat": "Cloud",
+        "q": "How do you optimise S3 for high-throughput parallel data ingestion?",
+        "wtlf": "Best practices: Use random key prefixes (or hashing) rather than sequential timestamps/IDs to avoid hot partitions — S3 auto-scales to 3,500 PUT/s and 5,500 GET/s per prefix. S3 Transfer Acceleration (CloudFront edge for upload). Multipart uploads for objects > 100 MB (parallelise upload, resume on failure). S3 Batch Operations for bulk transforms. S3 Express One Zone for ultra-high frequency access (single-digit ms latency). Amazon S3 Mountpoint for direct filesystem access from EC2/ECS. Avoid listing large buckets sequentially — use inventory reports instead.  S3 auto-partitions based on key prefix. Old advice was to randomise prefixes to spread load across partitions. With modern S3, this is less critical but still relevant at extreme scale. Transfer Acceleration routes uploads via CloudFront edge locations to the nearest regional edge, reducing upload time for geographically distributed clients. Multipart upload is mandatory for objects over 5 GB and strongly recommended over 100 MB.  Pro Tip: Clean up incomplete multipart uploads with an S3 Lifecycle rule — they incur storage costs even though the object is never completed."
+      },
+      {
+        "id": "awsm_7",
+        "cat": "Cloud",
+        "q": "What is AWS Control Tower and how does it support multi-account governance?",
+        "wtlf": "AWS Control Tower automates the setup of a secure, multi-account AWS environment (Landing Zone) based on AWS best practices. It creates a management account, a log archive account, and an audit account. It uses Account Factory (Service Catalog) to vend new accounts with pre-configured baselines. Controls (Guardrails): mandatory (always on), strongly recommended, or elective. Detective guardrails (Config Rules, audit). Preventive guardrails (SCPs, block). Proactive guardrails (CloudFormation hooks, prevent non-compliant deployments).  Control Tower abstracts the manual setup of AWS Organisations, SCPs, Config, CloudTrail, and IAM Identity Center. Account Factory for Terraform (AFT) enables IaC-based account vending via Terraform pipelines. Control Tower Customisations (CfCT) applies additional CloudFormation stacks to all accounts. Controls Library has 300+ controls mapped to NIST, PCI-DSS, HIPAA frameworks. For large enterprises, this is the fastest path to a secure, compliant multi-account environment.  Pro Tip: Use Account Factory for Terraform (AFT) for new account provisioning — it enables version-controlled, auditable account creation with custom baselines."
+      },
+      {
+        "id": "awsm_8",
+        "cat": "Cloud",
+        "q": "How does AWS KMS work and what are the different key types?",
+        "wtlf": "AWS KMS (Key Management Service) provides managed cryptographic keys for encrypting data across AWS services. Key types: AWS managed keys (created and managed by AWS for a service, e.g., aws/s3), Customer managed keys (CMKs — you create, rotate, audit, set policy), AWS owned keys (AWS-internal, no customer visibility). KMS operations: GenerateDataKey (generate envelope encryption key), Encrypt/Decrypt (directly encrypt data ≤4KB), Sign/Verify (asymmetric). KMS keys never leave KMS — data is encrypted client-side with data keys, data keys encrypted with KMS keys (envelope encryption).  Envelope encryption: KMS generates a data key, you encrypt your data with the data key locally, then KMS encrypts the data key. Only the encrypted data key is stored with the data. To decrypt: KMS decrypts the data key, you decrypt the data locally. This is how S3, EBS, RDS, and Secrets Manager work under the hood. Key policies control who can use/manage keys — more granular than IAM alone. CloudTrail logs every KMS API call for audit.  Pro Tip: Use Customer Managed Keys (CMKs) for regulated data — they give you full audit visibility via CloudTrail and the ability to disable/delete keys to revoke access."
+      },
+      {
+        "id": "awsm_9",
+        "cat": "Cloud",
+        "q": "What is Amazon Kinesis and what are its service variants?",
+        "wtlf": "Amazon Kinesis is a family of real-time streaming services: Kinesis Data Streams (KDS) — real-time data streaming with configurable retention (1-365 days), shardbased throughput scaling, consumers read via SDK/KCL; Kinesis Data Firehose — fully managed delivery of streaming data to S3, Redshift, OpenSearch, Splunk — buffers, batches, transforms via Lambda, no manual consumer code; Kinesis Data Analytics — SQL or Apache Flink for real-time analytics on streams; Kinesis Video Streams — ingest and analyse video streams.  KDS is the low-level streaming primitive — consumers control checkpointing and processing. Firehose is 'streaming ETL to S3/data stores' — minimal code, managed throughput. KDS is for custom consumers needing complex real-time processing; Firehose for simple delivery pipelines. KCL (Kinesis Client Library) handles shard enumeration, checkpointing, and load balancing across consumer instances. MSK (Managed Kafka) is the alternative for Kafka-native workloads.  Pro Tip: Kinesis Data Streams shards: each shard = 1 MB/s write, 2 MB/s read. Monitor GetRecords.IteratorAgeMilliseconds — if high, you need more shards or faster consumers."
+      },
+      {
+        "id": "awsm_10",
+        "cat": "Cloud",
+        "q": "How do you diagnose and resolve N+1 query problems in a DynamoDB data model?",
+        "wtlf": "The N+1 problem in DynamoDB occurs when a list query returns N items, and fetching attributes for each item requires N additional GetItem calls. Solutions: (1) Denormalise — store all required attributes in the same item so one query returns everything. (2) Single-table design — store multiple entity types in one table, use composite sort keys (PK=Customer#123, SK=Order#456) enabling efficient range queries. (3) BatchGetItem — fetch up to 100 items in parallel (still N calls but single API round-trip). (4) Add a GSI with the needed projection attributes.  DynamoDB's single-table design is the advanced pattern — Alex DeBrie's 'DynamoDB Book' is the canonical reference. The access pattern drives the data model: you must know all access patterns upfront. GSIs add alternate access patterns. Avoid normalised relational-style DynamoDB models — they cause N+1 problems at scale. PartiQL (SQL-compatible query language) works with DynamoDB but does not change the underlying key design constraints.  Pro Tip: Design DynamoDB tables starting from access patterns, not from entities. Ask: 'What data does the API need to return?' — then model to return it in one query."
+      },
+      {
+        "id": "awsm_11",
+        "cat": "Cloud",
+        "q": "How would you implement event sourcing on AWS?",
+        "wtlf": "Event sourcing: store all state changes as an immutable sequence of events (the event store), rebuild current state by replaying events. AWS implementation: Kinesis Data Streams or DynamoDB Streams as the event store (append-only). Lambda or ECS consumers process events and update read model projections (DynamoDB, ElastiCache, OpenSearch). EventBridge for domain event routing. S3 for long-term event archiving (cold event store). Step Functions for event-driven workflows. CQRS (Command Query Responsibility Segregation) naturally pairs with event sourcing.  Event sourcing provides a complete audit trail, enables temporal queries ('what was the state on date X?'), and supports multiple read projections built from the same events. The challenge is query performance — you cannot query the event store like a database; you query projections. Projections must handle eventual consistency. DynamoDB Streams + Lambda is a common projection update pattern. Replaying events to rebuild projections from scratch must be possible — design events to be fully self-describing.  Pro Tip: Start with EventBridge + SQS/Lambda for simple event-driven architectures before committing to full event sourcing — the added complexity of event sourcing is only justified for specific domains."
+      },
+      {
+        "id": "awsm_12",
+        "cat": "Cloud",
+        "q": "How do you implement cost governance and optimisation at scale in AWS Organisations?",
+        "wtlf": "Strategies: (1) Cost Allocation Tags — enforce consistent tagging via Tag Policies + Config Rules; Cost Explorer filters by tag. (2) AWS Budgets — set budget thresholds per OU/account, alert when 80%/100%/forecasted-to-exceed. (3) Cost Anomaly Detection — ML-based alerts on unusual spend spikes. (4) Savings Plans + Reserved Instances — analysed via Cost Explorer RI/SP recommendations. (5) Compute Optimizer — ML-based rightsizing for EC2, Lambda, ECS, EBS. (6) Trusted Advisor — checks for idle resources, underused RIs, security issues. (7) S3 Intelligent-Tiering + Lifecycle rules for storage.  At enterprise scale, cost governance requires organisational commitment, not just tooling. Showback (show teams their costs) before chargeback (billing them) drives behaviour change. FinOps practices: daily/weekly cost reviews, anomaly triage meetings, engineering ownership of unit economics. AWS Pricing Calculator and Migration Evaluator (migration cost estimates) support planning. Graviton3 (ARM) instances offer 40% better price-performance than x86 equivalents for compatible workloads.  Pro Tip: AWS Cost Anomaly Detection is free and catches unexpected spend spikes within 24 hours — enable it immediately for all accounts. A single runaway Lambda or NAT Gateway can generate thousands in unexpected costs."
+      },
+      {
+        "id": "awsm_13",
+        "cat": "Cloud",
+        "q": "Explain AWS PrivateLink and when you would build a service using it.",
+        "wtlf": "AWS PrivateLink creates private endpoints for services — it exposes a service (hosted behind an NLB) to consumers in other VPCs or AWS accounts via an ENI with a private IP, without VPC peering, IGW, NAT, or public IP. Use cases: (1) AWS service endpoints (S3, DynamoDB via Gateway Endpoints; most services via Interface Endpoints). (2) SaaS provider exposes API to customers in their VPCs. (3) Internal service mesh — team A exposes an internal service to teams B and C privately. (4) Marketplace vendors.  PrivateLink is traffic-direction-aware: consumers can connect to a PrivateLink endpoint, but the service cannot initiate traffic to the consumer VPC. This is a security advantage — no VPC peering (which is bidirectional). Endpoint services require an NLB as the front door. DNS configuration in the consumer VPC is needed (Route 53 private hosted zone or VPC Interface Endpoint DNS resolution). PrivateLink is the standard for enterprise API exposure and third-party SaaS integration.  Pro Tip: PrivateLink endpoint services allow cross-account, cross-VPC access without complex peering meshes — use it for internal platform APIs consumed by many teams."
+      },
+      {
+        "id": "awsm_14",
+        "cat": "Cloud",
+        "q": "How do you implement Infrastructure as Code with AWS CDK and what are its advantages over CloudFormation YAML?",
+        "wtlf": "AWS CDK (Cloud Development Kit) lets you define AWS infrastructure in TypeScript, Python, Java, C#, or Go. It generates CloudFormation templates as synthesis output. Advantages over raw YAML: type safety and IDE autocomplete catch errors at compile time; programming constructs (loops, conditions, abstractions) eliminate YAML repetition; L2 Constructs (higher-level abstractions like Bucket, Function) set secure defaults automatically; libraries (npm/PyPI packages) enable reusable infrastructure modules; unit testing (jest, pytest) validates infrastructure logic.  CDK Constructs: L1 (CloudFormation resource, 1:1 mapping), L2 (opinionated resource with secure defaults, e.g., s3.Bucket with serverSideEncryption by default), L3/Patterns (multi-resource patterns like ApplicationLoadBalancedFargateService). cdk synth generates CloudFormation, cdk diff shows changes, cdk deploy applies. CDK Pipelines creates self-mutating CI/CD pipelines. Construct Hub (constructs.dev) hosts community and partner constructs.  Pro Tip: Use CDK L2 Constructs wherever possible — they enforce security best practices by default (e.g., bucket.versioned, lambda.runtime latest, encryption enabled). L1 requires you to set everything manually."
+      },
+      {
+        "id": "awsm_15",
+        "cat": "Cloud",
+        "q": "What is Amazon SageMaker and what is its role in an MLOps pipeline?",
+        "wtlf": "Amazon SageMaker is a fully managed ML platform covering the entire ML lifecycle: Data Preparation (SageMaker Data Wrangler, Processing Jobs), Training (managed distributed training, Spot training, Hyperparameter Tuning), Experiment Tracking (SageMaker Experiments), Model Registry (versioning, approval workflow), Deployment (real-time endpoints, serverless inference, batch transform, edge via SageMaker Edge), Monitoring (SageMaker Model Monitor — data drift, model quality), MLOps (SageMaker Pipelines — ML workflow orchestration, SageMaker Projects — CI/CD for ML).  MLOps on AWS typically uses SageMaker Pipelines for ML workflow (feature engineering > training > evaluation > registration > deployment) combined with CodePipeline/GitHub Actions for CI/CD. Model Monitor detects data drift and model degradation in production — triggers retraining pipelines. Feature Store (SageMaker Feature Store) provides a shared, versioned feature repository for training and inference. Clarify performs bias detection and explainability.  Pro Tip: Use SageMaker Spot Training for training jobs — up to 90% cost reduction. Configure checkpoint saving to S3 so jobs resume after spot interruption without losing progress."
+      },
+      {
+        "id": "awsm_16",
+        "cat": "Cloud",
+        "q": "What is AWS AppSync and how does it enable GraphQL APIs on AWS?",
+        "wtlf": "AWS AppSync is a fully managed GraphQL service. It connects to data sources (DynamoDB, Lambda, RDS, ElasticSearch/OpenSearch, HTTP APIs) and resolves GraphQL queries/mutations using VTL (Velocity Template Language) request/response mapping templates or JS resolvers. Features: real-time subscriptions via WebSocket, offline data sync with Amplify DataStore (conflict resolution: auto-merge, optimistic concurrency), caching, fine-grained IAM/Cognito authorisation per field.  AppSync simplifies the development of real-time collaborative applications, chat systems, and mobile backends needing offline support. The GraphQL schema is the contract — clients request exactly the fields they need (eliminating over-fetching). Direct Lambda resolvers are the most flexible option — write resolver logic in Lambda for complex data fetching. Pipeline resolvers compose multiple resolver functions. AppSync + Amplify is the full-stack serverless pattern for mobile/web apps.  Pro Tip: AppSync subscriptions are WebSocket-based and serverless — they scale automatically. Use them for real-time dashboards, notifications, and collaborative features without managing WebSocket servers."
+      },
+      {
+        "id": "awsm_17",
+        "cat": "Cloud",
+        "q": "How do you implement secrets management and credential rotation in AWS?",
+        "wtlf": "AWS Secrets Manager: stores and automatically rotates database credentials, API keys, and arbitrary secrets. Built-in rotation Lambda functions for RDS, DocumentDB, Redshift. Custom rotation Lambda for other secrets. Secrets are encrypted with KMS. AWS Parameter Store (SSM): stores configuration and secrets (SecureString tier encrypted with KMS). Less expensive than Secrets Manager but no auto-rotation. AWS recommends Secrets Manager for credentials needing rotation. Best practice: apps retrieve secrets at runtime via SDK (not environment variables), no secrets in code or ECR images.  Auto-rotation in Secrets Manager calls a Lambda function that: creates a new credential, sets it on the database, updates the secret, verifies the new credential works. This is transparent to the application if it retrieves the secret fresh each time (or has a short SDK cache). Integration: ECS Task Definition can reference Secrets Manager ARNs as environment variables — injected at launch. Lambda environment variables can reference Parameter Store. Neither approach stores secrets in container image or code.  Pro Tip: Never put secrets in Lambda/ECS environment variables as plain text — use Secrets Manager or Parameter Store references. AWS Console shows environment variable values to anyone with IAM access to the function configuration."
+      },
+      {
+        "id": "awsm_18",
+        "cat": "Cloud",
+        "q": "What are the patterns for handling idempotency in serverless AWS applications?",
+        "wtlf": "Idempotency means processing the same message/request multiple times produces the same result. Patterns: (1) Idempotency tokens — client sends a unique token per request; server stores token+result in DynamoDB with TTL, returns stored result on duplicate. (2) DynamoDB conditional writes — ConditionalExpression checks if item already exists before writing. (3) AWS Lambda Powertools IdempotencyDecorator — wraps Lambda handler with DynamoDB-backed idempotency out of the box. (4) SQS exactly-once processing — use SQS FIFO with MessageDeduplicationId. (5) Transactional outbox — write event and data in single DB transaction.  SQS standard queues have at-least-once delivery — the same message can be delivered multiple times. Lambda's asynchronous invocation can retry on failure. Both require consumers to be idempotent. DynamoDB conditional writes (ConditionExpression='attribute_not_exists(pk)') prevent duplicate records. AWS Lambda Powertools (Python/TypeScript) is open-source and provides production-ready idempotency, tracing, structured logging, and more — use it as the baseline for Lambda development.  Pro Tip: AWS Lambda Powertools idempotency decorator requires only 2 lines of code — no reason not to use it for all Lambda functions that process payment or order events."
+      },
+      {
+        "id": "awsm_19",
+        "cat": "Cloud",
+        "q": "How would you architect a real-time bidding (RTB) system on AWS to handle 500,000 requests per second with sub-50ms latency?",
+        "wtlf": "Architecture: Route 53 latency routing > CloudFront (cache static bid responses) > NLB (L4, sub-1ms) > ECS on EC2 (c6gn/c7g.4xlarge Graviton3, right-sized for memory bandwidth) > ElastiCache Redis Cluster (pre-loaded bidder profiles, sub-1ms reads) > Kinesis Data Streams (async win notification, budget updates) > DynamoDB On-Demand (budget storage, atomic decrements) > SQS FIFO (budget update fan-out) > Lambda (post-bid analytics). Use TCP keep-alive, connection pools, avoid cold starts.  RTB is one of the most demanding latency requirements in production (50ms SLA including network transit). Key optimisations: Lambda is too slow for the critical path (cold starts). Fargate cold starts disqualify it. Pre-warmed EC2 ECS instances with connection pools to Redis. Graviton3 c7g instances offer best price-performance for compute-heavy workloads. Redis GETSET for atomic budget checks. Async everything non-critical (Kinesis). Multi-AZ NLB with cross-zone load balancing. Keep payloads minimal — every byte costs latency.  Pro Tip: Use flame graphs and X-Ray service maps to identify hotspots. At sub-50ms SLA, JSON serialisation, TLS handshakes, and DNS resolution all matter — profile everything."
+      },
+      {
+        "id": "aws_shm0",
+        "cat": "Stakeholder",
+        "q": "A data science team is frustrated that your pipelines deliver data too slowly for their ML model retraining schedule. How do you resolve this?",
+        "wtlf": "SLA discussion, root cause analysis (batch vs stream, schedule times), incremental loading option, aligning on acceptable latency, formalising an SLA agreement."
+      },
+      {
+        "id": "aws_shm1",
+        "cat": "Stakeholder",
+        "q": "How do you manage competing priorities between the infrastructure team (wanting stability) and analytics teams (wanting new features quickly)?",
+        "wtlf": "Product-style backlog prioritisation, risk/benefit framing, staging environment for new features, regular joint ceremonies."
+      },
+      {
+        "id": "aws_shm2",
+        "cat": "Stakeholder",
+        "q": "A downstream team claims your pipeline is producing incorrect numbers. How do you investigate and communicate?",
+        "wtlf": "Data reconciliation process, cross-checks with source, documents findings with evidence, aligns on definition of correct. Avoids blame."
+      },
+      {
+        "id": "aws_shm3",
+        "cat": "Stakeholder",
+        "q": "You have identified a critical architectural improvement requiring 2 weeks of rework. How do you build a business case and get buy-in?",
+        "wtlf": "Quantifying technical debt impact, translating to business cost, proposing phased delivery, risk framing, clear ROI."
+      }
+    ],
+    "senior": [
+      {
+        "id": "aws_s0",
+        "cat": "Cloud",
+        "q": "Design a multi-region active-active e-commerce platform on AWS handling 500,000 requests per second with 99.999% availability.",
+        "wtlf": "Route 53 latency routing + health checks; CloudFront globally; ALB -> ECS Fargate (stateless); DynamoDB Global Tables (active-active); Aurora Global Database; ElastiCache Redis Global Datastore; SQS + SNS for async; Kinesis for events; AWS Shield Advanced for DDoS; auto-scaling policies at every tier; chaos engineering with AWS Fault Injection Simulator."
+      },
+      {
+        "id": "aws_s1",
+        "cat": "Cloud",
+        "q": "Walk through the AWS Well-Architected Framework review process. How would you score and improve a workload with a 2.1/5 overall WAF score?",
+        "wtlf": "Run WAF Tool in AWS Console; triage High Risk Issues (HRIs) first by pillar; map findings to business impact; create improvement plan with owners and timelines; re-review after remediation; automate WAF checks via AWS Config Rules; embed WAF in SDLC as architectural gate."
+      },
+      {
+        "id": "aws_s2",
+        "cat": "Cloud",
+        "q": "Design a petabyte-scale data lakehouse on AWS with ACID transactions, time travel, and both streaming and batch ingestion.",
+        "wtlf": "S3 as storage layer; Apache Iceberg or Delta Lake for ACID + time travel; Kinesis Data Streams -> Glue Streaming (micro-batch to Iceberg); AWS Glue batch ETL for large files; Glue Catalog as Hive Metastore; Athena for ad-hoc queries (Iceberg pushdown); EMR Serverless for heavy Spark; Lake Formation for column-level security; AWS Macie for PII detection."
+      },
+      {
+        "id": "aws_s3",
+        "cat": "Cloud",
+        "q": "How would you implement a comprehensive FinOps strategy across 50 AWS accounts in an Organisation targeting 30% cost reduction?",
+        "wtlf": "AWS Cost Explorer + Cost Anomaly Detection baseline; Compute Optimizer rightsizing; Savings Plans + Reserved Instances for predictable workloads; Spot Instances for batch/ML; S3 Intelligent-Tiering; idle resource cleanup (Lambda scheduler); tag governance via SCPs + Config Rules; showback dashboards per team; monthly FinOps review cadence."
+      },
+      {
+        "id": "aws_s4",
+        "cat": "SQL",
+        "q": "Design an incrementally updated data model in Amazon Redshift for a financial services firm processing 10 billion transactions daily. Address partitioning, distribution, and historical query performance.",
+        "wtlf": "RA3 nodes (compute-storage separation); hash-distribute fact on account_id (most common join key); sort key on transaction_date (range scans); late-arriving data handled via staging table + MERGE; automatic compression via ENCODE AUTO; Redshift ML for fraud scoring in-database; materialised views refreshed on schedule; Spectrum for historical cold data on S3."
+      },
+      {
+        "id": "aws_s5",
+        "cat": "SQL",
+        "q": "You need to migrate 500 stored procedures from Oracle to Amazon Redshift. How do you approach the migration, testing, and validation?",
+        "wtlf": "AWS Schema Conversion Tool (SCT) for automated conversion (handles ~60-70%); manual rewrite for Oracle-specific syntax (ROWNUM, CONNECT BY hierarchy queries, packages); Redshift stored procedures in PL/pgSQL; semantic equivalence testing (row count, hash comparison of output); performance benchmarking (Oracle partitions -> Redshift distribution/sort); staged migration by business criticality; dual-run period."
+      },
+      {
+        "id": "aws_s6",
+        "cat": "SQL",
+        "q": "How do you implement real-time data quality monitoring across a AWS data lakehouse processing 5 billion records daily?",
+        "wtlf": "AWS Glue DataBrew or Great Expectations rules defined as code; run after each Glue job; results published to DynamoDB quality log table; CloudWatch custom metrics for pass/fail rates; CloudWatch Alarms trigger SNS -> Lambda -> PagerDuty on quality breach; quarantine S3 prefix for failed records; Athena queries on quality log for trend analysis; data quality dashboard in QuickSight."
+      },
+      {
+        "id": "aws_s7",
+        "cat": "Stakeholder",
+        "q": "You are AWS Platform Architect. The CISO demands all workloads use PrivateLink for all AWS service access by next quarter. Engineering says this is impossible in that timeline. How do you mediate?",
+        "wtlf": "Risk-prioritised phased approach: highest-risk workloads (PII, financial) first; inventory all VPC endpoints needed; automate deployment via CDK/Terraform; negotiate realistic timeline with CISO using risk evidence; proposes interim compensating controls (IP allowlisting, Service Control Policies); documents exceptions with risk acceptance."
+      },
+      {
+        "id": "aws_s8",
+        "cat": "Stakeholder",
+        "q": "A business unit has been running shadow IT on AWS (separate account, no governance) and now wants to bring it under the central platform. How do you manage this transition?",
+        "wtlf": "No-blame discovery approach; assess existing workloads (security posture, compliance gaps, cost); establish migration plan to Landing Zone; negotiate timeline respecting business continuity; apply governance gradually (start with monitoring, then guardrails); identify champion in business unit; document lessons for preventing future shadow IT."
+      },
+      {
+        "id": "aws_s9",
+        "cat": "Stakeholder",
+        "q": "How do you build the case for migrating a legacy on-premise Oracle DW to AWS Redshift when the CFO only cares about cost and the CTO only cares about performance?",
+        "wtlf": "Dual narrative: CFO - TCO analysis showing 40-60% 5-year cost reduction (eliminate hardware refresh, DBA headcount, maintenance); CTO - performance benchmarks (Redshift 10x faster for analytical queries), auto-scaling, no DBA tuning. Phased migration with measurable milestones. Proof of concept with real data. Risk mitigation plan. Rollback option for first 6 months."
+      },
+      {
+        "id": "aws_s10",
+        "cat": "Stakeholder",
+        "q": "You are leading a migration from on-premise to AWS that is 3 months behind schedule with 6 months remaining. Stakeholders are losing confidence. How do you recover?",
+        "wtlf": "Honest root cause assessment (scope creep, dependency delays, resource constraints); re-baseline the plan with realistic estimates; prioritise critical path items; propose scope reduction to hit the deadline; weekly stakeholder communication with clear RAG status; bring in additional resources if budget allows; celebrate small wins publicly; establish a war room for final 6 weeks."
+      }
+    ]
+  },
+  "Snowflake": {
+    "junior": [
+      {
+        "id": "sfj_0",
+        "cat": "Cloud",
+        "q": "What is Snowflake and what makes it different from traditional data warehouses?",
+        "wtlf": "Snowflake is a fully managed, cloud-native data platform built on a unique multi-cluster shared data architecture. Unlike traditional warehouses (Teradata, on-prem SQL Server DW), Snowflake separates compute from storage completely, runs on AWS/Azure/GCP, requires zero infrastructure management, scales compute elastically in seconds, supports multiple simultaneous workloads without contention, and is offered as a SaaS — no hardware, no OS patching.  Traditional MPP warehouses (Netezza, Teradata) tightly couple compute and storage — scaling one means scaling both, leading to overprovisioning. Snowflake's separation means you pay for storage cheaply (compressed in cloud object storage) and pay for compute only when queries run (pause = no compute cost). Multiple virtual warehouses can query the same data simultaneously without competing — eliminating the 'noisy neighbour' problem.  Pro Tip: Always lead with the three key differentiators: compute-storage separation, multi-cluster architecture, and zero infrastructure management."
+      },
+      {
+        "id": "sfj_1",
+        "cat": "Cloud",
+        "q": "Explain Snowflake's architecture: Storage, Compute, and Cloud Services layers.",
+        "wtlf": "Three-layer architecture: (1) Storage Layer: data stored in Snowflake's proprietary compressed columnar format in cloud object storage (S3/Azure Blob/GCS). Managed entirely by Snowflake. Supports structured and semi-structured data (JSON, Parquet, Avro). (2) Compute Layer (Virtual Warehouses): independent MPP compute clusters that query the Storage Layer. Each warehouse is isolated — no resource contention. Can be paused, resumed, and resized in seconds. (3) Cloud Services Layer: the brain — handles authentication, metadata management, query compilation/optimisation, query result caching, and transaction management. Always running, no extra cost for most operations.  The Cloud Services Layer is what enables Snowflake's zero-management model — it handles all metadata, concurrency control, and query planning. The Query Result Cache (in Cloud Services Layer) caches query results for 24 hours — identical queries with unchanged data return instantly at no compute cost. The Local Disk Cache (in Virtual Warehouse) caches frequently accessed micro-partitions in SSD for faster re-reads.  Pro Tip: Understand which cache is which: Query Result Cache (cloud services, 24hr, free) vs Local Disk Cache (virtual warehouse SSD, cleared on suspend). Both can dramatically reduce cost."
+      },
+      {
+        "id": "sfj_2",
+        "cat": "Cloud",
+        "q": "What is a Virtual Warehouse in Snowflake and what sizes are available?",
+        "wtlf": "A Virtual Warehouse (VW) is a named MPP compute cluster in Snowflake used to execute queries and DML. Sizes: XS (1 server), S (2), M (4), L (8), XL (16), 2XL (32), 3XL (64), 4XL (128), 5XL (256), 6XL (512) nodes — each size doubles the credit consumption per hour. Multi-cluster warehouses automatically add additional clusters (up to 10) when demand increases. Warehouses can be paused (no credit consumption) and resumed in seconds.  Bigger warehouses complete queries faster (parallelism) but cost more per hour. Doubling size roughly halves query time but same total credit consumption. Right-sizing depends on workload: small for ad-hoc, large for ETL loads. Auto-suspend (typically 1–5 minutes of inactivity) and auto-resume are best practices. Separate VWs for ETL, BI reporting, and data science prevent resource contention between teams.  Pro Tip: Separate warehouses by workload type, not team. An ETL warehouse and a BI warehouse ensure a runaway ETL doesn't degrade dashboard performance."
+      },
+      {
+        "id": "sfj_3",
+        "cat": "Cloud",
+        "q": "What is Time Travel in Snowflake and how is it used?",
+        "wtlf": "Time Travel allows querying data as it existed at a specific point in the past (within the retention period). You can query historical data, restore accidentally dropped/modified tables, and create clones of tables at a historical point. Syntax: AT/BEFORE clause with TIMESTAMP, OFFSET (seconds), or STATEMENT (query ID). Default retention: 0 days for transient tables, 1 day for permanent tables (configurable up to 90 days on Enterprise edition).  Time Travel is one of Snowflake's most powerful features for data recovery. If a developer accidentally runs DELETE FROM orders WHERE 1=1, you can recover with CREATE TABLE orders_restored AS SELECT * FROM orders AT(OFFSET => -3600). Time Travel data contributes to storage costs. After the retention period, data moves to Fail-safe (7 days, recovery by Snowflake support only, additional storage cost).  Pro Tip: Set DATA_RETENTION_TIME_IN_DAYS to 0 for staging/temporary tables to avoid Time Travel storage costs on data you don't need to recover."
+      },
+      {
+        "id": "sfj_4",
+        "cat": "Cloud",
+        "q": "What is Zero-Copy Cloning in Snowflake?",
+        "wtlf": "Zero-Copy Cloning creates an instant clone of a table, schema, or database without physically copying any data. The clone references the same underlying micro-partitions as the source. New writes to either the clone or source create new micro-partitions (copy-on-write). No additional storage cost until the clone or source diverges. Cloning is instantaneous regardless of data size.  Zero-Copy Cloning is transformative for dev/test workflows. A 10 TB production database can be cloned for a developer in under a second at no additional storage cost. As the developer modifies data, only the changed micro-partitions are copied. Common uses: create dev/test environments from prod, snapshot before ETL transformation, create QA datasets from production data. Clones inherit the source's grants and can be used with Time Travel.  Pro Tip: Use Zero-Copy Cloning to create dev/test environments instead of expensive ETL copies. It is instant, cheap, and removes the excuse of 'I don't have test data'."
+      },
+      {
+        "id": "sfj_5",
+        "cat": "Cloud",
+        "q": "What are Snowflake stages and what types exist?",
+        "wtlf": "Stages are Snowflake locations that hold data files for loading (COPY INTO) or unloading. Types: Internal Stages — Snowflake-managed storage: User stage (private per user, @~), Table stage (per table, @%tablename), Named internal stage (explicitly created, shareable). External Stages — reference cloud storage: S3 bucket, Azure Blob, GCS bucket, with credentials or storage integration. Named stages are the recommended approach for production pipelines.  COPY INTO command loads data from a stage into a Snowflake table — it is the high-performance bulk loading mechanism (not INSERT row by row). Snowpipe provides continuous loading from stages using event-based triggers (S3 event notifications). File formats (CSV, JSON, Parquet, ORC, Avro) are defined in FILE FORMAT objects and referenced in COPY INTO. External stages with Storage Integrations use IAM roles/service principals for secure access without embedding credentials."
+      },
+      {
+        "id": "sfj_6",
+        "cat": "Cloud",
+        "q": "What is a Snowflake Task and how is it used for scheduling?",
+        "wtlf": "A Snowflake Task is a scheduled SQL statement or stored procedure execution within Snowflake. Tasks use CRON expressions or a fixed interval (e.g., EVERY 1 HOUR) for scheduling. Tasks can be chained into DAGs (directed acyclic graphs) using predecessor tasks — a child task runs after its parent completes. Serverless tasks use Snowflake-managed compute; warehouse tasks use a specified virtual warehouse.  Tasks enable lightweight orchestration within Snowflake without external schedulers. Common use: incremental table refresh, maintaining materialised views equivalent, running data quality checks. Serverless tasks (USING CRON without warehouse) automatically provision and bill per compute-second — ideal for short, infrequent tasks. Task DAGs enable pipeline-style processing. Error notifications can be routed to an email or queue via SYSTEM$SEND_EMAIL or Alerts."
+      },
+      {
+        "id": "sfj_7",
+        "cat": "Cloud",
+        "q": "What is Snowpipe and how does continuous data loading work?",
+        "wtlf": "Snowpipe is Snowflake's continuous data ingestion service. It automatically loads data files into Snowflake tables as soon as they arrive in a stage — no manual COPY INTO required. Trigger mechanisms: cloud-native event notifications (S3 SQS notification, Azure Event Grid, GCS Pub/Sub) push-based, or REST API call-based. Snowpipe uses serverless compute (billed per second of processing) — no warehouse needed.  Snowpipe dramatically reduces data latency from hours (batch COPY) to minutes. It maintains a load history to prevent duplicate loading. File size matters: Snowpipe is optimised for many small files; large files should be pre-split. Snowpipe loading is near-real-time but not true streaming (seconds to minutes latency). For true sub-second streaming, Snowflake Streaming (Kafka Connector with Snowflake Streaming Ingest API) inserts rows directly as a stream."
+      },
+      {
+        "id": "sfj_8",
+        "cat": "SQL",
+        "q": "What are micro-partitions in Snowflake and why do they matter for performance?",
+        "wtlf": "Snowflake automatically divides all data stored in tables into micro-partitions — contiguous units of storage (50–500 MB of uncompressed data each) stored in columnar format. Each micro-partition stores metadata: min/max values, number of distinct values, and null counts per column. This metadata enables Partition Pruning — during a query, Snowflake reads only the micro-partitions that could contain relevant data based on WHERE clause predicates.  Micro-partition pruning is the primary performance mechanism in Snowflake. If you query WHERE order_date = '2024-01-15', Snowflake reads the min/max metadata of every micro-partition and skips any partition where min > 2024-01-15 OR max < 2024-01-15. Loading data in natural sort order (e.g., by date) maximises pruning effectiveness. Clustering Keys define explicit sort order for large tables where natural ingestion order is not aligned with query predicates.  Pro Tip: Use SHOW TABLE clause or the SYSTEM$CLUSTERING_INFORMATION function to check clustering depth. A high average_overlaps value means micro-partitions are poorly sorted for your query patterns."
+      },
+      {
+        "id": "sfj_9",
+        "cat": "Cloud",
+        "q": "What is the difference between Transient and Permanent tables in Snowflake?",
+        "wtlf": "Permanent tables: default table type, support full Time Travel (up to 90 days on Enterprise), have 7-day Fail-safe period. Highest storage cost. Transient tables: no Fail-safe, Time Travel limited to 0–1 day. Lower storage cost. Temporary tables: session-scoped, automatically dropped when session ends, no Time Travel, no Fail-safe. Cheapest. External tables: metadata-only tables pointing to files in cloud storage — data stored externally.  Use permanent tables for production data requiring full recovery capabilities. Use transient tables for staging/intermediate ETL data that can be reloaded if lost — avoids paying for Fail-safe storage on data that doesn't need it. Use temporary tables for session-scoped transformations. A common cost-saving practice: staging schemas use transient tables (TRANSIENT option in schema creation), production schemas use permanent tables."
+      },
+      {
+        "id": "sfj_10",
+        "cat": "SQL",
+        "q": "How do you query semi-structured (JSON/Variant) data in Snowflake?",
+        "wtlf": "Snowflake stores semi-structured data in VARIANT columns. JSON objects are queried using colon (:) notation for keys and bracket notation for array indices. The FLATTEN function explodes arrays into rows. PARSE_JSON converts a JSON string to VARIANT. OBJECT_CONSTRUCT builds JSON objects. ARRAY_AGG aggregates rows into arrays.  Snowflake's VARIANT column stores JSON, Avro, ORC, Parquet natively without defining a schema upfront. Virtual columns automatically extract top-level keys from VARIANT — these can be type-cast and indexed. When querying deeply nested JSON frequently, consider flattening into typed columns with a transformation layer (ELT in Snowflake using LATERAL FLATTEN) to enable better pruning and avoid VARIANT parsing overhead."
+      },
+      {
+        "id": "sfj_11",
+        "cat": "Cloud",
+        "q": "What is Snowflake Data Sharing and how does it work?",
+        "wtlf": "Snowflake Secure Data Sharing allows sharing live data across Snowflake accounts with zero data copying and zero data movement. The data provider creates a Share object, grants access to specific databases/schemas/tables, and adds consumer accounts. The consumer creates a database from the share — they query the provider's data live in the provider's storage. Consumers pay only for their own query compute. No ETL, no copying, no latency.  Data Sharing is transformative for data products and ecosystem monetisation. Examples: a bank sharing transaction data with a FinTech partner, an insurer sharing claims data with a data aggregator. Data Marketplace (Snowflake Marketplace) is a public data exchange where providers list datasets for discovery and consumption. Private Data Exchange enables a company to share data with a curated set of partners. Listings can be free or paid. Reader Accounts allow sharing with non-Snowflake users (Snowflake manages their account).  Pro Tip: Use Secure Views as the sharing object (not raw tables) so you can apply row-level security and hide sensitive columns from specific consumers."
+      },
+      {
+        "id": "sfj_12",
+        "cat": "Cloud",
+        "q": "What is a Snowflake Stream and how does it enable CDC?",
+        "wtlf": "A Snowflake Stream is a Change Data Capture (CDC) object that tracks DML changes (INSERT, UPDATE, DELETE) made to a source table. When you query a stream, it returns a delta of changes since the last time the stream was consumed, including METADATA$ACTION (INSERT/DELETE), METADATA$ISUPDATE (TRUE for updates), and METADATA$ROW_ID. After a task or query consumes the stream in a transaction, the stream advances its offset.  Streams enable incremental processing patterns — instead of reprocessing entire tables, process only new/changed rows. Common use: stream on a raw table, task consumes stream and merges changes into a curated layer. Streams come in three types: Standard (all DML), Append-only (INSERT only, no DELETE/UPDATE tracking — more efficient for append-only ingestion), and Insert-only (for external tables). Streams have a staleness period (14 days default) — a stream not consumed within this period becomes stale."
+      },
+      {
+        "id": "sfj_13",
+        "cat": "Cloud",
+        "q": "What are Snowflake Resource Monitors and why are they important?",
+        "wtlf": "Resource Monitors track credit consumption of virtual warehouses and send alerts or automatically suspend warehouses when a defined credit quota threshold is reached. They can be set at the account level (all warehouses) or individual warehouse level. Triggers: notify at X% (e.g., 75% sends email), notify and suspend at 100%, suspend immediately at threshold. Reset intervals: daily, weekly, monthly, or never.  Resource Monitors are the primary cost control mechanism in Snowflake. Without them, a runaway query or a forgotten warehouse can consume thousands of credits unexpectedly. Best practice: create account-level monitors with alert-only thresholds and warehouse-level monitors with suspend thresholds for user-facing warehouses. Budget alerts in Snowflake cost management pages complement resource monitors. Snowflake's credit system: 1 credit per server-hour per warehouse node.  Pro Tip: Always create Resource Monitors before giving developers access to Snowflake. A XL warehouse running 24/7 unattended can consume 32 credits/hour — know your credit pricing and set hard limits."
+      },
+      {
+        "id": "sfj_14",
+        "cat": "SQL",
+        "q": "What are Clustering Keys in Snowflake and when should you use them?",
+        "wtlf": "A Clustering Key defines an explicit sort order for micro-partitions, overriding Snowflake's natural ingestion order. It is defined on one or more columns. Snowflake's Automatic Clustering service maintains the key over time as new data arrives. Use clustering when: tables are very large (hundreds of GBs to TBs), queries consistently filter on specific columns that are not the natural ingestion order, and SYSTEM$CLUSTERING_INFORMATION shows poor clustering depth.  Clustering is NOT needed for small-to-medium tables — Snowflake's automatic micro-partition pruning on date columns (ingestion order) is sufficient. Clustering is most beneficial on columns frequently used in WHERE, JOIN, and ORDER BY. Typical good candidates: date columns for non-time-ordered data, customer_id for customer analytics tables, region for geographically filtered reports. Automatic Clustering has a credit cost for the maintenance operations — evaluate ROI."
+      },
+      {
+        "id": "sfj_15",
+        "cat": "Cloud",
+        "q": "What is Snowflake's role hierarchy and access control model?",
+        "wtlf": "Snowflake uses Discretionary Access Control (DAC — object owners grant privileges) combined with Role-Based Access Control (RBAC — privileges granted to roles, roles granted to users). Role hierarchy: ACCOUNTADMIN (top, full privileges, rarely used) > SYSADMIN (creates and manages databases, warehouses) > SECURITYADMIN (manages users, roles, grants) > USERADMIN (manages users/roles) > PUBLIC (default role for all users). Custom roles are created under SYSADMIN hierarchy. Future Grants automatically grant privileges to future objects.  Best practice: never use ACCOUNTADMIN for daily operations. Create functional roles (analyst_role, data_engineer_role) and grant them appropriate object privileges. Use Role Hierarchy to cascade privileges: USERADMIN grants to analyst_role, analyst_role grants to specific user. SECURITYADMIN should own all user/role management. Future Grants eliminate the need to manually grant privileges on each new table: GRANT SELECT ON FUTURE TABLES IN SCHEMA raw TO ROLE analyst_role."
+      },
+      {
+        "id": "sfj_16",
+        "cat": "Cloud",
+        "q": "What is Snowflake Dynamic Data Masking?",
+        "wtlf": "Dynamic Data Masking is a column-level security feature that masks sensitive data at query time based on the role of the user executing the query. Masking policies are SQL-defined functions attached to columns. Users with privileged roles see the real data; other roles see masked values (e.g., email@domain.com becomes ****@****.com, SSN shows as XXX-XX-1234). No data transformation in storage — masking applied in real-time during query execution.  Dynamic Data Masking enables data democratisation with data protection — analysts can work with production data without seeing PII. Masking policies can be conditional (CASE WHEN CURRENT_ROLE() IN ('DBA', 'ANALYST') THEN value ELSE mask). Row Access Policies extend this to row-level filtering (return only rows the current user is allowed to see — similar to RLS). Both features are Enterprise edition and above. Centrally manage masking policies in a dedicated governance schema."
+      },
+      {
+        "id": "sfj_17",
+        "cat": "SQL",
+        "q": "How do you load data into Snowflake efficiently? Compare COPY INTO vs INSERT.",
+        "wtlf": "COPY INTO: bulk load from a stage (S3/Blob/GCS or internal stage). Highly optimised, parallel, handles large files (split large files into 100–250 MB chunks for optimal parallelism). Supports CSV, JSON, Parquet, Avro, ORC. Returns load statistics. Skips or fails on error based on ON_ERROR option. INSERT/INSERT SELECT: row-by-row or SELECT-based inserts within Snowflake. Fine for small volumes or transformation outputs. Not suited for bulk file ingestion. Snowpipe: continuous micro-batch loading from stages. Kafka Connector: real-time row-level streaming.  For file-based bulk loading, COPY INTO is always the right choice — it parallelises across files and micro-partitions. Split source files into 100–250 MB pieces to match Snowflake's micro-partition size for best loading throughput. Pre-sort files by clustering key column values to improve pruning after load. COPY INTO maintains a metadata history (LOAD_HISTORY) and by default skips already-loaded files — enabling idempotent re-runs."
+      },
+      {
+        "id": "sfj_18",
+        "cat": "Cloud",
+        "q": "What is the Snowflake Query Profile and how do you use it for performance tuning?",
+        "wtlf": "The Query Profile (in Snowflake web UI or via QUERY_HISTORY) visualises the execution plan of a completed query as a tree of operator nodes. Each node shows: processing time, rows produced, bytes read/written, and partitions scanned vs total. Key things to look for: large Scan nodes with high TableScan bytes (can clustering help?), HashJoin or SortMergeJoin with large input rows (can filters be pushed earlier?), Explode nodes from LATERAL FLATTEN, and spilling to disk (query needs more warehouse size).  Spilling to remote storage (S3/Blob) during query execution dramatically slows queries — it means the query exceeded the virtual warehouse's local memory. Solutions: increase warehouse size temporarily, reduce data volume with better filters, or optimise the query structure (avoid DISTINCT on large sets, break CTEs). High partition pruning efficiency (e.g., 10 of 50,000 partitions scanned) is the hallmark of a well-designed table and query.  Pro Tip: Look for the percentage of partitions scanned in the Query Profile TableScan node. If >20% of partitions are scanned for a point lookup, clustering may help significantly."
+      },
+      {
+        "id": "sfj_19",
+        "cat": "Cloud",
+        "q": "What are Snowflake Materialized Views and when should you use them?",
+        "wtlf": "Materialized Views in Snowflake store the pre-computed results of a query physically. They are automatically maintained by Snowflake's background service when the base table data changes. Query rewrites: the query optimiser automatically rewrites eligible queries to use the MV instead of scanning the base table. Limitations: no joins (base table only), no aggregations with HAVING, no non-deterministic functions, no Streams on MVs.  Use MVs for: frequently run expensive aggregations on large tables that change incrementally, queries with complex filtering on large semi-structured data. Avoid MVs on frequently changing tables (high maintenance cost). Snowflake automatically uses the MV for queries that match the MV definition — transparent to the user. MVs incur storage costs and maintenance credits. For more flexibility (joins, complex logic), use Tasks + Tables as an explicit 'materialised view' pattern."
+      },
+      {
+        "id": "sf_shj0",
+        "cat": "Stakeholder",
+        "q": "A business user says \"the numbers look wrong\" in a report you built. How do you approach this conversation and investigation?",
+        "wtlf": "Takes concern seriously without defensiveness, asks for specifics (which metric, date range), traces back to source, documents findings, communicates ETA."
+      },
+      {
+        "id": "sf_shj1",
+        "cat": "Stakeholder",
+        "q": "You are new to a team. How would you identify and build relationships with key stakeholders in your first 30 days?",
+        "wtlf": "Stakeholder mapping, scheduling 1:1 introductions, understanding their data needs, identifying pain points, reviewing existing documentation."
+      },
+      {
+        "id": "sf_shj2",
+        "cat": "Stakeholder",
+        "q": "How would you explain to a non-technical stakeholder why a data pipeline failed and what your remediation plan is?",
+        "wtlf": "Plain language (no jargon), clear root cause summary, concrete fix and timeline, reassurance of monitoring."
+      },
+      {
+        "id": "sf_shj3",
+        "cat": "Stakeholder",
+        "q": "Your manager asks for a dashboard by Friday but source data is missing for two required metrics. What do you do?",
+        "wtlf": "Immediately surfaces the gap, quantifies what IS deliverable, proposes interim solution with caveats, does not hide the problem until Friday."
+      }
+    ],
+    "mid": [
+      {
+        "id": "sfm_0",
+        "cat": "Cloud",
+        "q": "Design a Snowflake-based data platform architecture for a large enterprise.",
+        "wtlf": "Layers: Ingestion (Fivetran/Airbyte for SaaS sources, Kafka Snowflake Connector for streaming, ADF/Glue for custom ETL, Snowpipe for file events) > Raw Layer (Snowflake DB, transient schemas, external stages) > Transformation (dbt Core/Cloud — SQL-based ELT in Snowflake compute) > Medallion/Kimball layers (Bronze/Silver/Gold or ODS/DWH/Data Mart schemas) > Semantic Layer (dbt metrics, Snowflake Views) > Consumption (Tableau/Power BI/Looker connecting to Snowflake, Streamlit in Snowflake for data apps) > Governance (Snowflake Access Policies, Data Catalog integration, Row Access Policies, Dynamic Masking).  Snowflake + dbt is the dominant modern stack for analytics engineering. dbt handles transformations (SELECT-based models compiled to Snowflake SQL), testing (schema tests, data tests), documentation (auto-generated data catalogue), and incremental materialisation strategies (table, view, incremental, snapshot). The ELT pattern (load raw first, transform in Snowflake) uses Snowflake's compute power for transformations rather than a separate ETL engine.  Pro Tip: The modern data stack: Fivetran (extract) + Snowflake (load + transform) + dbt (transform) + Looker/Power BI (visualise) — be ready to describe this end-to-end."
+      },
+      {
+        "id": "sfm_1",
+        "cat": "Cloud",
+        "q": "How do you diagnose and resolve a slow Snowflake query systematically?",
+        "wtlf": "Step-by-step: (1) Query Profile: check partition pruning (% scanned), spilling to local/remote disk, operator timing breakdown. (2) Clustering: run SYSTEM$CLUSTERING_INFORMATION — high average_overlaps means poor sort order, consider clustering key. (3) Cache usage: check QUERY_HISTORY for bytes_scanned = 0 (result cache hit) vs warehouse cache miss. (4) Warehouse size: if spilling to remote storage, upsize temporarily. (5) Query rewrites: eliminate SELECT *, push filters before JOINs, avoid functions on filtered columns, use QUALIFY instead of subqueries for window function filtering. (6) Result caching: ensure deterministic queries reuse cache.  Most Snowflake performance issues fall into three categories: insufficient pruning (fix with clustering or query predicates), spilling to disk (fix with warehouse upsize or query optimisation), and suboptimal query structure (fix with rewrites). EXPLAIN USING TABULAR shows estimated row counts — large misestimates indicate stale statistics or unexpected data skew. SYSTEM$CLUSTERING_RATIO helps evaluate clustering effectiveness before committing to Automatic Clustering (which has an ongoing cost).  Pro Tip: Before upsizing a warehouse, try optimising the query and fixing pruning — a well-written query on XS often beats a poorly written query on XL."
+      },
+      {
+        "id": "sfm_2",
+        "cat": "Cloud",
+        "q": "How would you implement a dbt incremental model on top of Snowflake Streams for CDC processing?",
+        "wtlf": "Approach 1 — dbt Incremental with Streams: create a Snowflake Stream on the source table, reference the stream in a dbt model using source(), use dbt's incremental materialisation with MERGE strategy. dbt checks 'is_incremental()' — on full refresh, scans entire source; on incremental runs, scans only stream changes. Approach 2 — dbt Snapshots: dbt's built-in SCD Type 2 implementation using a check strategy or timestamp strategy — tracks historical changes in a slowly changing dimension.  dbt incremental models + Snowflake Streams is the production-grade CDC pattern. The stream provides the delta; dbt's MERGE compiles to a Snowflake MERGE statement. The dbt model references source('raw', 'orders_stream') and filters METADATA$ACTION. Unique_key in dbt incremental config drives the MERGE join key. Streams must be consumed in a transaction — dbt wraps the incremental run in a transaction automatically. After consumption, the stream advances — dbt run is idempotent only if the stream hasn't been consumed by another process."
+      },
+      {
+        "id": "sfm_3",
+        "cat": "Cloud",
+        "q": "What is the Snowflake Query Result Cache and how can you maximise its benefit?",
+        "wtlf": "The Query Result Cache caches the exact result of a query for 24 hours in the Cloud Services Layer. A subsequent identical query (same SQL text, same role, same warehouse, same data — verified via micro-partition metadata) returns instantly at zero compute cost. Cache is invalidated if: query SQL changes even slightly (including whitespace), underlying data changes, role changes, session parameters change, or 24 hours elapses.  Maximising result cache: use query templating with bind variables (same parameterised SQL, different values are less likely to cache — but parameterised queries benefit from plan cache). Ensure BI tools send identical SQL for the same dashboard tiles. Avoid non-deterministic functions in queries (CURRENT_TIMESTAMP(), RANDOM() — they always bypass result cache). Set AUTO_SUSPEND appropriately — result cache persists even after warehouse suspension. Local Disk Cache (virtual warehouse SSD) caches micro-partitions — warming the cache with representative queries before peak load (cache warming) is a production practice.  Pro Tip: BI tools like Tableau often add row number columns or slightly modify SQL per render. Work with the BI tool team to ensure queries are cache-friendly (identical SQL between renders)."
+      },
+      {
+        "id": "sfm_4",
+        "cat": "Cloud",
+        "q": "How do you implement a data mesh architecture using Snowflake?",
+        "wtlf": "Data Mesh principles in Snowflake: Domain Ownership — separate Snowflake databases (or schemas in a shared account) per domain team (marketing_domain, finance_domain). Data Products — each domain exposes curated tables/views as its data product, governed by the domain team. Self-service Infrastructure — Snowflake's elastic compute + zero-copy cloning enables each domain to operate independently. Federated Governance — centralised Snowflake Horizon (Snowflake's governance framework) with account-level policies, universal search, and data lineage. Data Sharing — domains share data products cross-domain via Snowflake Secure Data Sharing or Private Exchange.  Snowflake is well-suited for data mesh because: Data Sharing enables cross-domain data product consumption without data movement, zero-copy cloning enables domain-level dev/test independence, RBAC enables domain-owned access control, and Object Tagging + Data Classification enables centralised governance applied per-domain. The alternative (separate Snowflake accounts per domain) enables stronger isolation but increases cost and complexity. Snowflake's cross-account Data Sharing bridges these accounts without ETL.  Pro Tip: Snowflake Business Critical edition's cross-cloud private connectivity (AWS PrivateLink, Azure Private Link) ensures even cross-account data sharing stays off the public internet."
+      },
+      {
+        "id": "sfm_5",
+        "cat": "SQL",
+        "q": "Write a Snowflake MERGE statement for an upsert operation and explain it.",
+        "wtlf": "MERGE performs INSERT+UPDATE+DELETE in a single atomic statement. It compares a source table/subquery with a target table on a join key and applies different actions for matched/unmatched records.  MERGE is the standard Snowflake pattern for SCD Type 1 (upsert — overwrite existing) and is the compiled output of dbt incremental models with unique_key. MERGE is atomic — either all operations succeed or none do (ACID). For SCD Type 2 (keep history), dbt Snapshots are cleaner than manual MERGE. The WHEN NOT MATCHED BY SOURCE THEN DELETE clause handles deletes from the source — making MERGE a true full sync operation."
+      },
+      {
+        "id": "sfm_6",
+        "cat": "Cloud",
+        "q": "How do you implement multi-table transactions and error handling in Snowflake stored procedures?",
+        "wtlf": "Snowflake Stored Procedures (Snowflake Scripting / JavaScript / Python) support explicit transactions with BEGIN TRANSACTION / COMMIT / ROLLBACK. Use a TRY/CATCH (JS) or BEGIN EXCEPTION block (Snowflake Scripting) to catch errors and roll back. Stored procedures run with caller's rights (default) or owner's rights — owner's rights procedures execute with the procedure owner's privileges, enabling controlled access elevation.  Snowflake Scripting (SQL procedural language with IF/LOOP/EXCEPTION) is the recommended approach for new stored procedures — it is SQL-native and does not require JS. JavaScript procedures are still common for complex logic. Caller's rights stored procedures are preferred for security — they run with the calling user's privileges, preventing privilege escalation. Owner's rights are used when the procedure needs access to objects the caller doesn't have (e.g., a reporting procedure that reads raw data the analyst cannot access directly)."
+      },
+      {
+        "id": "sfm_7",
+        "cat": "Cloud",
+        "q": "How do you implement multi-cluster warehouses and concurrency scaling in Snowflake?",
+        "wtlf": "Multi-cluster Warehouses automatically spin up additional clusters (up to 10) when the current cluster is at maximum concurrency capacity. Scaling policies: Economy (adds clusters conservatively — minimise cost) vs Standard (adds clusters aggressively — minimise latency). Minimum clusters (1) and maximum clusters (user-defined) set the bounds. Concurrency Scaling (separate feature) adds temporary capacity for burst reads at no extra credit cost (1 credit free per customer-account per hour, pooled across the account).  Multi-cluster VW is essential for BI workloads with many simultaneous users. Each cluster handles 8–10 concurrent queries (rule of thumb). At 100 concurrent BI users, a 10-cluster multi-cluster warehouse provides the right headroom. Concurrency Scaling handles temporary bursts (e.g., end-of-quarter report rush) without permanently provisioning for peak. Work with workload management: query prioritisation routes high-priority queries to dedicated clusters, preventing low-priority batch jobs from consuming BI query capacity.  Pro Tip: Set minimum clusters = 1 for cost efficiency in most scenarios. Set minimum = 2 only if constant sub-second warehouse startup is critical and you cannot tolerate even 1-2 second latency during scale-up."
+      },
+      {
+        "id": "sfm_8",
+        "cat": "Cloud",
+        "q": "How do you implement and govern a Snowflake data classification and tagging strategy?",
+        "wtlf": "Snowflake Object Tagging: create custom tags (key-value metadata) and apply to databases, schemas, tables, columns, and warehouses. Tags propagate down the hierarchy (lineage). System-defined classification tags (DATA_PRIVACY_CATEGORY: PII, PCIDATA, HIPAA) can be auto-applied via SYSTEM$CLASSIFY_SCHEMA. Governance workflow: auto-classify sensitive columns > apply masking policies based on tags > Row Access Policies restrict row visibility > Tag-based policy assignment (one masking policy assigned to all columns with PII tag) > Snowflake Horizon provides lineage, data quality, and universal search across tagged objects.  Tag-based masking policies decouple governance from data model changes — add a new PII column, tag it, the masking policy applies automatically. Snowflake Horizon (Snowflake's governance product launched 2023) provides: data lineage (column-level lineage tracks transformations), trust & observability (data quality metrics, anomaly detection), universal search across all Snowflake objects, and compliance framework mapping (GDPR, HIPAA object tracking).  Pro Tip: Use tag-based masking policies at scale — attaching policies to tags rather than individual columns means new PII columns are automatically protected when the PII tag is applied."
+      },
+      {
+        "id": "sfm_9",
+        "cat": "Cloud",
+        "q": "What is Snowpark and how does it extend Snowflake for Python/Java/Scala development?",
+        "wtlf": "Snowpark is the Snowflake developer framework allowing Python, Java, and Scala code to run natively inside Snowflake's compute engine — no data movement to an external Spark cluster. Snowpark DataFrames (lazy evaluation, like Spark) compile to Snowflake SQL executed inside the warehouse. Snowpark ML allows training and deploying ML models in Snowflake. Snowpark Container Services (SPCS) runs Docker containers inside Snowflake's Snowgrid network.  Snowpark eliminates the 'extract to Spark/Python, transform, load back' pattern — transformations run inside Snowflake on the same compute that queries data. Snowpark Python UDFs execute Python functions on Snowflake workers. Snowpark ML Model Registry stores and serves models. SPCS enables full custom applications (LLM inference, image processing) running inside Snowflake's network boundary. This extends Snowflake from a data warehouse to a full data + compute platform."
+      },
+      {
+        "id": "sfm_10",
+        "cat": "Cloud",
+        "q": "How do you optimise Snowflake for an ELT pipeline processing 10 billion rows daily?",
+        "wtlf": "Strategies: (1) Use a dedicated large/XL ELT warehouse, auto-suspend after job. (2) Load files in parallel with COPY INTO — split source into 100–250 MB Parquet files. (3) Use transient staging tables (no fail-safe cost). (4) Use TRUNCATE + INSERT OVERWRITE for full refreshes (faster than DELETE+INSERT). (5) Apply clustering keys on date columns for incremental merges. (6) Use dbt incremental models with Snowflake Streams for CDC (process only changed rows). (7) Enable result set caching for unchanged aggregations. (8) Partition large transforms into stages — avoid single 10B-row MERGE (split by date partition).  At 10 billion rows, the bottleneck is typically I/O (micro-partition scanning) not CPU. Reducing scanned bytes via pruning is 10x more impactful than warehouse sizing. Staging tables should be transient to avoid fail-safe costs at this volume. Breaking a monolithic daily MERGE into 31 daily-partition MERGEs parallelises processing and reduces individual query memory requirements. Monitor BYTES_SCANNED and BYTES_SPILLED_TO_REMOTE_STORAGE in QUERY_HISTORY to identify bottlenecks.  Pro Tip: Use the INFORMATION_SCHEMA.QUERY_HISTORY_BY_WAREHOUSE() table function to identify the 10 most expensive queries by credit consumption — fix these first for maximum ROI."
+      },
+      {
+        "id": "sf_shm0",
+        "cat": "Stakeholder",
+        "q": "Mid-project, you learn that the data model you built does not meet new compliance requirements. How do you communicate this and re-plan?",
+        "wtlf": "Immediate notification to project lead, impact scope assessment, propose minimal-change remediation, realistic revised timeline, document decision log."
+      },
+      {
+        "id": "sf_shm1",
+        "cat": "Stakeholder",
+        "q": "How do you handle a situation where two business teams want the same metric defined differently in your data model?",
+        "wtlf": "Facilitates alignment meeting, documents both definitions, builds separate agreed metrics if genuinely different, prevents two versions of truth."
+      },
+      {
+        "id": "sf_shm2",
+        "cat": "Stakeholder",
+        "q": "A downstream team claims your pipeline is producing incorrect numbers. How do you investigate and communicate?",
+        "wtlf": "Data reconciliation process, cross-checks with source, documents findings with evidence, aligns on definition of correct. Avoids blame."
+      },
+      {
+        "id": "sf_shm3",
+        "cat": "Stakeholder",
+        "q": "You have identified a critical architectural improvement requiring 2 weeks of rework. How do you build a business case?",
+        "wtlf": "Quantifying technical debt impact, translating to business cost, proposing phased delivery, risk framing, clear ROI."
+      }
+    ],
+    "senior": [
+      {
+        "id": "sf_s0",
+        "cat": "Cloud",
+        "q": "Design a Snowflake-based data mesh architecture for a 10,000-person organisation with 15 domain teams. How do you balance autonomy with centralised governance?",
+        "wtlf": "Separate Snowflake databases per domain (or accounts for strong isolation); Snowflake Data Sharing for cross-domain products (zero-copy, no ETL); centralised Horizon governance (Universal Search, lineage, data quality); Row Access Policies + Dynamic Masking from central security team; domain-owned warehouses (Resource Monitors per domain); Snowflake Marketplace for external data products; federated governance committee."
+      },
+      {
+        "id": "sf_s1",
+        "cat": "Cloud",
+        "q": "How would you architect Snowflake to serve 5,000 concurrent users across 20 teams with a SLA of sub-3-second query response for the 95th percentile?",
+        "wtlf": "Multi-cluster warehouses per team (auto-scale to 10 clusters); Concurrency Scaling for burst; Query Result Cache maximisation (BI tool SQL standardisation); pre-aggregated Gold layer tables; Materialised Views for frequently queried aggregations; Resource Monitors with suspend thresholds; separate warehouses for ETL vs BI vs Data Science; BI tool connection pooling."
+      },
+      {
+        "id": "sf_s2",
+        "cat": "Cloud",
+        "q": "Walk through Snowflake cost governance at enterprise scale. How would you reduce spend by 40% without impacting performance?",
+        "wtlf": "ACCOUNT_USAGE.QUERY_HISTORY: identify top 20 queries by credit cost; fix missing clustering keys (partition pruning); warehouse auto-suspend to 60s; convert heavy DirectQuery dashboards to Extracts; Resource Monitors with hard suspend; transient tables for staging (eliminate Fail-Safe cost); Snowflake Tasks replacing external orchestrators; renegotiate contract (Capacity vs On-Demand pricing)."
+      },
+      {
+        "id": "sf_s3",
+        "cat": "Cloud",
+        "q": "How do you implement a complete CI/CD pipeline for Snowflake + dbt with environment promotion, automated testing, and rollback capability?",
+        "wtlf": "Git branching (feature -> dev -> staging -> prod); dbt Cloud CI job on PR (dbt build --select state:modified+); schema-per-environment (dev_john, staging, prod); dbt test suite (schema + data tests + custom macros); Snowflake Git Integration for version-controlled Snowpark procs; Blue-Green deployment via database cloning; rollback = UNDROP + Time Travel; secrets in Vault (never in repo)."
+      },
+      {
+        "id": "sf_s4",
+        "cat": "SQL",
+        "q": "Design an end-to-end SCD Type 2 pipeline in Snowflake processing 50 million daily dimension changes using Streams, Tasks, and MERGE. Address error handling and monitoring.",
+        "wtlf": "Source table Stream (CDC); Task chain: Stream -> staging table -> MERGE with WHEN MATCHED (close row: is_current=FALSE, effective_to=CURRENT_TIMESTAMP) + WHEN NOT MATCHED (insert new row); error handling via TRY_CAST and VALIDATE; failed rows to error table; Task error notification via system task alerts; ACCOUNT_USAGE.TASK_HISTORY for monitoring; weekly full reconciliation job."
+      },
+      {
+        "id": "sf_s5",
+        "cat": "SQL",
+        "q": "How do you design a Snowflake data model and query strategy for a ride-sharing platform tracking 1 billion trips per month, supporting both real-time operational queries and long-term analytical reporting?",
+        "wtlf": "Fact table: trips (trip_id, driver_id, rider_id, start_time, end_time, distance_km, fare, status); clustered by start_time; transient staging -> permanent fact (COPY INTO + MERGE); Snowflake Streams for real-time monitoring (active trips); Materialised View for daily aggregations (avg fare, trips per city); Dynamic Tables for near-real-time KPI dashboards; separate warehouse for operational vs analytical."
+      },
+      {
+        "id": "sf_s6",
+        "cat": "SQL",
+        "q": "Implement a Snowflake-based data quality framework using stored procedures and tasks that validates 20 rules across 50 tables daily and auto-quarantines failing records.",
+        "wtlf": "Quality rules table (rule_id, table_name, rule_type, threshold, action); stored proc per rule type (null check, referential integrity, range check, regex); EXECUTE IMMEDIATE for dynamic SQL; results written to quality_log table; Task chain: quality_check -> evaluate results -> MERGE failing records to quarantine schema -> alert via system$send_email if breach; quality dashboard via Streamlit in Snowflake."
+      },
+      {
+        "id": "sf_s7",
+        "cat": "Stakeholder",
+        "q": "You are the Snowflake Platform Owner. Finance has flagged a $200K monthly overspend. Engineering blames the BI team; BI blames data engineering. How do you resolve this and prevent recurrence?",
+        "wtlf": "Objective data: ACCOUNT_USAGE.QUERY_HISTORY + WAREHOUSE_METERING_HISTORY broken down by role/warehouse/user; presents facts neutrally to both teams; identifies root causes (oversized warehouses, missing auto-suspend, BI tool cartesian queries); joint remediation plan with owners per action; Resource Monitors per team warehouse going forward; monthly FinOps review."
+      },
+      {
+        "id": "sf_s8",
+        "cat": "Stakeholder",
+        "q": "A C-suite executive wants real-time sales data in Snowflake but the streaming infrastructure would cost significantly more per year. How do you navigate this?",
+        "wtlf": "Understands actual need (is it truly real-time or near-real-time?); quantifies value of real-time vs 15-minute latency; proposes cost-optimised alternatives (Snowpipe for 1-2 minute latency at fraction of cost); builds business case for both options; lets executive make informed decision; does not implement without explicit cost sign-off."
+      },
+      {
+        "id": "sf_s9",
+        "cat": "Stakeholder",
+        "q": "How do you manage the transition from a legacy Teradata warehouse to Snowflake for 500 report consumers with minimal disruption?",
+        "wtlf": "Phased migration: Wave 1 (low-usage reports), Wave 2 (departmental), Wave 3 (enterprise-critical); semantic equivalence testing (compare row counts, aggregations between Teradata and Snowflake); rewrite SQL dialects (BTEQ -> Snowflake SQL); dual-run period; end-user training programme; hypercare support post-cutover; rollback plan for critical reports."
+      },
+      {
+        "id": "sf_s10",
+        "cat": "Stakeholder",
+        "q": "You inherit a Snowflake environment with no documentation, no governance, and 300 apps built by different teams over 3 years. How do you bring order to this?",
+        "wtlf": "Discovery: INFORMATION_SCHEMA + ACCOUNT_USAGE to inventory all objects (tables, views, tasks, pipes, procedures); interview key stakeholders; identify owners per object (email from query history); classify by criticality and usage; implement tagging strategy; archive objects unused for 90+ days (TRANSIENT -> backup -> DROP); establish governance framework going forward; document everything in a data catalogue."
+      }
+    ]
+  },
+  "Power BI": {
+    "junior": [
+      {
+        "id": "pbij_0",
+        "cat": "Tool",
+        "q": "What is Power BI? What are its main components?",
+        "wtlf": "Power BI is a Microsoft business intelligence tool used to connect to data sources, transform data, create interactive reports, and share insights. Its main components are: Power BI Desktop (authoring tool), Power BI Service (cloud publishing and sharing), Power BI Mobile (mobile app), Power BI Gateway (connects cloud service to on-premises data), and Power BI Report Server (on-premises hosting).  Power BI Desktop is where you build reports. The Service (app.powerbi.com) is where you publish, share, and schedule refreshes. Understanding the difference between Desktop and Service is a fundamental question in every Power BI interview. Gateways are important for organisations with on-premises databases.  Pro Tip: Always mention the distinction between Power BI Desktop (free), Pro (per user licence), and Premium (capacity-based) when asked about licensing."
+      },
+      {
+        "id": "pbij_1",
+        "cat": "Tool",
+        "q": "What is the difference between Import, DirectQuery, and Live Connection modes in Power BI?",
+        "wtlf": "Import: Data is loaded and compressed into Power BI's in-memory engine (VertiPaq). Fastest performance, supports all DAX features. Data must be refreshed to stay current. DirectQuery: Queries are sent directly to the source database in real time. No data is stored in Power BI. Slower performance, limited DAX. Live Connection: Used for Analysis Services or Power BI Datasets. Power BI sends MDX/DAX queries live — you cannot add new tables or transform data in the model.  Import mode is best for performance and DAX flexibility. DirectQuery is ideal for large datasets or when real-time data is critical and import size limits (1 GB on Pro) would be exceeded. Live Connection is used when the semantic model is centrally managed. The choice significantly affects what you can build in the report.  Pro Tip: Composite models (mixing Import and DirectQuery) were introduced to get the best of both worlds."
+      },
+      {
+        "id": "pbij_2",
+        "cat": "Tool",
+        "q": "What is DAX? Write a basic measure to calculate Total Sales.",
+        "wtlf": "DAX (Data Analysis Expressions) is the formula language used in Power BI (also Excel Power Pivot and Analysis Services) to create calculated columns, measures, and tables. It is a functional language that operates on tables and columns.  Measures are dynamic — they re-evaluate based on the filter context of the visual. Calculated columns are computed row by row at data load time and stored in the model. SUMX iterates row by row, while SUM simply sums a column. For a simple column like SalesAmount, SUM is sufficient and faster."
+      },
+      {
+        "id": "pbij_3",
+        "cat": "Tool",
+        "q": "What is the difference between a Measure and a Calculated Column in Power BI?",
+        "wtlf": "Measure: Computed dynamically at query time based on current filter/slicer context. Not stored as data in the table — exists only as a formula. Used in report visuals. Calculated Column: Computed row by row at data refresh time and physically stored in the model table. Uses row context (current row values). Increases model size.  Use measures for aggregations like Total Sales, Average Profit, % of Total. Use calculated columns when you need a value per row that can be used as a filter/slicer or axis — e.g., a 'Full Name' column combining First and Last name, or a 'Profit Margin %' per transaction row. Measures are preferred for performance.  Pro Tip: A common mistake is using a calculated column where a measure should be used, bloating the model unnecessarily."
+      },
+      {
+        "id": "pbij_4",
+        "cat": "Tool",
+        "q": "How do you calculate Year-to-Date (YTD) sales in Power BI?",
+        "wtlf": "Use the TOTALYTD DAX time intelligence function, which accumulates values from the start of the year to the current date in context.  TOTALYTD is a shorthand for CALCULATE([Total Sales], DATESYTD('Date'[Date])). It requires a properly marked Date table with continuous dates. The optional third argument lets you set a custom year-end date (e.g., '06-30' for a fiscal year ending June 30). Always use a dedicated Date table for time intelligence."
+      },
+      {
+        "id": "pbij_5",
+        "cat": "Tool",
+        "q": "What is a Date Table and why is it important in Power BI?",
+        "wtlf": "A Date table is a dedicated table with one row per date covering the full range of dates in your data. It must be marked as a 'Date Table' in Power BI. It is essential for DAX time intelligence functions (YTD, MTD, SAMEPERIODLASTYEAR, etc.) to work correctly.  Without a proper Date table, time intelligence functions may give incorrect results. The Date table must have no gaps, a date column with unique values, and cover all dates referenced by fact tables. You can create one using DAX (CALENDAR / CALENDARAUTO), Power Query, or import from a data warehouse. Marking it as a Date table via Table Tools is required.  Pro Tip: Always add Year, Month, Quarter, Month Number, and Fiscal Period columns to your Date table for flexible filtering."
+      },
+      {
+        "id": "pbij_6",
+        "cat": "Tool",
+        "q": "How do you write a measure to calculate the percentage contribution of a product to total sales?",
+        "wtlf": "Use DIVIDE to safely compute the ratio and ALL() to remove filters on the product dimension to get the grand total.  ALL('Product') removes any filter on the Product table, so the denominator is always the total sales across all products regardless of what's selected. DIVIDE handles division by zero gracefully (returns BLANK by default). This pattern — value / CALCULATE(value, ALL(dimension)) — is the standard % of total formula in Power BI."
+      },
+      {
+        "id": "pbij_7",
+        "cat": "Tool",
+        "q": "What are the different types of filters in Power BI?",
+        "wtlf": "Power BI has several filter types: Visual-level filters (apply to one visual only), Page-level filters (apply to all visuals on a page), Report-level filters (apply to all pages), Drillthrough filters (passed when drilling through to another page), Cross-filter/cross-highlight (from interactions between visuals), Slicers (user-controlled visual filters), and Row-Level Security (RLS) filters applied at data access level.  Understanding the filter hierarchy is important for building correct reports. Filters are evaluated in a stack — more specific filters (visual-level) override broader ones. The Filters pane shows all active filters. Cross-filtering between visuals can be configured via Edit Interactions. RLS is configured in Power BI Desktop and enforced in the Service.  Pro Tip: Use ALLSELECTED() in DAX to respect slicer selections but ignore internal visual filters — useful for % of filtered total."
+      },
+      {
+        "id": "pbij_8",
+        "cat": "SQL",
+        "q": "What is Power Query (M Language) and what is it used for in Power BI?",
+        "wtlf": "Power Query is the data transformation and ETL (Extract, Transform, Load) engine in Power BI. It uses the M language (Mashup language). It is used to connect to data sources, clean and shape data (remove nulls, split columns, merge tables, pivot/unpivot, change data types), and load transformed data into the Power BI data model.  Power Query transformations are applied before data enters the model — this is where you handle messy source data. Each transformation creates a new step in the Applied Steps panel, making it auditable and reversible. M is a functional, case-sensitive language. Power Query is the right place for data cleaning; DAX is for analytical calculations on clean data.  Pro Tip: Prefer Power Query transformations over calculated columns for data shaping — it keeps the model lighter and cleaner."
+      },
+      {
+        "id": "pbij_9",
+        "cat": "Tool",
+        "q": "What are relationships in Power BI and what types exist?",
+        "wtlf": "Relationships connect tables in the data model so that filters can flow between them. Types: One-to-Many (1:*) — most common, e.g., one Customer to many Orders. Many-to-One (*:1) — same relationship, viewed from the other side. One-to-One (1:1) — rare, usually indicates tables can be merged. Many-to-Many (*:*) — supported with bridge tables or directly in newer versions. Relationships have a cross-filter direction: Single (filter flows one way) or Both (bidirectional).  Power BI relationships are typically from a dimension table (one side) to a fact table (many side). The filter flows from the one side to the many side by default. Bidirectional cross-filtering should be used carefully as it can cause ambiguity and performance issues. Many-to-many relationships require careful modelling.  Pro Tip: Always aim for a star schema — fact tables in the centre, dimension tables around them with single-direction relationships."
+      },
+      {
+        "id": "pbij_10",
+        "cat": "Tool",
+        "q": "What is the difference between CALCULATE and CALCULATETABLE in DAX?",
+        "wtlf": "CALCULATE evaluates an expression (usually a measure) in a modified filter context and returns a scalar value. CALCULATETABLE evaluates a table expression in a modified filter context and returns a table. CALCULATE is used in measures; CALCULATETABLE is used where a table is expected (e.g., inside FILTER, SUMX, or as input to another function).  CALCULATE is arguably the most important DAX function. It can add filters, remove filters (ALL), replace filters, or modify context. CALCULATETABLE does the same but returns a table — useful for creating filtered virtual tables inside iterating functions. Both transition row context to filter context when used inside calculated columns."
+      },
+      {
+        "id": "pbij_11",
+        "cat": "Tool",
+        "q": "What is Row-Level Security (RLS) in Power BI and how is it implemented?",
+        "wtlf": "RLS restricts data access for specific users or roles in a Power BI report. It is defined in Power BI Desktop by creating roles with DAX filter expressions on tables. After publishing, roles are assigned to users or groups in the Power BI Service. Static RLS uses fixed filter values; Dynamic RLS uses USERPRINCIPALNAME() or USERNAME() to filter based on the logged-in user's email.  RLS is critical for multi-tenant reports where different users should see only their own data (e.g., regional managers see only their region's sales). Dynamic RLS requires a user mapping table. Roles can be tested in Desktop using 'View as Role' before publishing. RLS applies to Import and DirectQuery models; in Live Connection it is enforced at the Analysis Services level."
+      },
+      {
+        "id": "pbij_12",
+        "cat": "Tool",
+        "q": "What are the different chart types in Power BI and when would you use each?",
+        "wtlf": "Bar/Column chart: comparing categories. Line chart: trends over time. Pie/Donut: part-to-whole relationships (use sparingly, max 5 slices). Scatter chart: correlations between two measures. Card/KPI: single key metric. Matrix: cross-tabular data with drill-down. Map/Filled Map: geographical distribution. Funnel: pipeline stages. Gauge: progress toward a target. Treemap: hierarchical proportional data. Waterfall: contribution of individual items to a total change.  Choosing the right visual is a design skill. Bar charts are generally more readable than pie charts for comparison. Line charts require a time-based axis. Scatter plots need two numeric axes and work well for outlier detection. Cards are used for executive summary KPIs. Matrix visuals are the Power BI equivalent of a pivot table.  Pro Tip: Avoid 3D charts — they distort proportions and are harder to read. Keep visuals clean and purposeful."
+      },
+      {
+        "id": "pbij_13",
+        "cat": "Tool",
+        "q": "How do you calculate the Previous Year Sales using DAX?",
+        "wtlf": "Use the SAMEPERIODLASTYEAR time intelligence function wrapped in CALCULATE.  SAMEPERIODLASTYEAR shifts the current date context back exactly one year. It requires a marked Date table. This is one of the most used time intelligence patterns — commonly paired with the current year's measure to show a YoY comparison in a line or bar chart. DATEADD is a more flexible alternative that allows shifting by any number of days, months, or quarters."
+      },
+      {
+        "id": "pbij_14",
+        "cat": "SQL",
+        "q": "How do you append and merge queries in Power Query? What is the difference?",
+        "wtlf": "Append: Stacks two or more tables on top of each other (like SQL UNION). Used when tables have the same columns and you want to combine rows — e.g., monthly sales files. Merge: Joins two tables horizontally based on a matching key column (like SQL JOIN). Used to add columns from one table to another — e.g., adding product names from a lookup table.  Append is used for combining identical-structure tables (e.g., Jan_Sales + Feb_Sales). Merge supports Left Outer, Right Outer, Inner, Full Outer, Left Anti, and Right Anti join kinds — mirroring SQL JOIN types. Choosing the wrong operation is a common mistake. Both operations create a new query step without modifying source tables.  Pro Tip: For recurring monthly files, use the Folder connector and Append to automatically include new files — no manual re-work needed."
+      },
+      {
+        "id": "pbij_15",
+        "cat": "Tool",
+        "q": "What is the difference between a Dashboard and a Report in Power BI?",
+        "wtlf": "Report: Multi-page, interactive document created in Power BI Desktop. Contains visuals, slicers, and drill-down capabilities. Built from a single dataset. Dashboard: Single-page canvas in Power BI Service. Created by pinning visuals from one or more reports/datasets. Does not support slicers or cross-filtering. Supports real-time streaming tiles and alerts. Dashboards are for quick monitoring; reports are for deep analysis.  Dashboards are a Service-only feature — you cannot create them in Desktop. They are ideal for executives who need a high-level snapshot. Reports are for analysts who need interactive exploration. You can pin report pages as live tiles to a dashboard. Dashboards support data alerts that notify users when a KPI crosses a threshold.  Pro Tip: A common interview gotcha: dashboards cannot have slicers. If a stakeholder wants filtering, they need a report page, not a dashboard."
+      },
+      {
+        "id": "pbij_16",
+        "cat": "Tool",
+        "q": "What is the RELATED function in DAX and when do you use it?",
+        "wtlf": "RELATED retrieves a value from a related table (the 'one' side of a relationship) in a calculated column context. It follows the existing relationship to fetch a single matching value — similar to a VLOOKUP.  RELATED only works in calculated columns (row context) and must traverse a relationship from the many side to the one side. If you are in the one-side table and want to traverse to the many-side, use RELATEDTABLE() which returns all matching rows. RELATED is useful for denormalising lookup values into fact tables for filtering or categorisation."
+      },
+      {
+        "id": "pbij_17",
+        "cat": "Tool",
+        "q": "What is a Star Schema and why is it preferred in Power BI?",
+        "wtlf": "A star schema organises data into a central fact table (containing measurable events like sales transactions) connected to multiple dimension tables (containing descriptive attributes like Product, Customer, Date, Location). The fact table contains foreign keys; dimension tables contain primary keys and descriptive columns.  Star schema is preferred in Power BI because it aligns with how the DAX engine and VertiPaq columnar storage work. Single-direction relationships in a star schema reduce ambiguity. Queries run faster because filters from dimensions directly narrow down the fact table. Snowflake schemas (normalised dimensions) are harder to work with in DAX and slower to query.  Pro Tip: Avoid many-to-many relationships and circular references in your model. If you have these, restructure to a star schema first."
+      },
+      {
+        "id": "pbij_18",
+        "cat": "SQL",
+        "q": "How do you handle null values in Power Query?",
+        "wtlf": "Power Query provides several ways to handle nulls: Replace Values (replace null with a specific value), Fill Down/Up (fill null cells using the nearest non-null value above/below), Remove Rows with Errors or Nulls, and conditional logic using if [Column] = null then 'Unknown' else [Column] in a custom column.  In M language, null is a first-class value. The ?? operator (null coalescing) is available: [Column] ?? 'Default'. The Replace Values feature in the UI writes this as Table.ReplaceValue(). Fill Down is very common for handling merged cells from Excel exports. Always decide upfront whether to replace, remove, or flag nulls based on business logic."
+      },
+      {
+        "id": "pbij_19",
+        "cat": "Tool",
+        "q": "What is a slicer and how is it different from a filter in the Filters pane?",
+        "wtlf": "A slicer is a visual element on the report canvas that allows end users to interactively filter data. It is visible and accessible to report consumers. A filter in the Filters pane is applied by the report developer and may be hidden from users or set to read-only. Slicers offer visual feedback; Filters pane filters are less visible.  Slicers are preferred for user-facing filtering because they are intuitive and visually clear. Filters pane is used for developer-controlled filtering, often hidden in published reports for a cleaner experience. Slicers can be synced across pages using Sync Slicers. Both ultimately modify the filter context evaluated by DAX measures.  Pro Tip: Use Sync Slicers (View > Sync Slicers) to carry slicer selections across multiple report pages for a consistent user experience."
+      },
+      {
+        "id": "pbij_20",
+        "cat": "Tool",
+        "q": "What is the difference between ALL, ALLEXCEPT, and ALLSELECTED in DAX?",
+        "wtlf": "ALL(table/column): removes all filters from a table or specific column, ignoring slicers and report filters. ALLEXCEPT(table, column1, column2...): removes all filters from a table EXCEPT the specified columns. ALLSELECTED(table/column): removes internal model filters but preserves filters applied by slicers and report-level filters — useful for % of visible total.  ALL is used in % of Grand Total calculations. ALLEXCEPT is used when you want to keep some filters (e.g., keep Year filter but remove Product filter). ALLSELECTED is the most nuanced — it respects what the user has filtered via slicers. Understanding these three is essential for writing correct context-manipulation measures."
+      },
+      {
+        "id": "pbij_21",
+        "cat": "Tool",
+        "q": "What is drill-down in Power BI and how do you enable it?",
+        "wtlf": "Drill-down allows users to navigate from a higher level of a hierarchy to lower levels within a visual. For example, Year > Quarter > Month > Day. To enable it: add multiple fields to the Axis well of a visual in the correct hierarchy order, then use the drill-down arrows at the top of the visual (single arrow = drill down one record, double arrow = expand all to next level).  Drill-down is one of Power BI's most valued interactive features. You can also create explicit hierarchies in the model by grouping fields. The 'Expand all down one level' button shows the next level for all items simultaneously (e.g., all months for all quarters). Drillthrough is different — it navigates to another report page filtered by the clicked data point.  Pro Tip: Add a back button on drillthrough destination pages so users can return to the source page easily."
+      },
+      {
+        "id": "pbi_shj0",
+        "cat": "Stakeholder",
+        "q": "A business manager says the numbers in your Power BI report do not match what they see in Excel. How do you handle this?",
+        "wtlf": "Do not dismiss; ask for specific examples (date range, filters applied); trace data lineage from source to report; check for different business logic definitions; align on single source of truth."
+      },
+      {
+        "id": "pbi_shj1",
+        "cat": "Stakeholder",
+        "q": "How would you gather requirements from a non-technical stakeholder before building a Power BI dashboard?",
+        "wtlf": "Discovery session: understand audience, decisions the dashboard should drive, KPIs needed, data sources available, refresh frequency, device (mobile/desktop). Prototype with wireframe before building. Iterative feedback loop."
+      },
+      {
+        "id": "pbi_shj2",
+        "cat": "Stakeholder",
+        "q": "A stakeholder says they want everything on one dashboard. How do you manage this request?",
+        "wtlf": "Acknowledge their need for comprehensive view; guide them to identify primary decisions the dashboard should support; prioritise top 5-7 metrics; design for the audience; use actions and drill-through for depth without clutter."
+      },
+      {
+        "id": "pbi_shj3",
+        "cat": "Stakeholder",
+        "q": "How would you present a dashboard to a non-technical executive audience for the first time?",
+        "wtlf": "Focus on insights not features; lead with the headline KPI; use annotations to highlight key findings; walk through a story not a demo; anticipate questions; keep it to 3-5 key points."
+      }
+    ],
+    "mid": [
+      {
+        "id": "pbim_0",
+        "cat": "Tool",
+        "q": "Explain filter context and row context in DAX. How does context transition work?",
+        "wtlf": "Filter context is the set of filters active when a measure is evaluated — determined by slicers, visual filters, rows/columns in a matrix, and CALCULATE modifiers. Row context is the 'current row' when iterating — present in calculated columns and iterator functions (SUMX, FILTER, etc.). Context transition occurs when CALCULATE is used inside a row context (e.g., in a calculated column) — it converts the current row's values into filter context, effectively filtering the table to that row.  Context transition is one of the most misunderstood DAX concepts. When CALCULATE is placed inside a calculated column, the row context (e.g., current CustomerID = 101) is converted into a filter context (filter Customer table where CustomerID = 101). This causes the engine to filter the entire model, which can be expensive. Iterator functions like SUMX create row context over their first table argument — CALCULATE inside SUMX triggers context transition per row.  Pro Tip: Avoid CALCULATE in calculated columns unless you explicitly need context transition — it is costly at model load time."
+      },
+      {
+        "id": "pbim_1",
+        "cat": "Tool",
+        "q": "How do you create a dynamic rolling 3-month average measure in DAX?",
+        "wtlf": "Use DATESINPERIOD to dynamically define a 3-month window ending at the last date in the current context, then use CALCULATE with AVERAGEX over that period.  LASTDATE gets the latest date in the current filter context. DATESINPERIOD returns a table of dates spanning 3 months back from that date. CALCULATE with this table as a filter restricts the sales data to those 3 months. AVERAGEX then iterates month by month to compute the average. This rolling window pattern is essential for smoothing out volatility in time-series charts."
+      },
+      {
+        "id": "pbim_2",
+        "cat": "Tool",
+        "q": "What is VertiPaq and how does it affect Power BI model performance?",
+        "wtlf": "VertiPaq is the in-memory columnar storage engine that powers Power BI Import mode. It stores data column by column (not row by row) and uses highly efficient compression algorithms (run-length encoding and value encoding). This allows very fast scanning and aggregation on large datasets. The compression ratio depends on column cardinality — low-cardinality columns compress better.  Understanding VertiPaq is key for model optimization. High-cardinality columns (like free-text fields or GUIDs) compress poorly and should be removed or replaced. Relationships in VertiPaq are stored as hash tables. Measures computed from compressed columns are extremely fast. Tools like DAX Studio and VertiPaq Analyzer help inspect model memory usage and column cardinality.  Pro Tip: Remove unused columns, reduce cardinality of date-time columns (split into Date + Time), and avoid storing large text in the model."
+      },
+      {
+        "id": "pbim_3",
+        "cat": "Tool",
+        "q": "How do you implement a What-If parameter / scenario analysis in Power BI?",
+        "wtlf": "Use Modeling > New Parameter to create a What-If parameter. This creates a disconnected table with a range of values and a DAX measure ([Parameter Value]) that reads the slicer selection. You then reference this measure in other measures to dynamically change calculations based on user input.  What-If parameters create a table (e.g., Discount Rate[Discount Rate Value] from 0 to 0.5 in steps of 0.01) and a measure that returns the selected value. You combine it with actual measures: Adjusted Revenue = [Total Sales] * (1 - [Discount Rate Value]). This is powerful for scenario planning, sensitivity analysis, and forecasting tools without needing different data refreshes."
+      },
+      {
+        "id": "pbim_4",
+        "cat": "Tool",
+        "q": "How do you handle many-to-many relationships in Power BI using DAX?",
+        "wtlf": "Power BI supports many-to-many relationships natively (since December 2018) using a composite model. Alternatively, use a bridge/junction table to decompose the M:M into two 1:M relationships. In DAX, TREATAS can manually apply a table as a filter to another unrelated table, simulating a virtual relationship.  Many-to-many relationships occur when, for example, a salesperson covers multiple regions and a region has multiple salespeople. A bridge table (SalespersonRegion) with salesperson_id and region_id decompose this correctly. Native M:M in Power BI uses bidirectional cross-filtering which can cause performance issues and unexpected filter propagation — always test thoroughly."
+      },
+      {
+        "id": "pbim_5",
+        "cat": "Tool",
+        "q": "What tools and techniques do you use to optimise a slow Power BI report?",
+        "wtlf": "Techniques: (1) Use Performance Analyzer in Desktop to identify slow visuals. (2) Open DAX Studio to run Server Timings and find expensive DAX queries. (3) Use VertiPaq Analyzer to reduce model size. (4) Replace calculated columns with measures. (5) Reduce visual count per page. (6) Avoid bidirectional relationships. (7) Use aggregations for large tables. (8) Enable query folding in Power Query so transformations push to source DB. (9) Remove unused columns/tables.  Performance optimization is a multi-layer problem: model, DAX, visuals, and data source. Performance Analyzer shows exactly how long each visual takes to render and what DAX query was sent. DAX Studio's Server Timings reveal Storage Engine (SE) vs Formula Engine (FE) costs — SE queries are fast; FE is slower. Query folding in Power Query means the source database does the heavy lifting instead of Power BI.  Pro Tip: The single biggest performance win is usually reducing model size — fewer columns, lower cardinality, and smaller fact tables."
+      },
+      {
+        "id": "pbim_6",
+        "cat": "Tool",
+        "q": "What is USERELATIONSHIP in DAX and when is it needed?",
+        "wtlf": "USERELATIONSHIP activates an inactive relationship between two tables for the duration of a CALCULATE expression. By default, only one relationship between two tables can be active at a time. USERELATIONSHIP allows you to use a secondary relationship (e.g., filter by Order Date AND Delivery Date from the same Date table) within a specific measure.  A common scenario: a Sales table has both OrderDate and DeliveryDate columns, both relating to the Date table. Only one relationship can be active (usually OrderDate). To measure sales by delivery date, use USERELATIONSHIP inside CALCULATE. This is a role-playing dimension pattern — the Date table plays different 'roles' in different measures."
+      },
+      {
+        "id": "pbim_7",
+        "cat": "Tool",
+        "q": "What is a Power BI dataflow and how does it differ from a dataset?",
+        "wtlf": "A dataflow is a reusable ETL layer built in Power BI Service using Power Query Online. It stores prepared data as entities in Azure Data Lake. Multiple datasets can connect to a dataflow, promoting a single source of truth for data preparation logic. A dataset is a published data model (tables, relationships, measures) in Power BI Service that reports connect to.  Dataflows separate the ETL layer from the modelling layer. This is important in large organisations where multiple teams use the same data. Instead of every report doing its own transformations, they all read from a centrally maintained dataflow. Dataflows support incremental refresh and can be built in Premium workspaces. Datasets (now called Semantic Models) contain the star schema, relationships, and DAX measures.  Pro Tip: Use Premium dataflows for computed entities, which can reference and transform other dataflows — enabling a multi-tier architecture."
+      },
+      {
+        "id": "pbim_8",
+        "cat": "Tool",
+        "q": "How do you create a dynamic TopN filter using DAX (e.g., show top N products by sales, where N is user-selected)?",
+        "wtlf": "Combine a What-If parameter for N with RANKX in a measure, then use a visual-level filter or a CALCULATE + TOPN pattern to show only top N items dynamically.  TOPN(N, Table, Expression) returns the top N rows. RANKX assigns a rank to each product by sales. The What-If parameter allows the user to choose N via a slicer. The filter can be applied as a visual-level filter (rank <= N) or embedded in a measure using CALCULATE + TOPN. This is a common requirement for executive dashboards where the user wants to control how many top items to see."
+      },
+      {
+        "id": "pbim_9",
+        "cat": "Tool",
+        "q": "What is incremental refresh in Power BI and how do you configure it?",
+        "wtlf": "Incremental refresh allows Power BI to refresh only new or changed data rather than reloading the entire dataset. Configure it by: (1) Adding RangeStart and RangeEnd parameters (DateTime type) in Power Query. (2) Using these to filter the date column in the source query. (3) In Power BI Desktop > Incremental Refresh settings, define how many years to store and how many days/months to refresh. (4) Publish to Premium/PPU workspace.  Without incremental refresh, a 5-year fact table with 100M rows is fully reloaded every night — slow and resource-heavy. With incremental refresh, only the last 3 days of data are refreshed while historical data remains cached. This dramatically reduces refresh time and gateway load. Requires Premium or Premium Per User workspace. Query folding must work for the date filter to be pushed to the source.  Pro Tip: Name parameters exactly 'RangeStart' and 'RangeEnd' (case-sensitive) — Power BI recognises these specially for incremental refresh."
+      },
+      {
+        "id": "pbim_10",
+        "cat": "Tool",
+        "q": "How do you implement cohort analysis in Power BI (e.g., retention by signup month)?",
+        "wtlf": "Create a calculated column for the cohort (signup month), then use CALCULATE with DATESINPERIOD or a cohort month filter to compute retention measures for each subsequent month. A matrix visual with cohort month on rows and months-since-signup on columns displays the result.  Cohort analysis in DAX requires mapping each user to their acquisition cohort and then measuring activity in subsequent periods. The measure filters the fact table to sessions occurring in a specific month offset from the signup cohort. A disconnected table of offsets (0,1,2,3...) acts as the column axis. This is an advanced DAX pattern combining CALCULATE, DATEADD, and SELECTEDVALUE."
+      },
+      {
+        "id": "pbim_11",
+        "cat": "Tool",
+        "q": "What is query folding in Power Query and why is it important?",
+        "wtlf": "Query folding is the ability of Power Query to translate M transformations into native queries executed by the data source (e.g., SQL pushed to SQL Server). When folding occurs, the source database does the filtering, grouping, and joining — only the result comes to Power BI. This is vastly more efficient than pulling all raw data and processing it in Power BI.  Query folding only works with structured sources (SQL Server, PostgreSQL, Oracle, OData, etc.) — not Excel or CSV files. Transformations that break folding (e.g., adding a custom M function after a merge) prevent all subsequent steps from folding. Right-click any step in Power Query > View Native Query to check if it folds. For incremental refresh to work correctly, the date filter must fold.  Pro Tip: Keep foldable transformations (filter, sort, group, join) before non-foldable ones (custom columns with M functions) to maximise folding."
+      },
+      {
+        "id": "pbim_12",
+        "cat": "Tool",
+        "q": "How do you write a measure to calculate Month-over-Month (MoM) percentage change?",
+        "wtlf": "Use DATEADD to get the previous month's value, then compute the percentage change using DIVIDE.  DATEADD('Date'[Date], -1, MONTH) shifts the current date context back by exactly one month. Unlike PREVIOUSMONTH, DATEADD works correctly even in non-standard date contexts and is more reliable for partial month scenarios. The VAR pattern makes the formula readable and avoids double evaluation. Always use DIVIDE with a fallback of 0 or BLANK to handle the first month gracefully."
+      },
+      {
+        "id": "pbim_13",
+        "cat": "Tool",
+        "q": "What is the difference between Power BI Pro, Premium Per User (PPU), and Premium Capacity?",
+        "wtlf": "Pro: Per-user licence (£/user/month). Required for publishing and sharing content in workspaces. 1 GB model size limit, 8 refreshes/day. PPU: Per-user licence with Premium features (larger models, paginated reports, AI visuals, XMLA endpoints). 100 GB model limit. Premium Capacity: Capacity-based (P/EM/A SKUs) — compute resources dedicated to an organisation. Anyone can VIEW content without a Pro licence. Unlimited model sizes, more refresh frequency, deployment pipelines, dataflows with computed entities.  Choosing the right licence is an architectural decision. Pro is sufficient for small teams sharing reports. PPU offers Premium features at lower cost if only a few developers need them. Premium Capacity is required for large-scale enterprise deployments where thousands of users need to view reports without per-user licences. XMLA read/write endpoints (Premium feature) allow third-party tools like Tabular Editor and DAX Studio to connect to published datasets.  Pro Tip: With Premium Capacity, free users can VIEW content — only publishers need Pro/PPU. This is a common cost-optimisation strategy."
+      },
+      {
+        "id": "pbim_14",
+        "cat": "Tool",
+        "q": "How do you create a Pareto chart (80/20 analysis) in Power BI using DAX?",
+        "wtlf": "A Pareto chart requires a running total % of the top N products contributing to 80% of sales. Use RANKX to rank products, then CALCULATE + TOPN or a running sum pattern to compute cumulative sales %.  The running cumulative sum is computed by summing sales of all products ranked equal to or better than the current product. Dividing by total sales gives the cumulative %. This measure, when plotted as a line on a combo chart (bars for individual sales, line for cumulative %), creates the Pareto chart. You can then add a constant line at 80% to highlight the cut-off point."
+      },
+      {
+        "id": "pbim_15",
+        "cat": "Tool",
+        "q": "What are deployment pipelines in Power BI and how do they support CI/CD?",
+        "wtlf": "Deployment pipelines (Premium feature) allow you to manage the lifecycle of Power BI content across Development, Test, and Production workspaces. You can promote content from Dev to Test to Prod with a single click. Rules can be defined to swap data source connections between stages (e.g., Dev DB vs Prod DB).  Deployment pipelines bring a software development lifecycle (SDLC) discipline to Power BI. Developers build in Dev, QA tests in Test, and only approved content is promoted to Production. Deployment rules allow parameter values or data source credentials to differ per stage. For proper version control, combine with Azure DevOps using the Power BI REST API or Git integration (now available in Fabric).  Pro Tip: Use Git integration in Power BI (Fabric) to commit report/dataset definitions to Azure DevOps repos for true version control and rollback capability."
+      },
+      {
+        "id": "pbim_16",
+        "cat": "Tool",
+        "q": "Explain the VAR keyword in DAX and its benefits.",
+        "wtlf": "VAR defines a named variable inside a DAX expression. It is evaluated once and reused, unlike expressions that are evaluated every time they appear. Variables improve readability, reduce code duplication, and improve performance by avoiding double evaluation of expensive expressions.  Before VAR, complex measures often had the same sub-expression repeated — this caused the engine to compute it multiple times. VAR evaluates the expression once and caches it for the scope of the measure. VAR also captures the current filter context at the point of definition — using it inside CALCULATE means the context at definition time is used, not the modified context inside CALCULATE. This is crucial for advanced patterns like capturing outer context in nested calculations."
+      },
+      {
+        "id": "pbim_17",
+        "cat": "Tool",
+        "q": "What is the XMLA endpoint in Power BI Premium and what are its use cases?",
+        "wtlf": "The XMLA (XML for Analysis) endpoint is a protocol endpoint exposed by Power BI Premium and PPU datasets. It allows third-party tools to connect directly to published Power BI semantic models. Use cases: Tabular Editor for advanced model management, DAX Studio for query analysis and optimization, SSMS for browsing model metadata, custom application queries, and scripting model changes via TMSL.  XMLA read/write access elevates Power BI to enterprise-grade BI. Teams can use Tabular Editor 2 (free) or Tabular Editor 3 for best-practice analysis, calculation group creation, and model deployment via ALM Toolkit. DAX Studio connected to the XMLA endpoint can run real queries against published production models to debug performance. This closes the gap between Power BI and traditional SSAS development.  Pro Tip: Tabular Editor's Best Practice Analyzer can automatically flag DAX anti-patterns, unused measures, and cardinality issues in your published model."
+      },
+      {
+        "id": "pbim_18",
+        "cat": "Tool",
+        "q": "What are calculation groups in Power BI and what problem do they solve?",
+        "wtlf": "Calculation groups (available via Tabular Editor or Fabric) allow you to define a set of calculation items (e.g., Actual, YTD, SAMEPERIODLASTYEAR, Rolling 3M) that are applied to any selected measure in a report. Instead of creating YTD/PY/MoM versions of every measure, you create one calculation group and the items modify any measure dynamically.  Without calculation groups, a model with 20 measures and 5 time intelligence variations requires 100 measures (20 × 5). With a Time Intelligence calculation group, you define 5 calculation items once and they work with all 20 measures — reducing the model from 100 to 25 measures. Calculation groups also solve the 'measure selector' pattern where a slicer controls which measure is displayed in a visual."
+      },
+      {
+        "id": "pbim_19",
+        "cat": "Tool",
+        "q": "How do you use aggregations in Power BI to handle very large datasets?",
+        "wtlf": "Aggregations store pre-summarised versions of large fact tables (e.g., daily totals instead of transaction-level rows). When a report query can be satisfied by the aggregation table, Power BI uses it (Import mode, fast). When detail-level data is needed, Power BI queries the full table (DirectQuery or detailed Import table). This hybrid approach is called a composite model with aggregations.  A fact table with 1 billion rows can have an aggregation table with 10,000 rows (grouped by Date + Product + Region). Most report queries aggregate at this level — they hit the fast in-memory aggregation table. Only drillthrough to transaction level hits the underlying large table via DirectQuery. Aggregations are configured in Model view > Manage Aggregations. The engine automatically decides which table to use based on the query grain.  Pro Tip: Aggregations work best when 80% or more of your report queries can be served at the aggregated grain. Profile your report queries with Performance Analyzer first."
+      },
+      {
+        "id": "pbim_20",
+        "cat": "Tool",
+        "q": "What is Microsoft Fabric and how does it relate to Power BI?",
+        "wtlf": "Microsoft Fabric is a unified analytics platform introduced in 2023 that integrates Power BI, Azure Data Factory, Azure Synapse Analytics, and more into a single SaaS experience built on OneLake (a unified data lake). Power BI is the reporting and BI layer of Fabric. Fabric introduces Direct Lake mode — a new storage mode where Power BI reads directly from Delta Parquet files in OneLake without needing to Import or use DirectQuery.  Direct Lake is a game changer — it combines Import mode performance with DirectQuery freshness by reading directly from the Delta Lake format in OneLake. Data never needs to be copied into Power BI. Fabric also adds Git integration for Power BI, Notebooks, Data Pipelines, and Lakehouses all within one unified capacity. For candidates in 2024–2025, familiarity with Fabric and Direct Lake is increasingly expected at the senior level.  Pro Tip: Direct Lake has some limitations (no calculated columns in the semantic model, not all DAX time intelligence functions supported natively) — check the Microsoft docs for the latest feature parity."
+      },
+      {
+        "id": "pbi_shm0",
+        "cat": "Stakeholder",
+        "q": "You have been asked to consolidate 5 different Excel-based reports used by different teams into a single Power BI dashboard. How do you approach this project?",
+        "wtlf": "Stakeholder interviews to understand each report's purpose and audience; data source mapping; identify common metrics vs team-specific; design unified data model; phased delivery (core metrics first); change management and training plan."
+      },
+      {
+        "id": "pbi_shm1",
+        "cat": "Stakeholder",
+        "q": "A senior director wants a new metric added to the dashboard urgently but it requires significant data model changes. How do you handle this?",
+        "wtlf": "Acknowledge urgency; assess impact on model, existing reports, and refresh times; present options (quick workaround vs proper solution with timeline); agree on priority with stakeholder; document decision."
+      },
+      {
+        "id": "pbi_shm2",
+        "cat": "Stakeholder",
+        "q": "You have delivered a dashboard but users are not adopting it. What steps would you take to improve adoption?",
+        "wtlf": "User interviews to understand friction points; usability testing; check if dashboard answers their actual questions; simplify navigation; add training/documentation; ensure performance is acceptable; involve champions from business; measure usage."
+      },
+      {
+        "id": "pbi_shm3",
+        "cat": "Stakeholder",
+        "q": "How do you manage a situation where different business teams are using different dashboards with conflicting metrics for the same KPI?",
+        "wtlf": "Audit all dashboards and definitions; facilitate alignment workshop; agree on single certified definition; build governed shared data source; deprecate inconsistent dashboards with clear communication."
+      }
+    ],
+    "senior": [
+      {
+        "id": "pbi_s0",
+        "cat": "Tool",
+        "q": "Design a Power BI Premium enterprise architecture for 10,000 users across 5 business units with strict data governance, per-unit cost chargeback, and sub-2-second dashboard load times.",
+        "wtlf": "Power BI Premium Capacity (P3+); separate workspaces per business unit; centralised Premium Dataflows for governed ETL (single source of truth); certified Semantic Models published centrally; deployment pipelines (dev/test/prod); XMLA endpoint for Tabular Editor governance; Purview integration for sensitivity labels and lineage; Azure Log Analytics for usage telemetry; capacity billing split by workspace via API."
+      },
+      {
+        "id": "pbi_s1",
+        "cat": "Tool",
+        "q": "How would you implement calculation groups in Power BI to eliminate 200+ redundant time intelligence measures across 30 semantic models?",
+        "wtlf": "Tabular Editor (Premium/PPU required) to create Time Intelligence calculation group; items: Actual, MTD, YTD, SAMEPERIODLASTYEAR, Rolling 12M, vs PY %; SELECTEDMEASURE() applies items to any base measure; reduces 200 measures to 20 base + 5 items; deploy via XMLA endpoint from CI/CD pipeline; update all 30 models via ALM Toolkit; governance: only approved calculation items."
+      },
+      {
+        "id": "pbi_s2",
+        "cat": "Tool",
+        "q": "A Power BI report with 200M rows in DirectQuery mode is timing out after 30 seconds. Walk through your complete performance investigation and remediation strategy.",
+        "wtlf": "Performance Analyzer: identify slow visuals; DAX Studio Server Timings: Storage Engine vs Formula Engine ratio; DirectQuery SQL log: analyse queries sent to source; source DB: add columnstore index on filtered columns; aggregate table in Import mode (composite model) for 95% of queries; DEFINE MEASURE in DAX Studio to test measure in isolation; remove complex CALCULATE chains; switch to Dual storage mode for small dimensions."
+      },
+      {
+        "id": "pbi_s3",
+        "cat": "Tool",
+        "q": "How do you architect Microsoft Fabric to consolidate Power BI, Azure Synapse, and Azure Data Factory into a unified analytics platform?",
+        "wtlf": "OneLake as unified storage (Delta Parquet); Lakehouse for raw + transformed data; Direct Lake mode: Power BI reads Delta files directly (Import speed, DirectQuery freshness, no copy); Fabric Pipelines replace ADF; Notebooks + Spark replace Synapse for transformations; Fabric Data Warehouse for SQL workloads; Git integration for all Fabric items; managed Fabric capacity billing; migration path: start with new workloads, migrate existing."
+      },
+      {
+        "id": "pbi_s4",
+        "cat": "SQL",
+        "q": "Design a Power BI semantic model backed by a SQL analytical store that serves both real-time operational dashboards and monthly executive reports from the same model.",
+        "wtlf": "Composite model: DirectQuery on operational tables (real-time); Import aggregation tables (executive summaries); dual storage mode for shared dimensions; incremental refresh on fact tables (retain 3 years, refresh last 3 days); RLS at semantic model level; XMLA write-back for budget vs actual input; Analysis Services compatibility for Excel pivot tables; scheduled refresh via Power BI gateway."
+      },
+      {
+        "id": "pbi_s5",
+        "cat": "SQL",
+        "q": "How do you implement end-to-end data lineage in a Power BI environment spanning 50 data sources, 200 dataflows, and 1,000 reports? Reference specific tools.",
+        "wtlf": "Microsoft Purview: automated scanning of Power BI Service (data source -> dataflow -> semantic model -> report column level); Purview Data Map for enterprise-wide lineage (SQL Server -> ADF -> ADLS -> Synapse -> Power BI); Power BI REST API + Metadata API for programmatic lineage extraction; Impact Analysis (which reports use this semantic model); Purview sensitivity label propagation; data catalogue integration."
+      },
+      {
+        "id": "pbi_s6",
+        "cat": "SQL",
+        "q": "Design a SQL-backed Power BI solution for a bank processing 500M daily transactions with regulatory reporting requirements, real-time fraud alerts, and historical trend analysis.",
+        "wtlf": "Layered SQL architecture: operational DB (SQL Server, live DirectQuery for real-time fraud dashboard); analytical DW (Azure Synapse, Import mode semantic model for regulatory reports); incremental refresh (3-year retention, 1-day refresh window); RLS by branch/region; OLS (Object Level Security) for sensitive columns (e.g. customer PII visible only to compliance role); paginated reports for regulatory submission; audit log via XMLA."
+      },
+      {
+        "id": "pbi_s7",
+        "cat": "Stakeholder",
+        "q": "You are the Power BI CoE Lead. A business unit has built 300 ungoverned dashboards with inconsistent metrics. The CFO now makes decisions from conflicting figures. How do you resolve this?",
+        "wtlf": "Audit phase (Content API): list all 300 dashboards, usage stats, data sources; identify the 20 most-used and highest-impact; define canonical metric definitions with business stakeholders; build certified semantic models; migrate high-use dashboards; deprecate with 90-day notice and migration support; establish governance process preventing recurrence: workspace review board, endorsement workflow."
+      },
+      {
+        "id": "pbi_s8",
+        "cat": "Stakeholder",
+        "q": "Power BI Premium renewal is due. Finance wants to downgrade to Pro licences to save hundreds of thousands per year. You know this will break paginated reports and reduce capacity for thousands of report consumers. How do you make the case?",
+        "wtlf": "Quantify impact of downgrade: paginated reports break (cost to rebuild in alternative), all consumers need Pro licences (recalculate net saving), performance degradation risk; counter-proposal: Fabric F-SKU (often cheaper than P-SKU, same features); hybrid approach (downgrade low-use Premium workspaces, keep critical); present TCO including hidden migration costs; decision-making framework for finance."
+      },
+      {
+        "id": "pbi_s9",
+        "cat": "Stakeholder",
+        "q": "Describe how you would lead an organisation-wide adoption of Power BI moving from Excel-based reporting across 500 users in 12 months.",
+        "wtlf": "Phased approach: Month 1-2 champions programme (20 power users); Month 3-4 core dashboard migration; Month 5-8 self-service training rollout; Month 9-10 governance framework; Month 11-12 full decommission of Excel reports; success metrics: adoption rate, certified dashboard count, time-to-insight reduction; executive sponsorship essential; hypercare for Month 1; community of practice ongoing."
+      },
+      {
+        "id": "pbi_s10",
+        "cat": "Stakeholder",
+        "q": "A stakeholder insists on embedding a Power BI report inside a public-facing website showing live company metrics. What are the risks and how do you address them?",
+        "wtlf": "Security risks: public embedding exposes data (use Publish to Web only for truly public data, or Embed for Customers with service principal and token generation for controlled access); row-level security considerations; rate limits; licensing (Embed for Customers requires Premium capacity or Embedded A-SKU); performance (public traffic spike); data refresh SLA; recommends architecture: API layer -> caching -> controlled embed token; legal review for what data can be public."
+      }
+    ]
+  },
+  "Tableau": {
+    "junior": [
+      {
+        "id": "tabj_0",
+        "cat": "Tool",
+        "q": "What is Tableau and what are its main product offerings?",
+        "wtlf": "Tableau is a leading data visualisation and business intelligence platform owned by Salesforce. Product offerings: Tableau Desktop (authoring tool for building workbooks and dashboards), Tableau Prep Builder (data preparation/ETL tool), Tableau Server (on-premises sharing and publishing), Tableau Cloud (hosted SaaS version of Tableau Server), Tableau Public (free public publishing platform), Tableau Reader (free viewer for packaged workbooks), Tableau Viz Extensions, and Tableau CRM (Salesforce-integrated analytics).  Tableau Desktop is where you build. Tableau Server/Cloud is where you publish, share, and govern. Tableau Prep cleans and shapes data before analysis. The authoring workflow: connect data in Desktop > build visualisations > publish to Server/Cloud > share with users. Tableau has a subscription-based licence (Tableau Creator, Explorer, Viewer tiers). Viewer licences are significantly cheaper, enabling broad consumption of dashboards.  Pro Tip: Know the Creator/Explorer/Viewer tier differences: Creators author, Explorers edit/interact, Viewers only consume. Licence cost-optimisation is a common enterprise question."
+      },
+      {
+        "id": "tabj_1",
+        "cat": "Tool",
+        "q": "What are Dimensions and Measures in Tableau? How does Tableau classify them?",
+        "wtlf": "Dimensions: qualitative fields used to categorise, segment, and filter data — typically discrete (blue pills) and go on the Category axis. Examples: Region, Product Name, Date, Customer ID. Measures: quantitative fields used for mathematical calculations — typically continuous (green pills) and define the size/height of marks. Examples: Sales, Profit, Quantity. Tableau auto-classifies based on data type: strings/dates/booleans = Dimension; numbers = Measure (but this can be overridden).  The discrete/continuous distinction is separate from Dimension/Measure. Discrete fields create headers; continuous fields create axes. A measure can be made discrete (e.g., COUNT of orders as a discrete colour bucket). A date can be used as discrete (individual values — bar per month) or continuous (timeline axis). Right-clicking fields shows the convert options. Geographic fields are Dimensions that create map visualisations when dragged to the view.  Pro Tip: The most common beginner mistake: putting a number field (like Year) in the wrong category. Always check whether Year should be Dimension (categorical axis) or Measure (summed value)."
+      },
+      {
+        "id": "tabj_2",
+        "cat": "Tool",
+        "q": "What is the difference between a Live Connection and an Extract in Tableau?",
+        "wtlf": "Live Connection: Tableau sends queries to the source database in real-time. Always shows current data. Performance depends entirely on the source database speed. Directquery — no data stored in Tableau. Extract: Tableau creates a local .hyper file (in-memory columnar data store) from the source data. Queries run against this fast local cache. Must be scheduled to refresh. Works offline. Extract filters, aggregations, and date sampling reduce extract size.  Extracts dramatically improve dashboard performance by eliminating round-trips to slow databases. The .hyper engine is an in-memory columnar store — analytically optimised. For real-time operational dashboards, live connection is necessary. For strategic reporting where a daily/hourly refresh suffices, extracts are preferred. Incremental extract refreshes add only new rows (based on an incrementing datetime column), reducing refresh time for large datasets.  Pro Tip: If a dashboard is slow and the source is a large SQL database, converting to an Extract is usually the fastest performance win. Profile the SQL query sent to the source using Tableau's Performance Recorder."
+      },
+      {
+        "id": "tabj_3",
+        "cat": "Tool",
+        "q": "What are Tableau Calculated Fields and what types exist?",
+        "wtlf": "Calculated Fields are custom computations created from existing fields using Tableau's formula language. Types: String functions (UPPER, SPLIT, REGEXP_EXTRACT), Number functions (ROUND, ZN, ABS), Date functions (DATEADD, DATEDIFF, DATEPART, DATETRUNC), Logical functions (IF/ELSEIF/ELSE, IIF, CASE/WHEN, ISNULL), Aggregate functions (SUM, AVG, COUNTD, ATTR), Level of Detail expressions (LOD — FIXED, INCLUDE, EXCLUDE), Table Calculations (running totals, percent of total — computed in Tableau, not the DB).  Calculated fields can be created in the data source pane (computed before aggregation) or in the view. Aggregate calculated fields can only be used in aggregate contexts. ATTR() returns the value if all rows in the partition have the same value, else an asterisk — useful for displaying dimension values in aggregate views. ZN() replaces NULL with 0. Table Calculations are the most advanced — they operate on the data already in the view using relative positioning (LOOKUP, WINDOW_SUM, etc.).  Pro Tip: COUNTD (Count Distinct) in Tableau uses an approximate algorithm on extracts for very large datasets. Use COUNTD sparingly on live connections to slow databases."
+      },
+      {
+        "id": "tabj_4",
+        "cat": "Tool",
+        "q": "What are Filters in Tableau and what is their order of operations?",
+        "wtlf": "Tableau filter types and their order of operations (top = applied first): (1) Extract Filters (reduce extract size), (2) Data Source Filters (applied to all sheets using that data source), (3) Context Filters (set a context for dependent filters, shown in grey), (4) Dimension Filters, (5) Measure Filters, (6) Table Calculation Filters (applied after table calcs are computed). Understanding this order is critical — a filter at a later stage cannot undo changes made by an earlier stage.  Context Filters are the most misunderstood: they materialise a filtered subset before other dimension filters apply — used for TopN filtering (show top 10 products within the filtered category). Without a context filter, a TopN filter on Products would show the global top 10 regardless of the category selected by the dimension filter. Data Source Filters are the most powerful — they restrict data for all worksheets using that source, including those with different filters.  Pro Tip: Use Context Filters when you want a TopN filter to respect other dimension filters. Without context, TopN picks the global top N regardless of what's filtered."
+      },
+      {
+        "id": "tabj_5",
+        "cat": "Tool",
+        "q": "When would you use a dual-axis chart in Tableau and how do you create one?",
+        "wtlf": "A dual-axis chart overlays two different visualisation types or measures on the same view using a shared axis for one dimension and two independent axes for two measures. Common use: line chart (Sales trend) + bar chart (Target) to compare actuals vs targets; line + circle for emphasis; two measures with different scales on left and right axes. Create: drag a second measure to the right side of the Rows or Columns shelf until the dual-axis indicator appears, then right-click the second axis > Dual Axis > Synchronise Axis.  Dual-axis charts are one of Tableau's most powerful features for combining chart types. Key steps: (1) Drag second measure to the right edge of the axis, (2) right-click secondary axis > Dual Axis, (3) Synchronise Axis if both measures have similar scales, (4) go to Marks card and change the chart type for each independently (one to Bar, one to Line). Blend Axes (stacked) is different from Dual Axis (overlaid).  Pro Tip: Always synchronise axes when the measures are on similar scales — unsynchronised dual axes mislead viewers by making trends appear exaggerated."
+      },
+      {
+        "id": "tabj_6",
+        "cat": "Tool",
+        "q": "What is the difference between a Join and a Blend in Tableau?",
+        "wtlf": "Join: combines data from two tables within the same data source (or across compatible sources) using a JOIN clause sent to the database. Result is one unified table. Happens before aggregation. Types: Inner, Left, Right, Full Outer, Cross. Blend: combines data from two different data source connections in the view. Blending happens in Tableau's engine, not the database. Left join by default — primary data source drives the view, secondary is aggregated and joined on linking fields. Happens after aggregation.  Use Joins when tables are from the same source and you need row-level granularity or you want the database to do the join. Use Blends when combining data from different databases (e.g., Google Analytics + Salesforce), when a full join would create a cross-database query, or when the secondary source must be pre-aggregated. Blend limitation: the secondary source is always aggregated to the level of the linking field — you cannot get row-level detail from a blend.  Pro Tip: Blends are a workaround, not a preferred architecture. If possible, pre-join the data in the warehouse or using Tableau Prep before it reaches Tableau for better performance and flexibility."
+      },
+      {
+        "id": "tabj_7",
+        "cat": "Tool",
+        "q": "What are LOD (Level of Detail) expressions in Tableau?",
+        "wtlf": "LOD expressions allow you to control the level of aggregation in a calculation, independent of the view's level of detail. Three types: FIXED {FIXED [Customer]: SUM([Sales])} — compute at specified dimension level, ignore view filters (except context filters). INCLUDE {INCLUDE [Region]: AVG([Sales])} — compute at a level finer than the view. EXCLUDE {EXCLUDE [Month]: SUM([Sales])} — compute at a level coarser than the view, removing a dimension present in the view.  LOD expressions are one of Tableau's most powerful features. FIXED is the most common — it computes a value anchored to a specific dimension regardless of what's in the view, enabling comparisons like 'Sales vs Customer's First Purchase Date'. LOD expressions are computed before dimension filters (but after context filters) — use context filters if you need LOD to respect dimension filter selections. LOD expressions significantly reduce the need for data preparation outside Tableau."
+      },
+      {
+        "id": "tabj_8",
+        "cat": "Tool",
+        "q": "What are Table Calculations in Tableau and how do they differ from Aggregate Calculations?",
+        "wtlf": "Table Calculations operate on the data already in the view (post-aggregation) using relative row positions. They are computed by Tableau's engine, not the database. Common table calculations: Running Total (RUNNING_SUM), Percent of Total (WINDOW_SUM), Rank (RANK, RANK_DENSE), Percent Difference (LOOKUP), Moving Average (WINDOW_AVG). They can be scoped to partition by specific dimensions and compute direction (across/down/across then down).  Table Calculations are Tableau's equivalent of SQL window functions — but with less flexibility and more visual configuration. The addressing/partitioning distinction: partitioning defines the 'group' the calculation restarts for; addressing defines the direction of the calculation. Quick Table Calculations (right-click > Quick Table Calculation) apply common patterns instantly. Custom table calculations using WINDOW_SUM, LOOKUP, and INDEX give fine-grained control.  Pro Tip: Table Calculation filters (the last step in filter order) can inadvertently hide rows that table calculations reference — use measure filters above the TC level to avoid this."
+      },
+      {
+        "id": "tabj_9",
+        "cat": "Tool",
+        "q": "What is a Tableau Story and how is it different from a Dashboard?",
+        "wtlf": "Dashboard: a single canvas displaying multiple worksheets and objects simultaneously, enabling a coordinated multi-visual view of data. Used for monitoring KPIs, comparing metrics side by side, or providing an interactive analytical interface. Story: a sequence of story points (each story point is a worksheet, dashboard, or image) presented like a slide deck. Used to walk an audience through a data narrative — each point builds on the previous to tell a structured story with context.  Dashboards are for exploratory analysis and ongoing monitoring — users interact freely. Stories are for presentations and guided data narratives — the author controls the sequence and each point has a caption/annotation explaining the insight. Story Points can be snapshots (frozen state of a view) or live (continue to update with data). Stories are useful in executive briefings, annual reports, and when you need to walk stakeholders through findings step by step.  Pro Tip: Use Stories for one-time presentations or guided tours. Use Dashboards for ongoing operational monitoring where users explore data freely."
+      },
+      {
+        "id": "tabj_10",
+        "cat": "Tool",
+        "q": "What is a parameter in Tableau and how is it different from a filter?",
+        "wtlf": "A Parameter is a dynamic variable that users can change via an input control (slider, dropdown, type-in). It stores a single value of a specified data type. Parameters are referenced in calculated fields, reference lines, filters, and bin sizes. A Filter directly removes data from the view based on field values — it works on actual data. A Parameter does not directly filter data — it must be referenced in a calculation or filter condition to have effect.  Parameters are more versatile than filters: they can be used to control: TopN thresholds (show top [Parameter] items), metric switching (IF [Parameter] = 'Sales' THEN SUM([Sales]) ELSE SUM([Profit]) END), reference line targets, colour thresholds, and date range windows. A Parameter + Calculated Field + Quick Filter creates a dynamic filter driven by user input. Dynamic parameters (auto-populate from a field's values) were introduced to keep parameter options current with data."
+      },
+      {
+        "id": "tabj_11",
+        "cat": "Tool",
+        "q": "What are Actions in Tableau and what types are available?",
+        "wtlf": "Tableau Actions enable interactivity between worksheets, dashboards, and URLs. Types: Filter Action (clicking a mark in one sheet filters data in another sheet on the same dashboard — the most common), Highlight Action (hovering over a mark highlights related marks in other views), URL Action (clicking a mark opens a URL — link to external systems), Go to Sheet Action (navigates to another dashboard/sheet), Set Action (adds/removes marks from a Set based on user selection), Parameter Action (changes a parameter value by clicking a mark).  Filter Actions are the foundation of interactive Tableau dashboards — they turn every chart into a filter for others. Configuration: source sheets (where user clicks), target sheets (what gets filtered), run on (hover/select/menu), and what to clear when deselected. Parameter Actions (introduced 2019) allow clicking a mark to update a parameter — enabling click-to-highlight, dynamic titles, and context-sensitive calculations without user-facing parameter controls.  Pro Tip: Use Dashboard Actions > Filter instead of individual sheet filters for cross-sheet interactivity — it is more performant and provides a better user experience."
+      },
+      {
+        "id": "tabj_12",
+        "cat": "Tool",
+        "q": "How would you create a KPI summary card in Tableau showing target vs actual with conditional formatting?",
+        "wtlf": "Approach: Create a BANs (Big Ass Numbers) sheet using a text mark. Drag the measure to Text on the Marks card. Add a Reference Line at the target value (fixed or from a parameter). Use a calculated field for variance: [Actual] - [Target]. Apply conditional colour: IF [Variance] >= 0 THEN 'Green' ELSE 'Red' END — use this as a colour measure on the Marks card. Size marks by a neutral measure. Combine 4 KPI tiles on a dashboard with a tiled layout for a clean executive summary.  KPI cards (BANs) are the most common executive dashboard element. Best practices: display the absolute value large, show the % change smaller below, use green/amber/red RAG status. Colour is controlled by putting a Measure or Calculated Field on the Color mark — use a zero-based diverging colour palette (positive = green, negative = red). For sparklines alongside KPIs, use a floating container with a line chart sized to thumbnail dimensions.  Pro Tip: Format numbers on BANs using the Format > Numbers pane: use 'K' suffix for thousands, 'M' for millions — large raw numbers lose impact and readability in KPI cards."
+      },
+      {
+        "id": "tabj_13",
+        "cat": "Tool",
+        "q": "What are Sets in Tableau and how can they be used?",
+        "wtlf": "A Set is a named subset of members from a single dimension field — defined by a condition (values where Sales > average), top N (top 10 customers by profit), or fixed manual selection. Sets create a binary In/Out membership. They can be used on the Marks card (colour, size, label), as filters, in calculations (IF [Customer Set] THEN ...), or combined with other sets (union, intersection, difference). Dynamic sets update when data changes; fixed sets do not.  Sets are powerful for 'in-group vs out-group' analysis. Classic use: Customer Set (top 20% customers by revenue) — show their sales contribution vs the other 80% (Pareto analysis). Combined Sets (Set Operations: union/intersection/difference) enable complex segment comparisons, e.g., customers who bought Product A AND Product B. Set Actions let users dynamically add/remove marks from a set by clicking the view, enabling interactive segment exploration.  Pro Tip: Use Sets + Set Actions for interactive cohort analysis — clicking on a data point adds it to a Set, and calculated fields compare the selected cohort to the rest."
+      },
+      {
+        "id": "tabj_14",
+        "cat": "Tool",
+        "q": "What are Tableau performance best practices for slow dashboards?",
+        "wtlf": "Diagnose first: use Help > Settings > Performance Recording to capture a performance profile — shows query execution, rendering, and data blending times. Common fixes: (1) Use Extracts instead of Live Connection to slow DBs. (2) Reduce marks — a scatter plot with 1M marks is slow; aggregate or sample. (3) Reduce number of worksheets on dashboard. (4) Avoid blends — pre-join in database. (5) Use context filters for dependent filters. (6) Reduce LOD expression complexity. (7) Hide unused fields in the data source. (8) Avoid unnecessary table calculations on large data.  Tableau's Performance Recorder shows exactly where time is spent: SQL query time (database bottleneck), Tableau compute time (complex calculations), or rendering time (too many marks/visuals). Dashboard layout complexity (too many floating containers, nested containers) also slows rendering. Publishing dashboards with a single data source (not multiple blended sources) is the most impactful structural change. Marks limit: aim for under 5,000 marks per chart for interactive performance.  Pro Tip: Use the Performance Recorder before blaming the database — sometimes the bottleneck is Tableau rendering 500,000 marks, not the database query."
+      },
+      {
+        "id": "tabj_15",
+        "cat": "Tool",
+        "q": "What is Tableau Prep Builder and how does it differ from Tableau Desktop?",
+        "wtlf": "Tableau Prep Builder is a data preparation tool for cleaning, shaping, and combining data before analysis. It provides a visual, flow-based interface for: filtering rows, removing/renaming columns, splitting fields, pivoting (columns to rows, rows to columns), cleaning values (fix typos, merge values, standardise), joining/unioning tables, aggregating, and creating calculated fields. Output flows to a .hyper extract file or back to Tableau Server/Cloud.  Tableau Desktop is for building analytical visualisations from clean data. Tableau Prep is for the data cleaning stage that should happen before Desktop. Prep's Profile Pane shows data distributions and highlights quality issues instantly. The Smart Joins and fuzzy matching help reconcile messy joins. Prep flows can be scheduled on Tableau Server/Cloud (Prep Conductor) to run automatically. Tableau Prep is not a replacement for full ETL tools like Informatica or dbt for complex enterprise pipelines.  Pro Tip: Use Tableau Prep for analyst-level data prep that doesn't warrant an IT-built ETL pipeline. Its visual interface empowers analysts to self-serve data cleaning without SQL."
+      },
+      {
+        "id": "tabj_16",
+        "cat": "Tool",
+        "q": "What is Row-Level Security (RLS) in Tableau and how is it implemented?",
+        "wtlf": "RLS restricts which data rows users can see based on their identity. Implementation approaches: (1) User Filter (simplest): manually map Tableau users/groups to dimension values in a filter. Not scalable. (2) User Functions (USERNAME(), USERDOMAIN()): calculated field checks IF USERNAME() = 'john.smith' THEN show data. (3) Data Source Filter with entitlement table: join an entitlement table (user_id, region) to the fact data in the data source and filter using USERNAME() = [EntitlementUserName]. (4) Virtual Connections + Data Policies (Tableau Data Management): centralised RLS applied at the data layer.  The entitlement table approach is the scalable enterprise pattern: maintain a mapping table (user_email, allowed_region) in the database. Create a data source that joins this table to the main data and filters WHERE user_email = USERNAME(). RLS is enforced at the Tableau Server level — even downloaded extracts respect it. Virtual Connections and Data Policies (Tableau Data Management add-on) centralise RLS so it applies across all workbooks using that Virtual Connection, eliminating per-workbook RLS maintenance."
+      },
+      {
+        "id": "tabj_17",
+        "cat": "Tool",
+        "q": "How do you create a dynamic title in Tableau that reflects current filter or parameter selections?",
+        "wtlf": "Insert dynamic elements in sheet titles by clicking the title bar and using the Insert menu: Sheet Name, Data Source Name, Page Name — and crucially, any Parameter value (Insert > Parameters > [ParameterName]) and any field value currently selected. For filter-based dynamic titles, create a calculated field that returns a string based on the filter selection (using ATTR() to check if only one value is selected), then display it in the title using a floating text object referencing the sheet's title.  Dynamic titles significantly improve user experience — 'Sales Dashboard for [Region]' where Region updates with the slicer selection. For filter values, use a hidden sheet with ATTR([Region]) as a text mark, then insert that sheet as a transparent floating object above the title text. This is a workaround since Tableau cannot directly insert a filter value in a title — but it is a widely used dashboard design technique.  Pro Tip: Put dynamic titles at the dashboard level, not sheet level — dashboard titles can reference parameters directly and are more visible to users."
+      },
+      {
+        "id": "tabj_18",
+        "cat": "Tool",
+        "q": "What is the difference between Tableau Server and Tableau Cloud?",
+        "wtlf": "Tableau Server: on-premises or self-managed cloud (AWS/Azure/GCP) deployment. Organisation manages installation, upgrades, scaling, backups, and security. Full infrastructure control. Suits organisations with strict data residency requirements or existing on-prem infrastructure. Tableau Cloud (formerly Tableau Online): fully managed SaaS hosted by Salesforce. No infrastructure to manage. Automatic upgrades. Scales automatically. Data must be cloud-accessible (bridge for on-premises sources). Less control over configuration.  Tableau Cloud has been gaining adoption as organisations move to cloud-first strategies. Tableau Bridge enables scheduled extract refreshes from on-premises data sources via a locally installed agent. Most organisations starting fresh choose Tableau Cloud for zero infrastructure overhead. Large enterprises with regulatory constraints (healthcare, finance) often stay on Tableau Server for control. Feature parity is now very close, with Tableau Cloud often getting new features first.  Pro Tip: Tableau Cloud's Tableau Bridge enables on-premises data connectivity — it is not a barrier to Cloud adoption if you have on-prem data sources."
+      },
+      {
+        "id": "tabj_19",
+        "cat": "Tool",
+        "q": "How does Tableau handle null values and how can you manage them?",
+        "wtlf": "Tableau treats NULL as an unknown value. In visualisations, null values can appear as: a gap in a line chart, missing bar, or a special 'null' member in a dimension. Options to handle: Filter out nulls (drag field to Filters > exclude Null), replace nulls with ZN() for measures (ZN([Sales]) replaces NULL with 0), replace nulls in dimensions using ISNULL() or IIF(ISNULL([Region]),'Unknown',[Region]). View > Special Values menu controls how nulls display in continuous charts (show at default position, hide, show as an indicator).  ZN() is the most commonly used null-handling function — it converts NULL to zero for mathematical operations (otherwise NULL + 5 = NULL in Tableau, breaking calculations). For dimensions, null members can break certain table calculations. ISNULL() returns TRUE/FALSE for null-checking. Null handling in Tableau must align with the business definition: does null mean 0 (no sales) or unknown? The answer changes whether you should replace or filter.  Pro Tip: ZN() is your friend for measures: SUM(ZN([Profit])) ensures nulls don't propagate through calculations. But only use it when NULL truly means zero — never mask genuine data quality issues."
+      },
+      {
+        "id": "tabj_20",
+        "cat": "Tool",
+        "q": "What are Tableau Groups and Hierarchies?",
+        "wtlf": "Groups: manually combine dimension members into a higher-level category. Example: group individual cities into regions (if the Region field doesn't exist). Creates a new dimension field. Ad hoc and maintained manually. Hierarchies: define a drill-down path between related dimension fields. Example: Year > Quarter > Month > Day, or Country > State > City. When a hierarchy is created, the + icon appears on the field enabling expand/collapse in the view. Hierarchies drive the drill-down experience in views and dashboards.  Groups are useful for quick ad hoc categorisation without modifying the database. However, they must be maintained manually as new values appear — for production, maintain groupings in the database or a lookup table. Hierarchies are essential for time intelligence (Tableau auto-creates a date hierarchy) and geographic drill-down. Date hierarchies can be customised to skip levels (Year > Month, skipping Quarter). Named sets can approximate groups with conditional logic for dynamic membership.  Pro Tip: Avoid large Groups with many members — Tableau hardcodes group membership in the workbook, making it brittle if new values are added. Use a grouping field in the database for scalable categorisation."
+      },
+      {
+        "id": "tab_shj0",
+        "cat": "Stakeholder",
+        "q": "A stakeholder says they want everything on one dashboard. How do you manage this request?",
+        "wtlf": "Acknowledge their need; guide them to identify primary decisions the dashboard should support; prioritise top 5-7 metrics; design for the audience; use actions and drill-through for depth without clutter. Push back constructively."
+      },
+      {
+        "id": "tab_shj1",
+        "cat": "Stakeholder",
+        "q": "How would you present a Tableau dashboard to a non-technical executive audience for the first time?",
+        "wtlf": "Focus on insights not features; lead with the headline KPI; use annotations to highlight key findings; walk through a story not a demo; anticipate questions; keep it to 3-5 key points; provide a leave-behind or published link."
+      },
+      {
+        "id": "tab_shj2",
+        "cat": "Stakeholder",
+        "q": "A business manager says the numbers in your report do not match what they see in Excel. How do you handle this?",
+        "wtlf": "Do not dismiss; ask for specific examples; trace data lineage from source to report; check for different business logic definitions; align on single source of truth."
+      },
+      {
+        "id": "tab_shj3",
+        "cat": "Stakeholder",
+        "q": "How would you gather requirements from a non-technical stakeholder before building a dashboard?",
+        "wtlf": "Discovery session: understand audience, decisions the dashboard should drive, KPIs needed, data sources available, refresh frequency. Prototype with wireframe before building. Iterative feedback loop."
+      }
+    ],
+    "mid": [
+      {
+        "id": "tabm_0",
+        "cat": "Tool",
+        "q": "Design a Tableau deployment architecture for 5,000 concurrent users in an enterprise.",
+        "wtlf": "Multi-node Tableau Server cluster: Gateway Node (load balancer + request routing), multiple Application Server nodes (2-8, handles VizQL Server for rendering, Data Server for data connections, Repository), a Background Server node (extract refreshes, subscriptions), and a Cache Server (caching for performance). Frontend: hardware load balancer (F5/HAProxy) or cloud LB distributing to Gateway. Storage: NAS for extract files, PostgreSQL (built-in) or external PostgreSQL for the Tableau repository at scale. Authentication: Active Directory / SAML 2.0 SSO. Monitoring: tsm maintenance + Tableau Admin Views + Prometheus/Grafana.  VizQL Server is the rendering engine — the most CPU-intensive component, scale this most. Data Server caches data connections (reducing DB connections). At 5,000 users, you likely need 4-8 application nodes depending on concurrent active users (typically 10-15% of total). Tableau recommends separate nodes for Background processes (extract refreshes) to prevent them from consuming resources during peak dashboard hours. Active-passive clustering requires a shared network repository (NAS).  Pro Tip: Monitor VizQL Server thread usage (tsm status / Admin Views) — if threads are consistently at max during peak hours, add Application Server nodes."
+      },
+      {
+        "id": "tabm_1",
+        "cat": "Tool",
+        "q": "How do you optimise a Tableau workbook that has 50 worksheets, 20 data sources, and takes 3 minutes to load?",
+        "wtlf": "Systematic approach: (1) Performance Recorder — identify the slowest queries and rendering steps. (2) Consolidate data sources: 20 sources likely means 20 database queries on load; consolidate to 1-3 via joins/unions in Prep or the database. (3) Convert live connections to Extracts. (4) Remove unused worksheets, fields, and data sources. (5) Reduce marks per chart — aggregate more aggressively. (6) Use dashboard device layouts to load only what's visible. (7) Replace complex LOD expressions with pre-aggregated tables. (8) Implement sheet swapping (show/hide via floating containers) so only the active tab queries data.  Sheet swapping is a powerful performance technique: instead of 10 separate dashboard tabs each loading on navigation, create one dashboard with floating containers that show/hide. Hidden sheets don't query data until shown. For extracts, refresh incrementally when possible. Published data sources (centralised on Tableau Server) share extract cache across workbooks — one refresh serves all. The Tableau Content Migration Tool can help audit and clean unused content.  Pro Tip: Sheet swapping (show/hide floating containers) can reduce dashboard load from 30 visuals to 5 at any time — a 6x performance gain without changing the user experience."
+      },
+      {
+        "id": "tabm_2",
+        "cat": "Tool",
+        "q": "Explain WINDOW functions in Tableau with a practical example.",
+        "wtlf": "Tableau WINDOW functions operate across a range of partitioned rows in the view — the 'window' defines which rows are included. WINDOW_SUM(expression, [start, end]): sum over a window. WINDOW_AVG, WINDOW_MAX, WINDOW_MIN, WINDOW_STDEV. FIRST()/LAST() reference the beginning/end of the partition. INDEX() returns the position of the current row. SIZE() returns total rows in the partition. These enable: rolling averages, percent of partition total, ranked comparisons within groups.  WINDOW functions are Tableau's table calculation engine. Unlike SQL window functions, Tableau window functions operate on the view (post-aggregation). Partitioning: restart the calculation per dimension value (e.g., restart running total per Category). Addressing: direction of calculation (across columns, down rows). Common pattern: WINDOW_AVG(SUM([Sales]), -2, 0) = 3-period moving average (current + 2 preceding rows)."
+      },
+      {
+        "id": "tabm_3",
+        "cat": "Tool",
+        "q": "How do you implement a cohort analysis using LOD expressions in Tableau?",
+        "wtlf": "Cohort analysis in Tableau: (1) First purchase date per customer using FIXED LOD: {FIXED [Customer ID]: MIN([Order Date])}. (2) Cohort assignment using DATETRUNC: DATETRUNC('month', [First Order Date]). (3) Months since first purchase: DATEDIFF('month', [First Order Date], [Order Date]). (4) Create a matrix view: Cohort Month on Rows, Months Since First Purchase on Columns, COUNTD([Customer ID]) as the measure. (5) Colour by retention rate using a % table calculation.  FIXED LODs are the key to cohort analysis in Tableau — they compute the per-customer first date independent of view filters. The months-since-first-purchase calculated field creates the offset axis. This mirrors the SQL cohort analysis pattern but entirely within Tableau's visual layer. For retention rate %, divide the count of active customers in month N by the count in month 0 using WINDOW_MAX(SUM([Customers]), FIRST(), FIRST()) for the cohort size."
+      },
+      {
+        "id": "tabm_4",
+        "cat": "Tool",
+        "q": "How do you implement a hub-and-spoke Tableau governance model with certified data sources?",
+        "wtlf": "Hub-and-spoke model: central IT/data team (hub) creates and certifies Published Data Sources (connects to warehouse, applies RLS, semantic layer, standard calculations, field descriptions). Business users (spokes) connect to certified published data sources — not raw databases. Governance features: Content Certification (mark content as certified, with certification notes), Tableau Catalog (Data Management add-on — shows lineage, impact analysis, data quality warnings), Project Permissions (lock project structure, only data team publishes data sources), Usage-Based Licensing checks.  Tableau Catalog (part of Data Management add-on) provides column-level data lineage, impact analysis (which workbooks use this data source — alerts on downstream impact of changes), and data quality warnings (flag deprecated or stale sources). Publishing data sources to Server/Cloud and locking them enables single-source-of-truth metrics (Revenue always means the same calculation). Endorsed and Certified badges help users distinguish authoritative content from experimental workbooks.  Pro Tip: Implement a 'Data Source Owners' governance model: each data source has a named owner responsible for accuracy, freshness, and documentation. Enforce via Tableau's certification workflow."
+      },
+      {
+        "id": "tabm_5",
+        "cat": "Tool",
+        "q": "What are Tableau's analytical functions (LEAD/LAG equivalent) and how do you implement time comparisons?",
+        "wtlf": "Tableau uses LOOKUP() table calculation as the equivalent of SQL LAG/LEAD. LOOKUP(expression, offset) returns the value of expression offset rows from the current row in the partition. LOOKUP(SUM([Sales]), -1) = previous period's sales. LOOKUP(SUM([Sales]), -12) = same month last year (if sorted by month). For YoY, MoM: create calculated fields using LOOKUP for the comparison value and compute the difference/% change. YEAR(TODAY())-DATEPART('year',[Date]) enables date-relative comparisons.  LOOKUP is powerful but tricky — it is sensitive to how the view is sorted and partitioned. For robust time intelligence, use a date scaffold (date spine) and actual SQL-based period comparisons in the database, then bring the pre-computed comparisons into Tableau. DATE_PART() and DATETRUNC() are the workhorses for date manipulation. Dynamic date range parameters (e.g., 'Last 30 Days', 'Last Quarter') combined with DATEADD calculations create flexible rolling date filters."
+      },
+      {
+        "id": "tabm_6",
+        "cat": "Tool",
+        "q": "How do you implement Tableau's Extension API for custom interactivity?",
+        "wtlf": "Tableau Extensions API allows developers to embed custom web applications (built with JavaScript/React) directly within Tableau dashboards as Extension objects. Extensions can: read data from worksheets (getSummaryDataAsync, getUnderlyingDataAsync), write back to parameters, listen to mark selection events, and display custom UI built with any JS framework. Use cases: custom data entry (write-back), advanced custom charts (D3.js), external API calls, custom parameter pickers, conditional formatting panels.  Extension API dashboards are hosted externally (HTTPS server) and embedded as a dashboard object. The extension communicates with Tableau via the Extensions JavaScript API. Security: Extensions must be allowed by Tableau Server administrator (safe list). GetUnderlyingData access requires explicit user permission. Write-back extensions combine Tableau's analytical interface with operational data entry — showing a chart and letting users annotate or update records. Extensions are the bridge between Tableau and the broader web ecosystem.  Pro Tip: Host Tableau Extensions on HTTPS-only endpoints — Tableau Server will refuse to load extensions from HTTP URLs. Use a CDN or Tableau's hosted extension platform for distribution."
+      },
+      {
+        "id": "tabm_7",
+        "cat": "Tool",
+        "q": "How does Tableau's VizQL engine work and how does understanding it improve performance?",
+        "wtlf": "VizQL (Visual Query Language) translates drag-and-drop interactions into queries. Process: user interaction > Tableau generates VizQL specification > translated to SQL/MDX/API query for the data source > data returned > aggregated/computed in the VizQL engine > rendered as marks. Key components: Query Pipeline (SQL generation and execution), In-Memory Engine (extract .hyper processing, extremely fast), Rendering Engine (SVG/canvas mark rendering). Understanding VizQL helps because: knowing how filters translate to SQL WHERE clauses explains filter order of operations, knowing that Table Calculations happen in VizQL engine explains why they can't push to DB.  The most important VizQL insight for performance: every field added to a view potentially adds a GROUP BY or WHERE clause. Reducing the fields in a view reduces query complexity. The extract .hyper engine uses columnar storage with vectorised query execution — it processes 500M+ rows/second for simple aggregations. Complex Table Calculations (nested LOOKUP inside WINDOW_SUM) can be slow because they are computed row by row in VizQL, not vectorised. Simplify complex table calculations or pre-compute in the database.  Pro Tip: Enable Query Banding (Tableau Server setting) to prioritise interactive queries over background refresh jobs — it prevents extract refreshes from degrading live dashboard performance."
+      },
+      {
+        "id": "tabm_8",
+        "cat": "Tool",
+        "q": "How do you build a dynamic benchmarking dashboard where users can select any dimension as the benchmark comparator?",
+        "wtlf": "Use a Parameter for the selected benchmark member (e.g., 'Select Region'), a calculated field that flags the benchmark: [Region] = [Benchmark Region Parameter], another field for benchmark value: IF [Is Benchmark] THEN SUM([Sales]) END, and a WINDOW_MAX to broadcast the benchmark value: WINDOW_MAX(MAX([Benchmark Sales])). Compare all dimensions against this broadcast value: SUM([Sales]) / WINDOW_MAX(MAX([Benchmark Sales])). Parameter Actions allow clicking a bar to set that member as the benchmark.  Benchmarking dashboards let users pick any country/region/product as the index value and see all others relative to it. The WINDOW_MAX broadcasts the single benchmark value across all rows in the table calculation partition, creating a normalised index. Dynamic Benchmarking + Parameter Actions (clicking a bar sets it as benchmark) is an advanced interaction pattern that creates genuinely self-serve analytical tools — users explore without needing IT to create filtered views."
+      },
+      {
+        "id": "tabm_9",
+        "cat": "Tool",
+        "q": "Describe Tableau's Metadata API and its use for programmatic content governance.",
+        "wtlf": "Tableau's Metadata API (GraphQL-based) provides programmatic access to Tableau Server/Cloud metadata: workbooks, views, data sources, fields, embedded data connections, lineage relationships, and permissions. Use cases: automated data catalogue updates, impact analysis (which workbooks break if a DB column is renamed), compliance reporting (list all workbooks accessing PII-tagged columns), bulk permission audits, content migration documentation.  The Metadata API exposes column-level lineage — you can trace from a database column through a Published Data Source to every workbook field and view that uses it. Combined with Tableau REST API (manage users, permissions, schedules, content) and tsm CLI (server administration), you can build full governance automation: a CI/CD pipeline that checks for PII compliance before publishing, automated stale content archival, or a lineage dashboard in the organisation's data catalogue. Python's tableauserverclient library abstracts REST API calls.  Pro Tip: Combine the Metadata API with your data catalogue (Alation, Atlan, DataHub) to surface Tableau dashboard lineage alongside database and pipeline lineage in a unified view."
+      },
+      {
+        "id": "tabm_10",
+        "cat": "Tool",
+        "q": "How do you implement statistical analysis in Tableau (regression, clustering, forecasting)?",
+        "wtlf": "Tableau's built-in statistical features: Forecasting (Analytics Pane > Forecast — exponential smoothing models, auto-selects seasonal model, shows prediction intervals), Trend Lines (linear, polynomial, exponential, logarithmic, power — with R-squared, F-test, p-values), Reference Bands/Lines (mean, median, std dev, custom), Cluster Analysis (Analytics Pane > Cluster — uses k-means, user selects number of clusters, assigns cluster ID). Integration with R (RScript) and Python (TabPy): call R/Python scripts from calculated fields using SCRIPT_REAL, SCRIPT_STR, SCRIPT_BOOL.  TabPy (Tableau Python Server) enables arbitrary Python calculations in Tableau fields — run any Python library (scikit-learn, statsmodels, Prophet) and return results to Tableau. This enables: real-time anomaly detection, custom forecasting models, sentiment analysis, NLP on text fields. R integration via Rserve is the older alternative. For production use, pre-compute advanced statistics in Python/R, load results into the data source, and use Tableau purely for visualisation — it is more reliable and faster than running scripts per view render.  Pro Tip: TabPy is powerful but adds latency — each view render calls the Python server. Pre-compute complex models in the data pipeline and store results in a table; use Tableau for visualisation only."
+      },
+      {
+        "id": "tab_shm0",
+        "cat": "Stakeholder",
+        "q": "You have delivered a Tableau dashboard but users are not adopting it. What steps would you take to improve adoption?",
+        "wtlf": "User interviews to understand friction points; usability testing; check if dashboard answers their actual questions; simplify navigation; add training/documentation; ensure performance is acceptable; measure usage via Tableau Server/Cloud admin."
+      },
+      {
+        "id": "tab_shm1",
+        "cat": "Stakeholder",
+        "q": "How do you manage a situation where different business teams are using different Tableau dashboards with conflicting metrics for the same KPI?",
+        "wtlf": "Audit all dashboards and definitions; facilitate alignment workshop; agree on single certified definition; build governed shared data source; deprecate inconsistent dashboards with clear communication."
+      },
+      {
+        "id": "tab_shm2",
+        "cat": "Stakeholder",
+        "q": "You have been asked to consolidate 5 different Excel-based reports into a single Tableau dashboard. How do you approach this project?",
+        "wtlf": "Stakeholder interviews to understand each report's purpose; data source mapping; identify common metrics; design unified data model; phased delivery; change management and training."
+      },
+      {
+        "id": "tab_shm3",
+        "cat": "Stakeholder",
+        "q": "A senior director wants a new metric added urgently but it requires significant changes. How do you handle this?",
+        "wtlf": "Acknowledge urgency; assess impact; present options (quick workaround vs proper solution with timeline); agree on priority with stakeholder; document decision."
+      }
+    ],
+    "senior": [
+      {
+        "id": "tab_s0",
+        "cat": "Tool",
+        "q": "Design a Tableau multi-node Server deployment for 5,000 concurrent users with 99.9% SLA, zero-downtime upgrades, and sub-3-second VizQL rendering.",
+        "wtlf": "Separate Gateway (load balancer), Primary (coordination), Application Worker nodes (VizQL Server, Data Server, Backgrounder); VizQL Server threads: 2x vCPUs per node; Backgrounder on dedicated node (off-peak extract refreshes); HA: active-passive Repository (PostgreSQL) on NAS; hardware LB (F5) in front of multiple Gateways; Tableau Blueprint governance framework; blue-green upgrade strategy; Cache Server nodes; TSM monitoring."
+      },
+      {
+        "id": "tab_s1",
+        "cat": "Tool",
+        "q": "How would you implement Tableau data governance at scale using Virtual Connections, Data Policies, and Tableau Catalog for 200+ published data sources?",
+        "wtlf": "Virtual Connections: centralised, credential-separated connection objects (IT managed); Data Policies: row-level security at VC level (applies to all downstream workbooks automatically); Tableau Catalog: column-level lineage, impact analysis before source changes, data quality warnings; certified badge workflow; usage-based access reviews via REST API; Publisher SDK for automated governance checks on publish; Metadata API integration with enterprise data catalogue."
+      },
+      {
+        "id": "tab_s2",
+        "cat": "Tool",
+        "q": "Walk through your approach to optimising a Tableau workbook that takes 45 seconds to load, has 30 sheets, 8 live connection data sources, and serves 200 concurrent users.",
+        "wtlf": "Performance Recorder on all slow sheets; VizQL Server timing (query vs render split); consolidate 8 sources to 1-2 via joins in source DB or Prep; convert live to Extracts (schedule off-peak); reduce sheets per dashboard (sheet swapping with floating containers); LOD expressions -> pre-computed in source; reduce marks (<5,000 per chart); published data sources shared across workbooks (cache reuse); Hyper API for custom extract generation."
+      },
+      {
+        "id": "tab_s3",
+        "cat": "Tool",
+        "q": "How does Tableau Pulse and AI-driven analytics change the analytics delivery model, and how would you architect an organisation to leverage it?",
+        "wtlf": "Tableau Pulse: metric-centric subscriptions with AI-generated plain-language summaries; shifts from push reports to pull intelligence; architect: define canonical metrics in Tableau Cloud metric catalogue; Pulse subscriptions per persona; AI detects anomalies and surfaces in Slack/Teams; reduces dependency on dashboard visits; governance: only certified metrics available in Pulse; change management for analysts whose dashboards are displaced."
+      },
+      {
+        "id": "tab_s4",
+        "cat": "SQL",
+        "q": "Design a SQL architecture that feeds a Tableau Enterprise deployment serving 3,000 users with mixed workloads: real-time operational (< 5 second data lag) and historical trend analysis (3 years, 500M rows).",
+        "wtlf": "Dual-layer: operational DB (Postgres/SQL Server, live Tableau connection) for real-time; Redshift/Synapse/Snowflake for historical (daily Extract refresh); aggregation tables for 3-year trends (daily grain, 500M -> 3,650 rows); columnstore index on date column; Tableau Extract incremental refresh for operational (hourly); Hyper API for large historical extract programmatic generation."
+      },
+      {
+        "id": "tab_s5",
+        "cat": "SQL",
+        "q": "How would you use Tableau Hyper API to programmatically create and publish 500 client-specific extract files nightly from a single data source with row-level partitioning?",
+        "wtlf": "Python script: connect to source DB; fetch distinct client list; for each client: HyperProcess + connection.execute_query(filtered SQL) -> Hyper file; publish via Tableau Server Client (TSC) library; use Python multiprocessing for parallel generation; incremental approach: only regenerate changed clients; error handling: log failures, notify via email; schedule via Airflow or Windows Task Scheduler; monitor via Tableau Server Admin views."
+      },
+      {
+        "id": "tab_s6",
+        "cat": "SQL",
+        "q": "Design a Tableau semantic layer strategy for a multinational company with 15 regional databases, inconsistent naming conventions, and 50 analyst teams all needing self-service analytics.",
+        "wtlf": "Centralised published data sources per subject area (Finance, Sales, HR); normalise naming in source DB views or Tableau Prep flows before publishing; Tableau Catalog for discovery and documentation; certified data source badge; field aliases and descriptions in published sources; row-level security via entitlement tables (USERDOMAIN() + region mapping); data source bundles per region (localised but consistent structure); analyst training on approved sources only."
+      },
+      {
+        "id": "tab_s7",
+        "cat": "Stakeholder",
+        "q": "You lead a Tableau CoE for a global firm. A regional MD has gone rogue, publishing unapproved dashboards with incorrect revenue figures that are being used in board meetings. How do you handle this?",
+        "wtlf": "Immediate impact assessment (which decisions affected by incorrect figures); escalate to regional MD's line manager with evidence (not accusation); quantify business risk of incorrect reporting; lock down Managed Space permissions (only certified publishers); remediate incorrect dashboards with correct versions; use incident as case study for governance training; implement pre-publish review workflow; document lessons."
+      },
+      {
+        "id": "tab_s8",
+        "cat": "Stakeholder",
+        "q": "How do you justify the cost of upgrading from Tableau Server to Tableau Cloud when the CFO sees it as paying for the same product twice?",
+        "wtlf": "TCO comparison: Server (hardware, DBA, upgrade labour, DR infrastructure, security patching) vs Cloud (subscription includes all); feature delta (Cloud-first features: Tableau Pulse, Einstein AI, Slack integration, automatic upgrades); risk profile (Cloud: Salesforce SLA, disaster recovery included); migration cost and timeline; 3-year NPV calculation; pilot workspace to demonstrate new capabilities."
+      },
+      {
+        "id": "tab_s9",
+        "cat": "Stakeholder",
+        "q": "Describe how you would design and roll out a Tableau self-service analytics programme for 1,000 non-technical business users in 18 months.",
+        "wtlf": "Tiered user model: Viewer (consume, 700 users) -> Explorer (edit, 200 users) -> Creator (author, 100 users); learning path per tier; Champions network (1 per department); certified data sources as self-service foundation; sandbox workspaces for experimentation; fortnightly drop-in clinic; measure adoption monthly; scale Champions to Creators over time; deprecate Excel reports as Tableau dashboards prove value."
+      },
+      {
+        "id": "tab_s10",
+        "cat": "Stakeholder",
+        "q": "You are Tableau Platform Lead. Three major project workstreams are competing for your team's limited capacity. How do you prioritise and communicate your decision?",
+        "wtlf": "Prioritisation framework: business impact x urgency x strategic alignment x effort; scores each workstream objectively; presents matrix to sponsor group; does not make unilateral decisions; communicates trade-offs clearly (choosing A delays B by X weeks); negotiates resources or scope reduction; documents decision and rationale; revisits quarterly."
+      }
+    ]
+  },
+  "Qlik Sense": {
+    "junior": [
+      {
+        "id": "qlikj_0",
+        "cat": "Tool",
+        "q": "What is Qlik Sense and how does it differ from QlikView?",
+        "wtlf": "Qlik Sense is Qlik's modern, self-service BI and analytics platform with a responsive, drag-and-drop interface. QlikView is Qlik's legacy, developer-driven platform requiring scripted layouts. Key differences: Qlik Sense supports true self-service (business users create their own apps), responsive design for mobile, cloud-first (Qlik Cloud), and extensible via APIs and mashups. QlikView requires IT/developer to build fixed layouts. Qlik Sense uses the same Associative Engine as QlikView but with a modern UX and SaaS delivery model.  The transition from QlikView to Qlik Sense mirrors the broader BI market shift from IT-controlled reporting to self-service analytics. Qlik Sense's hub provides a workspace for personal and shared apps. Qlik Cloud (SaaS) is Qlik Sense delivered as a managed service. Qlik Enterprise on Windows (formerly Qlik Sense Enterprise on Windows, QSEoW) is the on-premises version. Both share the same Associative Engine — the core differentiator of Qlik's product.  Pro Tip: Always mention the Associative Engine as Qlik's core differentiator — it powers the associative filtering experience that makes Qlik unique vs Tableau/Power BI."
+      },
+      {
+        "id": "qlikj_1",
+        "cat": "Tool",
+        "q": "What is the Qlik Associative Engine and what makes it unique?",
+        "wtlf": "The Qlik Associative Engine is Qlik's in-memory data engine that stores ALL data in memory (not just visible data) and tracks associations between all fields across all tables. When a user makes a selection, the engine instantly recalculates every other field — highlighting related values (white), associated values (light grey), and excluded values (dark grey). This happens without SQL queries — the engine evaluates all associations in real-time from memory.  Traditional BI tools (Tableau, Power BI) use filter queries — selecting a value sends a new query. Qlik's engine pre-loads all data and evaluates associations instantly, regardless of selection order. The visual distinction (white/grey/dark grey) lets users understand data relationships intuitively and discover unexpected connections. This is called associative exploration — users can follow associations across unrelated dimensions without pre-designing drill-down paths.  Pro Tip: The three colours are the interview answer for 'what is the associative experience?': white (selected/included), light grey (associated), dark grey (excluded). It is Qlik's most distinctive UX feature."
+      },
+      {
+        "id": "qlikj_2",
+        "cat": "Tool",
+        "q": "What is a QVD file in Qlik and why is it used?",
+        "wtlf": "A QVD (Qlik View Data) file is Qlik's proprietary binary data format — a compressed columnar data file optimised for fast loading into the Qlik engine. QVDs are used as intermediate storage in layered data architectures: Extract layer (load from source, save as raw QVD), Transform layer (load QVDs, apply transformations, save enriched QVDs), Load layer (load final QVDs into apps). Reading a QVD is 10–100x faster than querying the source database.  QVDs serve the same purpose as staging tables in a traditional DW — they separate extraction from transformation, enabling incremental loading, QVD reuse across multiple apps, and faster app reload cycles. QVD files store optimised bit-stuffed columnar data with symbol tables — they compress aggressively. Incremental QVD loading appends only new records from the source (based on a max timestamp watermark), dramatically reducing source DB load and reload time for large datasets."
+      },
+      {
+        "id": "qlikj_3",
+        "cat": "Tool",
+        "q": "What are the different load methods in Qlik's data load script?",
+        "wtlf": "Qlik Script load methods: LOAD (from inline data, resident tables, QVDs, files), SELECT (from database via ODBC/OLE DB), RESIDENT (from an already-loaded table in memory), INLINE (hardcoded values in script), AUTOGENERATE (generate a specified number of rows), PRECEDING LOAD (stacked transformation — LOAD from the result of the query below it), CONCATENATE (append rows to an existing table), JOIN (merge columns into an existing table), APPLYMAP (lookup/mapping — like VLOOKUP), IntervalMatch (interval range matching).  Preceding LOAD is one of Qlik's most elegant features: you can stack multiple LOAD statements where each loads from the one below — enabling multi-step transformations without resident tables. APPLYMAP is the Qlik equivalent of a SQL JOIN for lookup purposes — it maps a value from one table to another without creating a full join. IntervalMatch enables date-range joins (e.g., assign a product price that was valid for a date range to each transaction)."
+      },
+      {
+        "id": "qlikj_4",
+        "cat": "Tool",
+        "q": "What is Set Analysis in Qlik and how is it used?",
+        "wtlf": "Set Analysis allows you to define a specific set of data for a calculation, independent of (or modifying) the current user selections. Syntax: {Set Expression} inside an aggregation function. Common operators: {1} = all records (ignores all selections), {$} = current selection, {<Field={value}>} = override a specific field filter, {$ <Field={value}>} = current selection plus an override. Enables: period comparisons, benchmarks, 'Sales excluding returns', 'Profit of Top 10 Customers'.  Set Analysis is Qlik's equivalent of CALCULATE in DAX or FIXED LOD in Tableau. It is one of the most powerful and tested Qlik features. {1<Year={2023}>} = all data where Year=2023 regardless of user selection. {$<Product={'Widget A'}>} = current selection but override product to Widget A. Modifier operators: + (union), - (exclusion), * (intersection), / (symmetric difference). Set Analysis can reference other measures using set identifiers."
+      },
+      {
+        "id": "qlikj_5",
+        "cat": "Tool",
+        "q": "What are Dimensions and Measures in Qlik Sense?",
+        "wtlf": "Dimensions: qualitative fields used to categorise and slice data. They create the groups/categories shown on axes or in tables. Can be a field directly, a calculated expression, or a master dimension. Measures: quantitative calculations (aggregation expressions like Sum(Sales), Count(Orders), Avg(Price)) that compute a value for each dimension group. In Qlik Sense, measures are always aggregations — a field cannot be a measure without an aggregation function wrapping it.  Unlike Tableau (which auto-classifies), Qlik Sense requires explicit measure definitions as aggregation expressions. You cannot drag a raw numeric field as a measure — you must wrap it: Sum([Sales Amount]). Master Dimensions and Master Measures (defined in the Master Items panel) create reusable, centrally managed items — change a master measure once and it updates across all sheets using it. This is Qlik's answer to semantic layer governance.  Pro Tip: Always use Master Items for key metrics and dimensions in enterprise Qlik apps — they enforce consistent definitions and reduce governance burden."
+      },
+      {
+        "id": "qlikj_6",
+        "cat": "Tool",
+        "q": "What is the difference between a direct and cached query in Qlik Sense's Direct Discovery mode vs standard in-memory?",
+        "wtlf": "Standard In-Memory: all data loaded into the Qlik engine's memory (RAM) as QVDs/RAM tables. Ultra-fast queries — microsecond response. Data freshness depends on reload schedule. Direct Discovery (legacy): queries source database in real-time for detail-level data while keeping aggregated data in memory. Allows handling data too large for memory. Not recommended for new development — replaced by Direct Query in Qlik Cloud. Direct Query (Qlik Cloud, new): connects to modern cloud data warehouses (Snowflake, BigQuery, Redshift) via SQL push-down — combines in-memory associative data with live warehouse queries.  In-memory is Qlik's strength — the Associative Engine is fastest with fully in-memory data. Direct Query (the modern evolution) is necessary for cloud-scale data that can't fit in memory. It pushes aggregation queries to the warehouse and brings back only summary results. Qlik's hybrid approach: master dimensions/filters in memory, detail measures via Direct Query. This mirrors Tableau's live connection or Power BI's DirectQuery but with Qlik's associative layer on top.  Pro Tip: Prefer in-memory with incremental QVD loads for performance. Use Direct Query only when data volume exceeds in-memory capacity — the associative experience is richer with in-memory data."
+      },
+      {
+        "id": "qlikj_7",
+        "cat": "Tool",
+        "q": "What are Master Items in Qlik Sense and why are they important?",
+        "wtlf": "Master Items are reusable, centrally defined dimensions and measures stored in an app's Master library. Changes to a Master Item propagate to all sheets and charts using it. Types: Master Dimensions (a field or calculated expression with a label, description, and colour), Master Measures (an aggregation expression with a label, format, colour, and segment colours for conditional formatting), Master Visualisations (an entire chart marked as a master object).  Master Items are Qlik's semantic layer — they enforce consistent definitions across a large app developed by multiple people. 'Revenue' means the same formula everywhere if all visualisations reference the master measure. They also enable consistent formatting and colour coding. In large organisations, a data team defines master items; business users create sheets using them. This balances governance with self-service. Apps using many master items are easier to maintain and less prone to inconsistency.  Pro Tip: Naming convention for Master Items matters — use business-friendly names ('Total Revenue' not 'SUM_REV'). Analysts should be able to drag-and-drop master items without understanding the underlying formula."
+      },
+      {
+        "id": "qlikj_8",
+        "cat": "Tool",
+        "q": "Explain the concept of synthetic keys in Qlik and how to avoid them.",
+        "wtlf": "A Synthetic Key is automatically created by Qlik when two or more tables share more than one common field, creating an implicit many-to-many join across multiple fields. Qlik creates a composite key table to resolve this. Synthetic keys degrade performance, cause unexpected associations, and are hard to debug. To fix: (1) Rename one of the duplicate fields to break the unintended link, (2) drop the unnecessary key field (DROP FIELDS), (3) use QualifiedField to qualify field names, (4) use LOAD with explicit field selection and renaming to control joins.  Synthetic keys are Qlik's way of warning you about data model issues. The Data Model Viewer (arrow icon) shows all tables and relationships — synthetic key tables are displayed in light purple. The Qlik best practice is the star schema: one fact table with foreign keys pointing to dimension tables, connected on single key fields. If two tables share multiple common fields (e.g., OrderID AND CustomerID), only use one as the join key and rename the other."
+      },
+      {
+        "id": "qlikj_9",
+        "cat": "Tool",
+        "q": "What is a circular reference in Qlik's data model and how do you resolve it?",
+        "wtlf": "A circular reference (or loop) occurs when tables form a closed circle in the data model (Table A joins Table B joins Table C joins back to Table A). Qlik cannot handle circular references and will break one of the links — the broken table shows with a dashed line in the Data Model Viewer. Resolution: (1) Use the Link Table technique — create a single link/bridge table connecting the dimensions, removing direct joins. (2) Flatten the data model. (3) Use Concatenate to merge one of the tables. (4) Rename fields to break unintended joins.  Circular references almost always indicate a data model design problem. The Link Table pattern is the standard Qlik solution: create a table containing all the keys, and connect dimension tables through this hub rather than directly to each other. This is similar to a bridge table in a many-to-many relationship resolution. The Qlik Data Model Viewer is essential for spotting circular references (red dashed line) and synthetic keys (light purple table) during development.  Pro Tip: Open the Data Model Viewer (menu icon > Data model viewer) immediately after loading data to spot circular references and synthetic keys before building any visualisations."
+      },
+      {
+        "id": "qlikj_10",
+        "cat": "Tool",
+        "q": "How does Qlik handle table associations vs joins, and what is the difference?",
+        "wtlf": "Qlik Associations: Qlik automatically associates tables that share a common field name. There is no explicit JOIN keyword needed in the data model — Qlik maintains all associations in the Associative Engine. Selections in one table automatically filter associated tables. Qlik JOIN (in load script): physically merges two tables into one — reduces table count but loses the flexibility of separate associations. The distinction matters: JOIN permanently merges during load; Associations maintain separate tables linked dynamically.  Qlik's Associative model is unique — most BI tools require explicit JOINs. In Qlik, if Orders has CustomerID and Customers has CustomerID, they are automatically associated. This means selecting Customer 'Acme Corp' filters Orders to only Acme's orders without any scripting. JOIN in script is used when you genuinely need to flatten two tables into one (e.g., a slowly changing dimension lookup). Avoid unnecessary JOINs — they reduce the associative flexibility that is Qlik's core strength.  Pro Tip: Prefer Qlik Associations over scripted JOINs wherever possible — associations preserve the full power of the Associative Engine. JOIN is a last resort for data model simplification."
+      },
+      {
+        "id": "qlikj_11",
+        "cat": "Tool",
+        "q": "What are Bookmarks in Qlik Sense and how are they different from Alternate States?",
+        "wtlf": "Bookmarks: saved snapshots of user selections (filter state). Users create personal bookmarks; publishers can create public bookmarks. Clicking a bookmark restores the exact set of selections it captured. Used for saving common analysis starting points or sharing a specific data view with colleagues. Alternate States: a more advanced feature where the same or different fields can be in two different selection states simultaneously on the same sheet — enabling A vs B comparisons within a single app without separate apps.  Alternate States are one of Qlik's most powerful advanced features: they allow comparing 'Sales in 2023 selection' vs 'Sales in 2022 selection' side by side in the same sheet. You create states (e.g., 'Group1', 'Group2'), assign different sheets or objects to each state, and the user makes different selections in each state. Set Analysis references states: Sum({Group1} Sales) vs Sum({Group2} Sales). This enables budget vs actual, region A vs region B, or cohort A vs cohort B analysis."
+      },
+      {
+        "id": "qlikj_12",
+        "cat": "Tool",
+        "q": "What chart types are available in Qlik Sense and when would you use each?",
+        "wtlf": "Key chart types: Bar Chart (category comparisons), Line Chart (trends over time), Scatter Plot (correlations, two measures), Pie/Donut Chart (part-to-whole, max 5-7 slices), Combo Chart (dual axis — bar + line), Pivot Table (cross-tabular with drill-down), Straight Table (flat tabular data with sorting), KPI Object (single metric with threshold colouring), Gauge (progress to target), Treemap (hierarchical proportional), Map (geographic distribution), Histogram (frequency distribution), Box Plot (statistical distribution), Waterfall (contribution analysis), Bullet Chart (actual vs target).  Qlik Sense's native chart types are comprehensive. Extensions (visualisation plugins) from the Qlik Extension Library (Qlik.dev) add custom charts. The Sense UI is responsive — charts adapt to screen size. Combo charts (bar + line) are the most commonly used for dashboards showing actuals vs targets. KPI objects with conditional colouring are standard in executive dashboards. Maps require geographic fields or custom coordinates.  Pro Tip: Use Treemaps for part-to-whole relationships with more than 5 categories — they scale better than pie charts and show relative size clearly at a glance."
+      },
+      {
+        "id": "qlikj_13",
+        "cat": "Tool",
+        "q": "What is Qlik NPrinting and what is it used for?",
+        "wtlf": "Qlik NPrinting is Qlik's enterprise reporting tool that generates pixel-perfect, formatted reports from Qlik Sense and QlikView data. It distributes reports via email, file folders, or a web portal on a schedule. Report formats: Excel (dynamic, formatted), Word, HTML, PowerPoint, PDF. Objects from Qlik apps are embedded in report templates. NPrinting Server manages scheduling, distribution, and user access.  NPrinting fills the gap between interactive Qlik dashboards and traditional formatted reports. Finance teams often require Excel or PDF reports with specific layouts, signatures, and page formatting — not achievable from interactive dashboards alone. NPrinting templates are designed in Excel/Word/PowerPoint — you insert 'tokens' where Qlik objects or table data should appear. Reports can be parameterised (one report per region, one per salesperson) and distributed to mailing lists.  Pro Tip: NPrinting is licensed separately from Qlik Sense. In proposals, recommend it when stakeholders need scheduled, formatted reports (monthly PDF packs, Excel financial reports) rather than interactive dashboards."
+      },
+      {
+        "id": "qlikj_14",
+        "cat": "Tool",
+        "q": "What is a Section Access in Qlik and how is it used for data security?",
+        "wtlf": "Section Access is Qlik's built-in row-level security mechanism. It restricts which data rows users or groups can see when they open a Qlik app. Defined in the load script in a separate SECTION ACCESS block. Contains a security table with at minimum USERID and OMIT fields. When a user opens the app, Qlik evaluates their USERID against the security table and applies a hidden, forced filter — restricting visible data. The user cannot see or remove this filter.  Section Access is applied at the engine level — not at the UI level — making it secure. The security table can reference NTNAME (domain username), USER.EMAIL, GROUP, or custom fields (like REGION or CUSTOMERID) that match fields in the data model. Dynamic Data Reduction reduces which data is even loaded into memory per user group. Section Access must be tested thoroughly — a misconfiguration can accidentally expose data or lock users out. Qlik Cloud supports Section Access via row-level security in the load script or via data connections."
+      },
+      {
+        "id": "qlikj_15",
+        "cat": "Tool",
+        "q": "What is the difference between a Qlik Sense App and a Qlik Sense Sheet?",
+        "wtlf": "App: the top-level container in Qlik Sense — contains the data model (load script + loaded data), master items, sheets, stories, bookmarks, and settings. An app is published to a stream (on-premises) or space (Cloud) for user access. Apps have a reload schedule. Sheet: a page within an app containing one or more visualisations (charts, tables, KPI objects, filters). A single app can have many sheets — each sheet provides a different analytical perspective on the same underlying data model.  The App/Sheet hierarchy: Hub (workspace) > Stream/Space > App > Sheet > Charts. All sheets in an app share the same data model and selection state — a selection made on Sheet 1 carries over to Sheet 2. This is the key difference from traditional dashboards where each page has independent data. Users navigate sheets while maintaining their associative filter state across the app. Stories (analogous to PowerPoint) provide a guided narrative using snapshots.  Pro Tip: Design apps with a clear sheet structure: 'Overview' sheet for KPIs, detailed 'Analysis' sheets per functional area, 'Detail' sheet for row-level data. Logical flow improves user adoption."
+      },
+      {
+        "id": "qlikj_16",
+        "cat": "Tool",
+        "q": "What is Qlik Cloud and how does it differ from QSEoW (Qlik Sense Enterprise on Windows)?",
+        "wtlf": "Qlik Cloud (SaaS): fully managed, hosted by Qlik on AWS. Automatic upgrades, global availability, built-in auto-scaling. Uses Spaces (Personal, Shared, Managed) for content organisation. Integrated with Qlik Talend Cloud for data integration, Qlik AutoML for no-code ML. QSEoW (on-premises/self-managed): organisation installs and manages Qlik Sense on Windows servers. Full infrastructure control. Uses Streams for content organisation. Supports more custom configurations (custom extensions, connectors, NPrinting integration). Requires manual upgrades and capacity management.  Qlik is pushing all new development and features to Qlik Cloud first. QSEoW is in maintenance mode — Qlik's strategic direction is cloud-first. Organisations with strict data residency requirements or existing on-premises investments remain on QSEoW with migration timelines. Qlik Cloud uses a tenant-based architecture — each customer is a tenant. Multi-cloud deployment (bring-your-own-cloud on AWS/Azure) is available for regulated industries that cannot use Qlik's shared infrastructure.  Pro Tip: New Qlik deployments should default to Qlik Cloud unless there are specific regulatory or infrastructure constraints that require on-premises."
+      },
+      {
+        "id": "qlikj_17",
+        "cat": "Tool",
+        "q": "What are Insights and Insight Advisor in Qlik Sense?",
+        "wtlf": "Qlik Insight Advisor is an AI-powered analytics assistant built into Qlik Sense. Natural Language Insights: users type questions ('Show sales by region last quarter') and Insight Advisor generates appropriate charts. Associative Insights: Qlik automatically identifies associations and anomalies in data that the user may not have noticed — showing unexpected correlations between fields. Chart Suggestions: when creating a chart, Insight Advisor suggests the most appropriate chart type based on the fields selected.  Insight Advisor is powered by Qlik's Cognitive Engine — it understands field types, data patterns, and natural language queries. The associative insights feature is particularly powerful — it surfaces 'The excluded value of [Category] in this selection accounts for 35% of your total sales' automatically. This democratises exploration for non-technical users. Qlik Sense's AutoML (in Qlik Cloud) extends this to predictive modelling — building ML models from business data without coding.  Pro Tip: Position Insight Advisor as the gateway for business users who cannot write set analysis or calculated fields — it lowers the adoption barrier while still leveraging the full Associative Engine."
+      },
+      {
+        "id": "qlikj_18",
+        "cat": "Tool",
+        "q": "What are Streams and Spaces in Qlik and how is content organised?",
+        "wtlf": "QSEoW (on-premises) uses Streams: containers for published apps. Published and unpublished apps. Users access published apps from streams based on security rules. Qlik Cloud uses Spaces: Personal Space (private, only you can see), Shared Space (team collaboration, multiple owners), Managed Space (governed, controlled distribution — only admins publish). Spaces in Qlik Cloud provide role-based access: Owner, Can Edit, Can Publish, Can View. The Analytics Hub in Qlik Cloud is the home for all spaces and apps.  Spaces in Qlik Cloud better support the analytics development lifecycle: develop in Personal Space, collaborate in Shared Space, promote to Managed Space for distribution. This mirrors DevOps deployment stages. Access is managed via space roles (not server-level security rules). Managed Spaces support data products and governed analytics distribution. App migrations from Personal to Managed Spaces are controlled by space owners, preventing ungoverned content sprawl.  Pro Tip: Use Managed Spaces for certified, production-ready apps. Keep development apps in Personal or Shared spaces until they are reviewed and approved — this mirrors software deployment best practices."
+      },
+      {
+        "id": "qlikj_19",
+        "cat": "Tool",
+        "q": "What is Qlik Talend and how does it fit into the Qlik ecosystem?",
+        "wtlf": "Qlik Talend is Qlik's data integration and quality platform, acquired by Qlik in 2023. It provides cloud-based ETL/ELT pipelines, data quality management, API integration, and real-time data replication (Talend Data Fabric, formerly Talend Data Integration). In the Qlik ecosystem: Talend handles data ingestion, transformation, and quality — delivering clean data to cloud data warehouses (Snowflake, BigQuery, Databricks). Qlik Cloud Analytics then connects to this data for visualisation and analysis.  The combination of Qlik Talend (data integration + quality) and Qlik Cloud Analytics (visualisation + exploration) creates a unified data platform within a single vendor — from raw data sources to business dashboards. Previously, Qlik Analytics was analytics-only and relied on third-party ETL tools (Fivetran, Informatica). With Talend, Qlik competes as a full data platform vendor against the Snowflake + dbt stack. Talend's Change Data Capture (CDC) capabilities enable real-time data pipelines feeding Qlik dashboards.  Pro Tip: In architecture discussions, position Qlik Talend as the integration layer and Qlik Analytics as the consumption layer — showing end-to-end capability within one vendor simplifies procurement and support."
+      },
+      {
+        "id": "qlik_shj0",
+        "cat": "Stakeholder",
+        "q": "A user reports that clicking a chart in your Qlik Sense app is showing unexpected data in other charts. How do you explain and resolve this?",
+        "wtlf": "Explain the associative model (expected behaviour); check if this is intentional; if truly unexpected, review data model for synthetic keys or incorrect table associations; add bookmark to reset selections."
+      },
+      {
+        "id": "qlik_shj1",
+        "cat": "Stakeholder",
+        "q": "How would you demo a Qlik Sense dashboard to a business team who have never seen Qlik before?",
+        "wtlf": "Start with business question the app answers; demonstrate associative selection (click and see propagation); show how selections guide to insights rather than limit; use storytelling with Qlik Sense stories feature. Engages non-technical audience."
+      },
+      {
+        "id": "qlik_shj2",
+        "cat": "Stakeholder",
+        "q": "A business user says the numbers look wrong in a report you built. How do you approach this conversation?",
+        "wtlf": "Takes concern seriously without defensiveness, asks for specifics (which metric, date range), traces back to source, documents findings, communicates ETA."
+      },
+      {
+        "id": "qlik_shj3",
+        "cat": "Stakeholder",
+        "q": "How would you gather requirements from a non-technical stakeholder before building a Qlik Sense app?",
+        "wtlf": "Discovery session: understand audience, decisions the app should drive, KPIs needed, data sources available. Prototype with wireframe before building."
+      }
+    ],
+    "mid": [
+      {
+        "id": "qlikm_0",
+        "cat": "Tool",
+        "q": "Design a Qlik Sense enterprise architecture for a 2000-user deployment with multi-tier security.",
+        "wtlf": "Architecture: Load-balancing layer (HAProxy/F5) > QSEoW Multi-node cluster: separate Proxy nodes (user authentication, session management), Engine nodes (data loading and associative queries, separate pools for reload vs end-user queries), Scheduler node (reload orchestration, alert delivery), Printing node (NPrinting). Data Layer: QVD Factory (tiered QVD store: raw, conformed, aggregated layers) on NAS/S3. Security: SAML SSO via AD FS/Okta, Section Access for row-level data, Stream-level permissions, Custom Properties for granular access rules. Monitoring: Qlik Operations Monitor app + Grafana.  Separating Proxy, Engine, and Scheduler nodes is the key scalability pattern. Engine nodes for reloads are CPU/memory intensive — isolating them prevents reloads from degrading interactive query performance. Multiple Proxy nodes behind a load balancer provide HA. The QVD Factory architecture organises QVDs into layers (like Medallion): raw QVDs (daily extract from sources), conformed QVDs (cleaned, joined), aggregated QVDs (pre-aggregated for performance). Apps load only from the final layer, keeping reload times short.  Pro Tip: Use Custom Properties on Qlik Server objects (streams, apps) to drive dynamic security rules — more maintainable than individual security rules per stream."
+      },
+      {
+        "id": "qlikm_1",
+        "cat": "Tool",
+        "q": "How do you optimise a Qlik app that has a 45-minute reload time and slow chart rendering?",
+        "wtlf": "Reload optimisation: (1) Profile in Qlik's Data Load Editor — identify which tables take longest. (2) Implement incremental QVD loads (only load new/changed records using a MAX timestamp watermark). (3) Move heavy joins/transformations to the source database (SQL) rather than Qlik script. (4) Load only required fields (remove unused columns). (5) Pre-aggregate large fact tables into summary QVDs for high-level charts. Rendering optimisation: (1) Reduce fields loaded into memory. (2) Reduce distinct values in high-cardinality fields. (3) Avoid complex nested set analysis in frequently rendered charts — pre-calculate in script. (4) Disable row-level detail in large straight tables.  The QVD Optimised Load is a critical concept: a LOAD from a QVD is 'optimised' (lightning-fast) only when NO transformations are applied in that load statement. Adding a single WHERE clause or calculation forces Qlik to read row-by-row (standard mode), losing the optimisation. Two-stage loading achieves optimised loads with filtering: first load optimised from QVD to a temp table, then RESIDENT load applying transformations. Memory footprint monitoring via the Qlik Operations Monitor app reveals which tables consume most RAM.  Pro Tip: Protect QVD optimised loads — check every QVD load statement for WHERE clauses, WHERE EXISTS, or transformations. Use a two-stage RESIDENT load to combine speed with filtering."
+      },
+      {
+        "id": "qlikm_2",
+        "cat": "Tool",
+        "q": "How do you implement incremental loading in Qlik's data load script?",
+        "wtlf": "Incremental load pattern: (1) Load the max timestamp from the existing QVD to determine the last load point. (2) Query the source for records newer than that timestamp. (3) Concatenate the new records with the existing QVD (excluding the refreshed records via NOT EXISTS to avoid duplicates). (4) Store the merged result back to the QVD. For delete handling: use a full daily sync of keys and compare to detect deletes, then remove deleted keys from the QVD.  Incremental loading is essential for large fact tables. The EXISTS/NOT EXISTS check in Qlik ensures records already in the QVD are not duplicated when new records are concatenated. For update handling (not just inserts), the new load should overwrite matching keys — use NoConcatenate with a following Concatenate to implement an upsert: load existing QVD excluding records being updated, then concatenate the new/updated records. Implement a variables-based configuration (vLastExecTime) for maintainability."
+      },
+      {
+        "id": "qlikm_3",
+        "cat": "Tool",
+        "q": "How do you build a complete P&L (Profit and Loss) report in Qlik using a mapping approach?",
+        "wtlf": "P&L reports require non-standard aggregation hierarchies (not all rows sum — some subtract). Approach: (1) Create an account hierarchy table with: AccountCode, AccountName, PnLLine (line item label), SignMultiplier (1 or -1 for revenue vs cost accounts). (2) Load trial balance data and JOIN with the hierarchy. (3) Apply Sum(Amount * SignMultiplier) per PnLLine. (4) Use a Straight Table or Pivot Table with PnLLine ordered by a SortOrder field. Subtotals (Gross Profit, EBITDA) are separate rows in the hierarchy with their own aggregation expressions.  P&L reports are notoriously hard in BI tools because standard SUM aggregation doesn't work (costs must subtract, not add). The sign multiplier approach stores +1/-1 per account in the master mapping, so a single SUM(Amount * SignMultiplier) correctly computes net profit regardless of the account mix. Subtotal rows (Gross Profit = Revenue + COGS where COGS is negative) appear as separate master rows with the aggregated formula. Sort order in the hierarchy table controls the display sequence."
+      },
+      {
+        "id": "qlikm_4",
+        "cat": "Tool",
+        "q": "How does Qlik's QVD Lake architecture work and what are its layers?",
+        "wtlf": "QVD Lake (Qlik's data architecture pattern) organises QVDs into four layers: (1) Extraction Layer: raw QVDs — direct extracts from source systems, minimal transformation, full history. (2) Transformation Layer: conformed QVDs — cleaned, standardised, keys aligned, slowly changing dimensions handled, business rules applied. (3) Aggregation Layer: pre-aggregated QVDs — summary data for performance-critical dashboards (daily/weekly/monthly totals by key dimensions). (4) Application Layer: apps load from the appropriate layer (detail apps from transformed, summary apps from aggregated).  The QVD Lake is Qlik's equivalent of the Medallion Architecture in cloud data lakes. Each layer is stored as separate QVD files in a structured folder hierarchy (e.g., /qvds/extract/, /qvds/transform/, /qvds/agg/). Reload schedules cascade: extraction runs first (off-peak), transformation runs next, aggregation last, apps reload after. This dependency chain ensures apps always see consistent, fully processed data. Error at any layer stops downstream reloads — preventing partial data states.  Pro Tip: Implement reload failure alerts at each layer using Qlik's NPrinting or TaskHound — a failed extraction should not silently cause apps to reload with stale data."
+      },
+      {
+        "id": "qlikm_5",
+        "cat": "Tool",
+        "q": "How do you implement a governed self-service analytics model in Qlik Cloud?",
+        "wtlf": "Governed self-service model: (1) Central data team publishes Certified Data Sources (Published Apps or Data Assets) in Managed Spaces. (2) Business analysts connect to these certified sources — cannot modify the data model. (3) Analysts create personal sheets within certified apps (Sheet Access) or build new apps in Shared Spaces referencing certified data. (4) Quality-reviewed apps promoted from Shared to Managed Spaces via a review workflow. (5) Master Items (dimensions, measures) defined by central team — analysts use, not redefine them. (6) Section Access and Row-Level Security enforced on certified data.  Qlik Cloud's Space model enables this: Managed Spaces for governed content, Shared Spaces for collaborative development, Personal Spaces for experimentation. 'App in Hub' vs 'Sheets by Users' controls: administrators can allow users to create personal sheets in published apps without duplicating the entire app. Qlik's Data Catalog (in Qlik Cloud) helps analysts discover available certified data assets. This balances IT control with business agility.  Pro Tip: Enable 'Allow users to add personal sheets' in published app settings — business users get self-service sheet creation without needing to duplicate the entire certified app."
+      },
+      {
+        "id": "qlikm_6",
+        "cat": "Tool",
+        "q": "How do you implement complex slowly changing dimensions (SCD Type 2) in Qlik's load script?",
+        "wtlf": "SCD Type 2 in Qlik: (1) Source has effective_from and effective_to dates per dimension record. (2) In script: load the SCD dimension table with both dates. (3) Use IntervalMatch to match fact table transaction dates to the correct dimension record's effective period. (4) Result: each fact row joins to the dimension version that was active at transaction time. Alternatively, use a LOAD with WHERE conditions to snapshot the current dimension state for apps that don't need historical dimension context.  IntervalMatch is Qlik's powerful solution for date-range joins — it maps each transaction date to the overlapping interval in a slowly changing dimension. LOAD IntervalMatch(TransactionDate) from the dimension table creates a mapping between dates and interval keys. This is more efficient than a SQL between join because it uses Qlik's optimised binary search. For high-cardinality fact tables, pre-resolving the SCD key in a SQL view or QVD transformation stage is often faster than IntervalMatch in the Qlik script."
+      },
+      {
+        "id": "qlikm_7",
+        "cat": "Tool",
+        "q": "How do you use Qlik's Sense Performance Analyzer and what metrics do you monitor?",
+        "wtlf": "Qlik Sense Operations Monitor (built-in app on QSEoW): Session Overview (concurrent users, session duration), App Overview (reload times, app size), Performance (CPU/RAM usage per Engine node), Reload Tasks (success/failure rates, duration trends). Qlik Cloud Monitoring Apps: similar dashboards available as free apps on Qlik Marketplace. Key metrics: Engine RAM usage (watch for >80% sustained), Reload duration trends (increasing trend signals data growth or script inefficiency), Concurrent sessions vs node capacity, App size (large apps = more RAM per user session), Chart render time (logged in App Log on Cloud).  The Operations Monitor is a Qlik app about Qlik — it queries the server's log files and Postgres repository to display operational metrics. Every Qlik administrator should have it configured. App-level performance profiling: in Qlik Sense Desktop, the Dev Hub > Single Configurator shows individual object query times. In Qlik Cloud, the 'Get info' debug panel on a chart shows the QIX engine request time vs rendering time. Separating QIX time (engine computation) from browser rendering time isolates whether the bottleneck is the engine or the browser.  Pro Tip: Monitor Engine RAM hourly during business hours — if RAM consistently exceeds 85%, add Engine nodes before users experience session failures."
+      },
+      {
+        "id": "qlikm_8",
+        "cat": "Tool",
+        "q": "How do you implement What-If analysis using Qlik input fields and variables?",
+        "wtlf": "Method 1 — Variables + Sliders: create a Qlik Variable (e.g., vGrowthRate), add a Slider or Input Box object bound to the variable, use the variable in calculated measures: Sum(Sales) * (1 + $(vGrowthRate)). Method 2 — Dynamic parameters via selection: create a scenario table (INLINE load with scenario values), use the selected value in measures: Sum(Sales) * Max({<Scenario=>} GrowthRate). Method 3 — Qlik's Input Fields (legacy, not Sense): directly editable cells in QlikView only. In Qlik Sense, variable input boxes and extension widgets replace this.  What-If analysis in Qlik is driven by Variables — they store a single value that can be changed by a slider, input box, or button. Every chart referencing the variable updates immediately when the variable changes (no data reload needed). This enables sensitivity analysis, budget modelling, and scenario planning entirely within the Qlik front end. Variables persist during a session but reset on reload unless saved as a bookmark. For complex multi-scenario What-If, use a scenario dimension table (Aggressive/Base/Conservative) with separate data rows — Qlik's associative model handles the rest."
+      },
+      {
+        "id": "qlikm_9",
+        "cat": "Tool",
+        "q": "What is Qlik Application Automation and how does it enable no-code workflow orchestration?",
+        "wtlf": "Qlik Application Automation (available in Qlik Cloud) is a no-code automation builder enabling users to create workflows that interact with Qlik apps, spaces, and external services. It uses a block-based visual interface (similar to Power Automate). Use cases: trigger app reloads on schedule or on data events, send alerting emails/Slack messages when a KPI crosses a threshold, automatically promote apps between spaces after a quality check, create apps from templates on user request, and integrate Qlik with 60+ external connectors (Salesforce, Jira, ServiceNow, Slack).  Application Automation extends Qlik Cloud's orchestration beyond simple reload schedules. A common automation: 'Every morning at 7am, reload the Finance app > check if Revenue KPI has dropped >10% vs yesterday > if yes, send an alert email with the dashboard link to the CFO > log the alert in a Google Sheet'. This type of proactive, event-driven analytics distribution is difficult to achieve with static schedules. Automations are built and owned by business analysts — no IT involvement needed.  Pro Tip: Use Application Automation to implement data-driven distribution: send personalised reports to users based on data conditions, not just fixed schedules — this drives higher dashboard adoption."
+      },
+      {
+        "id": "qlikm_10",
+        "cat": "Tool",
+        "q": "How do you implement lineage tracking and impact analysis in Qlik Cloud?",
+        "wtlf": "Qlik Cloud's built-in lineage features: Data Catalog (Qlik Cloud Data Integration) shows lineage from source databases through pipelines to Qlik apps. App-level lineage: Qlik Metadata API (GraphQL) exposes connections between: data connections (source), app data model (tables, fields), master items, and sheet objects. Impact analysis: changing a Published Data Source — Qlik Cloud shows which apps will be affected. Field-level lineage: available via the Metadata API programmatically — which charts use which fields.  Full end-to-end lineage requires combining Qlik's built-in tools with an external data catalogue. The Qlik REST API and Metadata API can be called by cataloguing tools (Atlan, Alation, DataHub) to import Qlik lineage. This surfaces Qlik dashboards in enterprise-wide lineage graphs — from database column to Qlik chart. For change management: before deprecating a database column, check the Metadata API to identify all Qlik apps and charts using it. This prevents silent breakages after source system changes.  Pro Tip: Export Qlik Metadata API results to your data catalogue on a weekly schedule — stakeholders can then answer 'which dashboards show Revenue?' without contacting the BI team."
+      },
+      {
+        "id": "qlik_shm0",
+        "cat": "Stakeholder",
+        "q": "You have been asked to migrate 20 QlikView dashboards to Qlik Sense. How do you plan and prioritise this migration?",
+        "wtlf": "Audit existing QlikView apps: usage stats (most used first), business criticality, complexity; assess conversion effort; prioritise high-use, lower-complexity apps first; plan load script migration (most reusable); stakeholder sign-off at each phase; test with users before decommission."
+      },
+      {
+        "id": "qlik_shm1",
+        "cat": "Stakeholder",
+        "q": "A business team wants to build their own Qlik Sense app but has no technical background. How do you enable them while maintaining data quality?",
+        "wtlf": "Governed self-service model: provide certified QVD data layer they can connect to; training on Sense drag-and-drop; define approved master items they must use; review process before publishing to wider audience; Qlik Sense Business (SaaS) for simpler authoring."
+      },
+      {
+        "id": "qlik_shm2",
+        "cat": "Stakeholder",
+        "q": "You have delivered a Qlik Sense dashboard but users are not adopting it. What steps would you take to improve adoption?",
+        "wtlf": "User interviews to understand friction points; usability testing; check if app answers their actual questions; simplify navigation; add training/documentation; measure usage."
+      },
+      {
+        "id": "qlik_shm3",
+        "cat": "Stakeholder",
+        "q": "How do you manage a situation where different business teams are using different Qlik apps with conflicting metrics for the same KPI?",
+        "wtlf": "Audit all apps and definitions; facilitate alignment workshop; agree on single certified definition; build governed shared data layer; deprecate inconsistent apps with clear communication."
+      }
+    ],
+    "senior": [
+      {
+        "id": "qlik_s0",
+        "cat": "Tool",
+        "q": "Design a Qlik Sense enterprise architecture on Qlik Cloud for 3,000 users across 10 countries with data residency requirements, high availability, and multi-tenant isolation.",
+        "wtlf": "Qlik Cloud multi-tenant: separate tenants per country (data residency compliance); Bring-Your-Own-Key (BYOK) encryption per tenant; Qlik Data Gateway for on-premise/private cloud source connectivity; Managed Spaces for governed content; Shared Spaces for cross-country collaboration; API-driven tenant provisioning; Qlik AutoML for in-platform ML; tenancy-level SLA monitoring via Qlik Cloud Operations API."
+      },
+      {
+        "id": "qlik_s1",
+        "cat": "Tool",
+        "q": "How would you architect a QVD Lake for a financial services firm processing 2 billion daily records with incremental loading, full audit trail, and sub-5-minute app reload times?",
+        "wtlf": "Four-layer QVD architecture: Extract (raw QVDs from source, LOAD optimised, no transforms, immutable), Conform (business logic, SCD handling, key alignment), Aggregate (pre-aggregated by report grain), Application (app-specific thin QVDs); incremental watermark on all extract layers; QVD Optimised Load (no WHERE = full binary read); separate Scheduler node for reload chains; Qlik Application Automation for reload orchestration and failure alerting."
+      },
+      {
+        "id": "qlik_s2",
+        "cat": "Tool",
+        "q": "Walk through diagnosing and resolving a Qlik Sense app with 90-minute reload times and 15-second chart render times in production.",
+        "wtlf": "Reload: enable Qlik Sense audit log; identify slowest script sections (LOAD statements); move heavy transformations to source DB SQL; implement incremental QVD loads (watermark); protect QVD optimised loads (no WHERE on QVD LOAD); App size: Operations Monitor (RAM per session); Rendering: high-cardinality dimensions in filter panes (replace with list boxes with search); large straight tables (add Show/Hide toggle); set analysis complexity (precompute in script)."
+      },
+      {
+        "id": "qlik_s3",
+        "cat": "Tool",
+        "q": "How do you implement Qlik Application Automation and the REST API to build a fully automated app lifecycle management system?",
+        "wtlf": "REST API: app inventory (GET /apps), usage stats (GET /items), reload history; Automation triggers: nightly reload -> check TASK_HISTORY -> on failure, POST to Teams webhook + create Jira ticket; lifecycle: apps not accessed in 90 days -> auto-archive to cold space; new app request workflow: form -> Automation -> create app from template -> assign to Managed Space -> notify owner; governance dashboard: all apps, owners, last access, reload status."
+      },
+      {
+        "id": "qlik_s4",
+        "cat": "SQL",
+        "q": "Design a complete Qlik Sense data architecture for a retail chain with 500 stores, 200M daily POS transactions, 15-minute data freshness SLA, and sub-30-second app reload.",
+        "wtlf": "Source: POS -> Kafka -> Snowflake/SQL Server (OLAP); Extract QVDs: store-partitioned incremental load (15-minute watermark); Conform: product hierarchy, store attributes, SCD Type 2 for price changes (IntervalMatch); Aggregate: pre-built sales summary QVDs (store x day x category grain); Application: thin QVD load (~500K rows); Qlik Sense: Section Access per regional manager; Snowflake Direct Query fallback for ad-hoc deep-dive."
+      },
+      {
+        "id": "qlik_s5",
+        "cat": "SQL",
+        "q": "How do you design a Qlik load script to handle a complex multi-currency financial consolidation across 30 subsidiaries with daily FX rates and intercompany eliminations?",
+        "wtlf": "Load FX rates table (date, from_currency, to_currency, rate); APPLYMAP for currency conversion at transaction level; IntervalMatch to apply correct rate for transaction date; intercompany elimination: flag transactions where buyer and seller are both subsidiaries (LOAD with IF EXISTS join); consolidation hierarchy via HIERARCHY function; Section Access per subsidiary finance team; pre-aggregate to reporting currency in Conform QVD layer."
+      },
+      {
+        "id": "qlik_s6",
+        "cat": "SQL",
+        "q": "Implement a full data quality monitoring framework in Qlik load script that validates 30 business rules, quarantines invalid records, and publishes a quality metrics app.",
+        "wtlf": "Business rules table (rule_id, description, field, condition, severity); LOAD data -> apply each rule via Preceding LOAD with IF condition; tag failed records with rule_id; Concatenate to quarantine table; STORE quarantine as QVD; quality metrics: COUNT, PASS_RATE per rule per day; STORE quality_log QVD; separate Qlik app reads quality_log QVD and displays trend charts, rule failure heatmap, drill-down to quarantined records."
+      },
+      {
+        "id": "qlik_s7",
+        "cat": "Stakeholder",
+        "q": "You are the Qlik Platform Lead. The business wants to migrate from Qlik Sense to Microsoft Power BI because everyone uses it. How do you evaluate this objectively and advise the CTO?",
+        "wtlf": "Objective capability comparison (Associative Engine vs DAX filter model, self-service authoring, total cost); quantify migration cost (rewrite 200 apps x average hours); assess feature gaps for specific use cases (associative exploration value for their analysts); total licence cost comparison; survey end-users on satisfaction; pilot: build same app in both tools with real users; present findings with recommendation either way - credibility over advocacy."
+      },
+      {
+        "id": "qlik_s8",
+        "cat": "Stakeholder",
+        "q": "A Qlik app you own is used by the CFO for monthly board reporting. Three hours before a board meeting it fails to reload due to a source system change. How do you manage this?",
+        "wtlf": "Immediate triage: is it schema change, data issue, or infrastructure? If schema change: update LOAD script for new column names, test, trigger manual reload; if data issue: roll back to previous QVD snapshot; communicate to CFO within 15 minutes with status and ETA; if unfixable: prepare interim (previous month's data with clear timestamp caveat); post-incident: add schema validation checks to reload script; implement source system change notification protocol."
+      },
+      {
+        "id": "qlik_s9",
+        "cat": "Stakeholder",
+        "q": "How do you lead a 12-month programme to decommission 150 legacy QlikView apps and migrate to Qlik Sense, serving 800 end users across 6 departments?",
+        "wtlf": "Discovery: app inventory (usage frequency, business criticality, rebuild complexity); prioritisation matrix: high-use + low-complexity first; Wave 1 (Months 1-3): migrate top 20 apps; Wave 2 (Months 4-8): next 60; Wave 3 (Months 9-11): remaining 70; parallel run period (3 months per wave); departmental champions drive adoption; QlikView to Sense converter for script migration; user acceptance testing; decommission gate: 90% adoption confirmed."
+      },
+      {
+        "id": "qlik_s10",
+        "cat": "Stakeholder",
+        "q": "You inherit a Qlik environment with 400 apps, no naming conventions, and no documentation. How do you bring order to it within 6 months?",
+        "wtlf": "Month 1: discovery via Qlik REST API (list all apps, usage stats, reload history); Month 2: classify by criticality and ownership (interview stakeholders); Month 3: implement naming convention and tagging for all net-new apps; Month 4: migrate top 50 apps to governed Managed Spaces; Month 5: archive unused apps (no reload in 90 days) to cold space; Month 6: governance framework live (review board, publish process, lifecycle policy); document all decisions."
+      }
+    ]
+  }
+};
