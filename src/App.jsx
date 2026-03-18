@@ -29,16 +29,44 @@ const ANALYST_CATEGORIES = {
   Stakeholder: { color:"#f472b6", tag:"Stakeholder Mgmt" },
 };
 
-// ─── STORAGE ──────────────────────────────────────────────────────────
-const STORAGE_KEY = "interview_session_v3";
-const saveSession = (d) => { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(d)); } catch(e) {} };
-const loadSession = () => { try { const d = localStorage.getItem(STORAGE_KEY); return d ? JSON.parse(d) : null; } catch(e) { return null; } };
+// ─── SESSION ENCODING ─────────────────────────────────────────────────
+// Each candidate submission is encoded into a URL-safe base64 string.
+// The interviewer link is: /app?interviewer=true&s=<encoded>
+// This means every candidate gets their own unique link — no shared state,
+// no overwriting, works for any number of simultaneous interviewers.
 
-const shuffle = arr => [...arr].sort(() => Math.random() - 0.5);
+const encodeSession = (data) => {
+  try {
+    const json = JSON.stringify(data);
+    // btoa needs ASCII — use encodeURIComponent to handle unicode names
+    return btoa(encodeURIComponent(json));
+  } catch(e) { return null; }
+};
+
+const decodeSession = (str) => {
+  try {
+    return JSON.parse(decodeURIComponent(atob(str)));
+  } catch(e) { return null; }
+};
+
+// Read ?s= param from current URL
+const getSessionFromURL = () => {
+  const params = new URLSearchParams(window.location.search);
+  const s = params.get("s");
+  return s ? decodeSession(s) : null;
+};
+
+// Build interviewer URL from encoded session data
+const buildInterviewerURL = (data) => {
+  const encoded = encodeSession(data);
+  if (!encoded) return null;
+  const base = window.location.origin + window.location.pathname;
+  return `${base}?interviewer=true&s=${encoded}`;
+};
 
 // ─── QUESTION SELECTION ───────────────────────────────────────────────
-// Sequence: Q1-Q2 = SQL, Q3-Q6 = Cloud/Tool, Q7-Q8 = Stakeholder
-// All drawn fresh and randomly from QUESTION_BANK — no repeats in a session
+const shuffle = arr => [...arr].sort(() => Math.random() - 0.5);
+
 const buildInterview = (role, platform, band) => {
   const platformBank = QUESTION_BANK[platform]?.[band] || [];
   const sqlGenBank   = QUESTION_BANK["SQL"]?.[band]    || [];
@@ -50,8 +78,6 @@ const buildInterview = (role, platform, band) => {
     techPool = shuffle(platformBank.filter(q => q.cat === "Cloud" || q.cat === "Python"));
     shPool   = shuffle(platformBank.filter(q => q.cat === "Stakeholder"));
   } else {
-    // Analyst: platform bank has SQL, Tool, Stakeholder categories
-    // Supplement SQL from generic bank if needed
     const platformSQL = platformBank.filter(q => q.cat === "SQL");
     sqlPool  = shuffle([...platformSQL, ...sqlGenBank]);
     techPool = shuffle(platformBank.filter(q => q.cat === "Tool" || q.cat === "Analytics"));
@@ -64,7 +90,6 @@ const buildInterview = (role, platform, band) => {
     ...shPool.slice(0, 2),
   ];
 
-  // Safety fill if any bucket ran short
   if (picked.length < 8) {
     const usedIds = new Set(picked.map(q => String(q.id)));
     const spare   = shuffle([...sqlPool, ...techPool, ...shPool].filter(q => !usedIds.has(String(q.id))));
@@ -78,7 +103,8 @@ const getCatInfo = (role, cat) => role === "analyst" ? ANALYST_CATEGORIES[cat] :
 
 // ─── APP ──────────────────────────────────────────────────────────────
 export default function App() {
-  const isInterviewer = typeof window !== "undefined" && window.location.search.includes("interviewer=true");
+  const params        = new URLSearchParams(window.location.search);
+  const isInterviewer = params.get("interviewer") === "true";
 
   const [step,          setStep]          = useState("setup");
   const [role,          setRole]          = useState(null);
@@ -91,8 +117,16 @@ export default function App() {
   const [answers,       setAnswers]       = useState({});
   const [scores,        setScores]        = useState({});
   const [session,       setSession]       = useState(null);
+  const [interviewerURL,setInterviewerURL]= useState(null);
+  const [copied,        setCopied]        = useState(false);
 
-  useEffect(() => { if (isInterviewer) setSession(loadSession()); }, [isInterviewer]);
+  // Interviewer: read session from URL param ?s=
+  useEffect(() => {
+    if (isInterviewer) {
+      const s = getSessionFromURL();
+      setSession(s);
+    }
+  }, [isInterviewer]);
 
   const selectedBand    = BANDS.find(b => b.id === band);
   const currentQuestion = questions[currentQ];
@@ -106,8 +140,23 @@ export default function App() {
   };
 
   const handleSubmit = () => {
-    saveSession({ candidateName, yearsExp, role, platform, band, questions, answers, submittedAt: new Date().toISOString() });
+    const sessionData = {
+      candidateName, yearsExp, role, platform, band,
+      questions, answers,
+      submittedAt: new Date().toISOString(),
+    };
+    // Build the unique interviewer URL from this session's data
+    const url = buildInterviewerURL(sessionData);
+    setInterviewerURL(url);
     setStep("thankyou");
+  };
+
+  const copyURL = () => {
+    if (!interviewerURL) return;
+    navigator.clipboard.writeText(interviewerURL).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    });
   };
 
   // ── INTERVIEWER VIEW ──────────────────────────────────────────────
@@ -116,8 +165,11 @@ export default function App() {
       <div style={{ minHeight:"100vh", background:"#0f172a", display:"flex", alignItems:"center", justifyContent:"center", fontFamily:"'DM Sans','Segoe UI',sans-serif" }}>
         <div style={{ textAlign:"center" }}>
           <div style={{ fontSize:56, marginBottom:16 }}>📭</div>
-          <h2 style={{ color:"#f1f5f9", fontSize:22, margin:"0 0 8px" }}>No Submission Yet</h2>
-          <p style={{ color:"#64748b", margin:0, fontSize:15 }}>The candidate has not completed the interview on this device yet.</p>
+          <h2 style={{ color:"#f1f5f9", fontSize:22, margin:"0 0 8px" }}>Invalid or Missing Link</h2>
+          <p style={{ color:"#64748b", margin:0, fontSize:15, maxWidth:380 }}>
+            This link does not contain a valid candidate submission.<br/>
+            Please use the unique link generated after a candidate submits.
+          </p>
         </div>
       </div>
     );
@@ -130,30 +182,40 @@ export default function App() {
       <div style={{ minHeight:"100vh", background:"#0f172a", fontFamily:"'DM Sans','Segoe UI',sans-serif", padding:"2rem" }}>
         <div style={{ maxWidth:780, margin:"0 auto" }}>
 
+          {/* Candidate header */}
           <div style={{ background:"#1e293b", border:"1px solid #334155", borderRadius:16, padding:"1.5rem", marginBottom:"1.5rem" }}>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", flexWrap:"wrap", gap:12 }}>
               <div>
-                <div style={{ color:"#94a3b8", fontSize:12, textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:6 }}>Interviewer Results</div>
+                <div style={{ color:"#94a3b8", fontSize:12, textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:6 }}>Interviewer Review</div>
                 <h1 style={{ color:"#f1f5f9", fontSize:24, fontWeight:800, margin:"0 0 4px" }}>{session.candidateName}</h1>
                 <div style={{ color:"#64748b", fontSize:14 }}>
-                  {session.role === "analyst" ? "📊 Data Analyst" : "⚙️ Data Engineer"} · {session.platform} · {BANDS.find(b=>b.id===session.band)?.title}
+                  {session.role === "analyst" ? "📊 Data Analyst" : "⚙️ Data Engineer"}
+                  {" · "}{session.platform}
+                  {" · "}{BANDS.find(b => b.id === session.band)?.title}
                   {session.yearsExp && <span> · {session.yearsExp} yrs exp</span>}
                 </div>
-                <div style={{ color:"#475569", fontSize:12, marginTop:4 }}>Submitted: {new Date(session.submittedAt).toLocaleString()}</div>
+                <div style={{ color:"#475569", fontSize:12, marginTop:4 }}>
+                  Submitted: {new Date(session.submittedAt).toLocaleString()}
+                </div>
               </div>
               <div style={{ background:"#0f172a", border:"1px solid #334155", borderRadius:12, padding:"1rem 1.5rem", textAlign:"center" }}>
                 <div style={{ color:"#94a3b8", fontSize:11, textTransform:"uppercase", letterSpacing:"0.06em", marginBottom:4 }}>Answered</div>
                 <div style={{ color:"#f1f5f9", fontSize:32, fontWeight:800 }}>
-                  {Object.keys(session.answers).length}<span style={{ color:"#475569", fontSize:16 }}>/{qs.length}</span>
+                  {Object.keys(session.answers).length}
+                  <span style={{ color:"#475569", fontSize:16 }}>/{qs.length}</span>
                 </div>
               </div>
             </div>
           </div>
 
+          {/* Info banner */}
           <div style={{ background:"#1e293b", borderLeft:"3px solid #f59e0b", borderRadius:"0 12px 12px 0", padding:"12px 16px", marginBottom:"1.5rem" }}>
-            <p style={{ color:"#fcd34d", fontSize:13, margin:0 }}>📋 <strong>Interviewer Mode</strong> — Score each question 1–4. Summary updates automatically.</p>
+            <p style={{ color:"#fcd34d", fontSize:13, margin:0 }}>
+              📋 <strong>Interviewer Mode</strong> — Scores are local to your browser. Each interviewer scores independently using their own copy of this link.
+            </p>
           </div>
 
+          {/* Question cards */}
           {qs.map((q, i) => {
             const info   = catMap[q.cat] || { color:"#94a3b8", tag: q.cat };
             const answer = session.answers[q.id];
@@ -162,7 +224,9 @@ export default function App() {
                 <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", gap:12 }}>
                   <div style={{ flex:1 }}>
                     <div style={{ marginBottom:8 }}>
-                      <span style={{ background:info.color+"22", color:info.color, fontSize:11, fontWeight:700, padding:"3px 10px", borderRadius:20, textTransform:"uppercase", letterSpacing:"0.06em", marginRight:8 }}>{info.tag}</span>
+                      <span style={{ background:info.color+"22", color:info.color, fontSize:11, fontWeight:700, padding:"3px 10px", borderRadius:20, textTransform:"uppercase", letterSpacing:"0.06em", marginRight:8 }}>
+                        {info.tag}
+                      </span>
                       <span style={{ color:"#475569", fontSize:12 }}>Q{i+1}</span>
                     </div>
                     <p style={{ color:"#e2e8f0", fontSize:15, margin:"0 0 12px", fontWeight:500, lineHeight:1.6 }}>{q.q}</p>
@@ -179,6 +243,7 @@ export default function App() {
                       </div>
                     </details>
                   </div>
+                  {/* Score buttons — local to each interviewer's browser */}
                   <div style={{ display:"flex", flexDirection:"column", gap:6, minWidth:52 }}>
                     {[4,3,2,1].map(s => {
                       const cols = { 4:"#2563eb", 3:"#16a34a", 2:"#d97706", 1:"#dc2626" };
@@ -200,18 +265,20 @@ export default function App() {
             );
           })}
 
+          {/* Score summary */}
           {Object.keys(scores).length > 0 && (() => {
-            const allVals  = Object.values(scores).map(Number);
-            const overall  = (allVals.reduce((a,b)=>a+b,0) / allVals.length).toFixed(2);
+            const allVals   = Object.values(scores).map(Number);
+            const overall   = (allVals.reduce((a,b)=>a+b,0) / allVals.length).toFixed(2);
             const anyBelow2 = cats.some(c => {
               const vals = qs.filter(q=>q.cat===c).map(q=>scores[q.id]).filter(Boolean);
               return vals.length && (vals.reduce((a,b)=>a+b,0)/vals.length) < 2;
             });
             const verdict = parseFloat(overall) >= 3.0 && !anyBelow2
-              ? { text:"RECOMMENDED TO PROCEED",       color:"#16a34a", bg:"#f0fdf4" }
+              ? { text:"RECOMMENDED TO PROCEED",        color:"#16a34a", bg:"#f0fdf4" }
               : parseFloat(overall) >= 2.5
-              ? { text:"BORDERLINE — REVIEW CAREFULLY", color:"#d97706", bg:"#fffbeb" }
-              : { text:"NOT RECOMMENDED AT THIS LEVEL", color:"#dc2626", bg:"#fef2f2" };
+              ? { text:"BORDERLINE — REVIEW CAREFULLY",  color:"#d97706", bg:"#fffbeb" }
+              : { text:"NOT RECOMMENDED AT THIS LEVEL",  color:"#dc2626", bg:"#fef2f2" };
+
             return (
               <div style={{ background:"#1e293b", border:"1px solid #334155", borderRadius:16, padding:"1.5rem", marginTop:"1.5rem" }}>
                 <h3 style={{ color:"#f1f5f9", fontSize:18, fontWeight:700, margin:"0 0 1rem" }}>Score Summary</h3>
@@ -223,14 +290,18 @@ export default function App() {
                     return (
                       <div key={cat} style={{ background:"#0f172a", border:"1px solid #334155", borderRadius:10, padding:"12px 14px" }}>
                         <div style={{ color:info.color, fontSize:11, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.06em", marginBottom:4 }}>{info.tag}</div>
-                        <div style={{ color:"#f1f5f9", fontSize:26, fontWeight:800 }}>{avg ?? "—"}<span style={{ color:"#475569", fontSize:13 }}>/4</span></div>
+                        <div style={{ color:"#f1f5f9", fontSize:26, fontWeight:800 }}>
+                          {avg ?? "—"}<span style={{ color:"#475569", fontSize:13 }}>/4</span>
+                        </div>
                         {avg && parseFloat(avg) < 2 && <div style={{ color:"#dc2626", fontSize:11, marginTop:2 }}>⚠ Below minimum</div>}
                       </div>
                     );
                   })}
                 </div>
                 <div style={{ background:verdict.bg, border:`2px solid ${verdict.color}40`, borderRadius:12, padding:"1.25rem", textAlign:"center" }}>
-                  <div style={{ fontSize:32, fontWeight:800, color:verdict.color }}>{overall}<span style={{ fontSize:16, color:"#94a3b8" }}>/4</span></div>
+                  <div style={{ fontSize:32, fontWeight:800, color:verdict.color }}>
+                    {overall}<span style={{ fontSize:16, color:"#94a3b8" }}>/4</span>
+                  </div>
                   <div style={{ color:verdict.color, fontWeight:700, fontSize:13, letterSpacing:"0.08em", textTransform:"uppercase", marginTop:4 }}>{verdict.text}</div>
                   <div style={{ color:"#64748b", fontSize:12, marginTop:4 }}>Minimum 3.0 overall · No category below 2.0</div>
                 </div>
@@ -245,13 +316,35 @@ export default function App() {
   // ── THANK YOU ─────────────────────────────────────────────────────
   if (step === "thankyou") return (
     <div style={{ minHeight:"100vh", background:"#0f172a", display:"flex", alignItems:"center", justifyContent:"center", fontFamily:"'DM Sans','Segoe UI',sans-serif", padding:"2rem" }}>
-      <div style={{ maxWidth:480, width:"100%", textAlign:"center" }}>
+      <div style={{ maxWidth:520, width:"100%", textAlign:"center" }}>
         <div style={{ fontSize:64, marginBottom:24 }}>✅</div>
-        <h1 style={{ color:"#f1f5f9", fontSize:28, fontWeight:800, margin:"0 0 12px" }}>Thank You, {candidateName}!</h1>
-        <p style={{ color:"#64748b", fontSize:16, lineHeight:1.7, margin:"0 0 24px" }}>Your answers have been submitted. The interviewer will review your responses shortly.</p>
-        <div style={{ background:"#1e293b", border:"1px solid #334155", borderRadius:14, padding:"1.25rem" }}>
-          <p style={{ color:"#94a3b8", fontSize:14, margin:0 }}>📬 Your submission has been recorded.<br/>You may now close this window.</p>
-        </div>
+        <h1 style={{ color:"#f1f5f9", fontSize:28, fontWeight:800, margin:"0 0 12px" }}>
+          Thank You, {candidateName}!
+        </h1>
+        <p style={{ color:"#64748b", fontSize:16, lineHeight:1.7, margin:"0 0 24px" }}>
+          Your answers have been submitted. Please share the link below with your interviewer(s) — each one can open it independently to review and score your responses.
+        </p>
+
+        {/* Interviewer link box */}
+        {interviewerURL && (
+          <div style={{ background:"#1e293b", border:"1px solid #334155", borderRadius:14, padding:"1.5rem", textAlign:"left" }}>
+            <div style={{ color:"#94a3b8", fontSize:12, fontWeight:600, textTransform:"uppercase", letterSpacing:"0.06em", marginBottom:10 }}>
+              🔗 Interviewer Review Link
+            </div>
+            <div style={{ background:"#0f172a", border:"1px solid #334155", borderRadius:8, padding:"10px 14px", marginBottom:12, wordBreak:"break-all" }}>
+              <span style={{ color:"#64748b", fontSize:12, fontFamily:"monospace" }}>{interviewerURL}</span>
+            </div>
+            <button onClick={copyURL}
+              style={{ width:"100%", padding:"11px", borderRadius:8, border:"none",
+                background: copied ? "linear-gradient(135deg,#22c55e,#16a34a)" : "linear-gradient(135deg,#3b82f6,#2563eb)",
+                color:"#fff", cursor:"pointer", fontSize:14, fontWeight:700, transition:"all 0.2s" }}>
+              {copied ? "✓ Copied to clipboard!" : "Copy Link"}
+            </button>
+            <p style={{ color:"#475569", fontSize:12, margin:"12px 0 0", lineHeight:1.6 }}>
+              Send this link to all interviewers. Each interviewer opens it in their own browser and scores independently — no login required, no data shared between them.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -260,6 +353,7 @@ export default function App() {
   if (step === "setup") {
     const platformOptions = role === "analyst" ? TOOLS_ANALYST : PLATFORMS_ENG;
     const canStart = role && platform && band && candidateName.trim() && yearsExp.trim();
+
     return (
       <div style={{ minHeight:"100vh", background:"#0f172a", display:"flex", alignItems:"center", justifyContent:"center", fontFamily:"'DM Sans','Segoe UI',sans-serif", padding:"2rem" }}>
         <div style={{ width:"100%", maxWidth:540 }}>
@@ -271,17 +365,20 @@ export default function App() {
             <h1 style={{ color:"#f1f5f9", fontSize:26, fontWeight:800, margin:"0 0 8px" }}>Welcome</h1>
             <p style={{ color:"#64748b", fontSize:14, margin:0 }}>Please fill in your details to begin</p>
           </div>
+
           <div style={{ background:"#1e293b", border:"1px solid #334155", borderRadius:16, padding:"2rem", display:"flex", flexDirection:"column", gap:"1.5rem" }}>
             <div>
               <label style={{ color:"#94a3b8", fontSize:12, fontWeight:600, textTransform:"uppercase", letterSpacing:"0.06em", display:"block", marginBottom:8 }}>Full Name *</label>
               <input placeholder="e.g. Alex Johnson" value={candidateName} onChange={e => setCandidateName(e.target.value)}
                 style={{ width:"100%", background:"#0f172a", border:"1px solid #334155", borderRadius:8, padding:"10px 14px", color:"#f1f5f9", fontSize:15, outline:"none", boxSizing:"border-box" }} />
             </div>
+
             <div>
               <label style={{ color:"#94a3b8", fontSize:12, fontWeight:600, textTransform:"uppercase", letterSpacing:"0.06em", display:"block", marginBottom:8 }}>Years of Experience *</label>
               <input placeholder="e.g. 4" type="number" min="0" max="40" value={yearsExp} onChange={e => setYearsExp(e.target.value)}
                 style={{ width:"100%", background:"#0f172a", border:"1px solid #334155", borderRadius:8, padding:"10px 14px", color:"#f1f5f9", fontSize:15, outline:"none", boxSizing:"border-box" }} />
             </div>
+
             <div>
               <label style={{ color:"#94a3b8", fontSize:12, fontWeight:600, textTransform:"uppercase", letterSpacing:"0.06em", display:"block", marginBottom:10 }}>Role *</label>
               <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
@@ -289,9 +386,10 @@ export default function App() {
                   const active = role === r.id;
                   return (
                     <button key={r.id} onClick={() => { setRole(r.id); setPlatform(null); }}
-                      style={{ padding:"14px 10px", borderRadius:10, border: active ? "2px solid #3b82f6" : "2px solid #334155",
-                        background: active ? "#1d3a5e" : "#0f172a", cursor:"pointer",
-                        display:"flex", flexDirection:"column", alignItems:"center", gap:6, textAlign:"center" }}>
+                      style={{ padding:"14px 10px", borderRadius:10,
+                        border: active ? "2px solid #3b82f6" : "2px solid #334155",
+                        background: active ? "#1d3a5e" : "#0f172a",
+                        cursor:"pointer", display:"flex", flexDirection:"column", alignItems:"center", gap:6, textAlign:"center" }}>
                       <span style={{ fontSize:24 }}>{r.icon}</span>
                       <span style={{ color: active ? "#e2e8f0" : "#94a3b8", fontWeight:700, fontSize:13 }}>{r.label}</span>
                       <span style={{ color:"#475569", fontSize:11 }}>{r.desc}</span>
@@ -300,6 +398,7 @@ export default function App() {
                 })}
               </div>
             </div>
+
             {role && (
               <div>
                 <label style={{ color:"#94a3b8", fontSize:12, fontWeight:600, textTransform:"uppercase", letterSpacing:"0.06em", display:"block", marginBottom:10 }}>
@@ -310,9 +409,10 @@ export default function App() {
                     const active = platform === p;
                     return (
                       <button key={p} onClick={() => setPlatform(p)}
-                        style={{ padding:"14px 8px", borderRadius:10, border: active ? "2px solid #3b82f6" : "2px solid #334155",
-                          background: active ? "#1d3a5e" : "#0f172a", cursor:"pointer",
-                          display:"flex", flexDirection:"column", alignItems:"center", gap:6 }}>
+                        style={{ padding:"14px 8px", borderRadius:10,
+                          border: active ? "2px solid #3b82f6" : "2px solid #334155",
+                          background: active ? "#1d3a5e" : "#0f172a",
+                          cursor:"pointer", display:"flex", flexDirection:"column", alignItems:"center", gap:6 }}>
                         <span style={{ fontSize:22 }}>{PLATFORM_ICONS[p]}</span>
                         <span style={{ color: active ? "#93c5fd" : "#64748b", fontSize:11, fontWeight:600 }}>{p}</span>
                       </button>
@@ -321,6 +421,7 @@ export default function App() {
                 </div>
               </div>
             )}
+
             {role && platform && (
               <div>
                 <label style={{ color:"#94a3b8", fontSize:12, fontWeight:600, textTransform:"uppercase", letterSpacing:"0.06em", display:"block", marginBottom:10 }}>Experience Band *</label>
@@ -344,6 +445,7 @@ export default function App() {
                 </div>
               </div>
             )}
+
             <button onClick={handleStart} disabled={!canStart}
               style={{ padding:"14px", borderRadius:10, border:"none",
                 background: canStart ? "linear-gradient(135deg,#3b82f6,#2563eb)" : "#1e293b",
@@ -366,6 +468,8 @@ export default function App() {
 
   return (
     <div style={{ minHeight:"100vh", background:"#0f172a", fontFamily:"'DM Sans','Segoe UI',sans-serif" }}>
+
+      {/* Top bar */}
       <div style={{ background:"#1e293b", borderBottom:"1px solid #334155", padding:"1rem 2rem", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
         <div>
           <span style={{ color:"#f1f5f9", fontWeight:700 }}>{candidateName}</span>
@@ -374,9 +478,12 @@ export default function App() {
         </div>
         <span style={{ color:"#64748b", fontSize:13 }}>Q{currentQ+1} of {questions.length}</span>
       </div>
+
+      {/* Progress */}
       <div style={{ height:3, background:"#1e293b" }}>
         <div style={{ height:"100%", background:"linear-gradient(90deg,#3b82f6,#8b5cf6)", width:`${(currentQ / questions.length) * 100}%`, transition:"width 0.3s" }} />
       </div>
+
       <div style={{ maxWidth:760, margin:"0 auto", padding:"2rem" }}>
         <div style={{ marginBottom:"1.25rem" }}>
           <span style={{ background: catInfo?.color+"22", color: catInfo?.color, fontSize:12, fontWeight:700, padding:"4px 12px", borderRadius:20, textTransform:"uppercase", letterSpacing:"0.06em" }}>
@@ -384,9 +491,11 @@ export default function App() {
           </span>
           <span style={{ color:"#475569", fontSize:13, marginLeft:10 }}>Question {currentQ+1}</span>
         </div>
+
         <div style={{ background:"#1e293b", border:"1px solid #334155", borderRadius:16, padding:"1.75rem", marginBottom:"1.25rem" }}>
           <p style={{ color:"#e2e8f0", fontSize:18, lineHeight:1.7, margin:0, fontWeight:500 }}>{currentQuestion?.q}</p>
         </div>
+
         <div style={{ marginBottom:"1.5rem" }}>
           <label style={{ color:"#94a3b8", fontSize:12, fontWeight:600, textTransform:"uppercase", letterSpacing:"0.06em", display:"block", marginBottom:8 }}>Your Answer</label>
           <textarea
@@ -397,6 +506,7 @@ export default function App() {
             style={{ width:"100%", background:"#1e293b", border:"1px solid #334155", borderRadius:12, padding:"14px 16px",
               color:"#e2e8f0", fontSize:15, lineHeight:1.6, resize:"vertical", outline:"none", fontFamily:"inherit", boxSizing:"border-box" }} />
         </div>
+
         <div style={{ display:"flex", justifyContent:"space-between", gap:12 }}>
           <button onClick={() => setCurrentQ(q => Math.max(0, q-1))} disabled={currentQ === 0}
             style={{ flex:1, padding:"12px", borderRadius:10, border:"1px solid #334155", background:"#1e293b",
@@ -420,6 +530,8 @@ export default function App() {
             </button>
           )}
         </div>
+
+        {/* Dot nav */}
         <div style={{ display:"flex", justifyContent:"center", gap:6, marginTop:"1.5rem", flexWrap:"wrap" }}>
           {questions.map((q, i) => (
             <button key={q.id} onClick={() => setCurrentQ(i)}
