@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import LZString from "lz-string";
 import { QUESTION_BANK } from "./questions";
 
 // ─── CONFIG ───────────────────────────────────────────────────────────
@@ -30,33 +31,65 @@ const ANALYST_CATEGORIES = {
 };
 
 // ─── SESSION ENCODING ─────────────────────────────────────────────────
-// Each candidate submission is encoded into a URL-safe base64 string.
-// The interviewer link is: /app?interviewer=true&s=<encoded>
-// This means every candidate gets their own unique link — no shared state,
-// no overwriting, works for any number of simultaneous interviewers.
+// Strategy: store only question IDs (not full question objects) + answers.
+// On the interviewer side, look up the full question from QUESTION_BANK by ID.
+// This keeps the payload tiny: 8 question IDs + 8 answers vs full question objects.
+// Then compress with LZString — result is typically 300–600 chars total URL.
 
 const encodeSession = (data) => {
-  try {
-    const json = JSON.stringify(data);
-    // btoa needs ASCII — use encodeURIComponent to handle unicode names
-    return btoa(encodeURIComponent(json));
-  } catch(e) { return null; }
+  // Store only what can't be reconstructed: meta + question IDs + answers
+  const slim = {
+    n:  data.candidateName,
+    y:  data.yearsExp,
+    r:  data.role,
+    p:  data.platform,
+    b:  data.band,
+    t:  data.submittedAt,
+    // Store question IDs as a compact array (questions are looked up on decode)
+    q:  data.questions.map(q => q.id),
+    // Answers keyed by question ID
+    a:  data.answers,
+  };
+  return LZString.compressToEncodedURIComponent(JSON.stringify(slim));
 };
+
+// Build a flat lookup map from all question IDs → full question objects
+const buildLookup = () => {
+  const map = {};
+  for (const [, levels] of Object.entries(QUESTION_BANK)) {
+    for (const [, qs] of Object.entries(levels)) {
+      qs.forEach(q => { map[String(q.id)] = q; });
+    }
+  }
+  return map;
+};
+const Q_LOOKUP = buildLookup();
 
 const decodeSession = (str) => {
   try {
-    return JSON.parse(decodeURIComponent(atob(str)));
+    const slim = JSON.parse(LZString.decompressFromEncodedURIComponent(str));
+    if (!slim) return null;
+    // Reconstitute full question objects from IDs
+    const questions = slim.q.map(id => Q_LOOKUP[String(id)]).filter(Boolean);
+    return {
+      candidateName: slim.n,
+      yearsExp:      slim.y,
+      role:          slim.r,
+      platform:      slim.p,
+      band:          slim.b,
+      submittedAt:   slim.t,
+      questions,
+      answers:       slim.a,
+    };
   } catch(e) { return null; }
 };
 
-// Read ?s= param from current URL
 const getSessionFromURL = () => {
   const params = new URLSearchParams(window.location.search);
   const s = params.get("s");
   return s ? decodeSession(s) : null;
 };
 
-// Build interviewer URL from encoded session data
 const buildInterviewerURL = (data) => {
   const encoded = encodeSession(data);
   if (!encoded) return null;
@@ -72,7 +105,6 @@ const buildInterview = (role, platform, band) => {
   const sqlGenBank   = QUESTION_BANK["SQL"]?.[band]    || [];
 
   let sqlPool, techPool, shPool;
-
   if (role === "engineer") {
     sqlPool  = shuffle(sqlGenBank);
     techPool = shuffle(platformBank.filter(q => q.cat === "Cloud" || q.cat === "Python"));
@@ -120,12 +152,8 @@ export default function App() {
   const [interviewerURL,setInterviewerURL]= useState(null);
   const [copied,        setCopied]        = useState(false);
 
-  // Interviewer: read session from URL param ?s=
   useEffect(() => {
-    if (isInterviewer) {
-      const s = getSessionFromURL();
-      setSession(s);
-    }
+    if (isInterviewer) setSession(getSessionFromURL());
   }, [isInterviewer]);
 
   const selectedBand    = BANDS.find(b => b.id === band);
@@ -140,14 +168,8 @@ export default function App() {
   };
 
   const handleSubmit = () => {
-    const sessionData = {
-      candidateName, yearsExp, role, platform, band,
-      questions, answers,
-      submittedAt: new Date().toISOString(),
-    };
-    // Build the unique interviewer URL from this session's data
-    const url = buildInterviewerURL(sessionData);
-    setInterviewerURL(url);
+    const data = { candidateName, yearsExp, role, platform, band, questions, answers, submittedAt: new Date().toISOString() };
+    setInterviewerURL(buildInterviewerURL(data));
     setStep("thankyou");
   };
 
@@ -182,7 +204,7 @@ export default function App() {
       <div style={{ minHeight:"100vh", background:"#0f172a", fontFamily:"'DM Sans','Segoe UI',sans-serif", padding:"2rem" }}>
         <div style={{ maxWidth:780, margin:"0 auto" }}>
 
-          {/* Candidate header */}
+          {/* Header */}
           <div style={{ background:"#1e293b", border:"1px solid #334155", borderRadius:16, padding:"1.5rem", marginBottom:"1.5rem" }}>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", flexWrap:"wrap", gap:12 }}>
               <div>
@@ -208,10 +230,9 @@ export default function App() {
             </div>
           </div>
 
-          {/* Info banner */}
           <div style={{ background:"#1e293b", borderLeft:"3px solid #f59e0b", borderRadius:"0 12px 12px 0", padding:"12px 16px", marginBottom:"1.5rem" }}>
             <p style={{ color:"#fcd34d", fontSize:13, margin:0 }}>
-              📋 <strong>Interviewer Mode</strong> — Scores are local to your browser. Each interviewer scores independently using their own copy of this link.
+              📋 <strong>Interviewer Mode</strong> — Each interviewer scores independently in their own browser. Scores are not shared between interviewers.
             </p>
           </div>
 
@@ -243,7 +264,6 @@ export default function App() {
                       </div>
                     </details>
                   </div>
-                  {/* Score buttons — local to each interviewer's browser */}
                   <div style={{ display:"flex", flexDirection:"column", gap:6, minWidth:52 }}>
                     {[4,3,2,1].map(s => {
                       const cols = { 4:"#2563eb", 3:"#16a34a", 2:"#d97706", 1:"#dc2626" };
@@ -278,7 +298,6 @@ export default function App() {
               : parseFloat(overall) >= 2.5
               ? { text:"BORDERLINE — REVIEW CAREFULLY",  color:"#d97706", bg:"#fffbeb" }
               : { text:"NOT RECOMMENDED AT THIS LEVEL",  color:"#dc2626", bg:"#fef2f2" };
-
             return (
               <div style={{ background:"#1e293b", border:"1px solid #334155", borderRadius:16, padding:"1.5rem", marginTop:"1.5rem" }}>
                 <h3 style={{ color:"#f1f5f9", fontSize:18, fontWeight:700, margin:"0 0 1rem" }}>Score Summary</h3>
@@ -318,14 +337,10 @@ export default function App() {
     <div style={{ minHeight:"100vh", background:"#0f172a", display:"flex", alignItems:"center", justifyContent:"center", fontFamily:"'DM Sans','Segoe UI',sans-serif", padding:"2rem" }}>
       <div style={{ maxWidth:520, width:"100%", textAlign:"center" }}>
         <div style={{ fontSize:64, marginBottom:24 }}>✅</div>
-        <h1 style={{ color:"#f1f5f9", fontSize:28, fontWeight:800, margin:"0 0 12px" }}>
-          Thank You, {candidateName}!
-        </h1>
+        <h1 style={{ color:"#f1f5f9", fontSize:28, fontWeight:800, margin:"0 0 12px" }}>Thank You, {candidateName}!</h1>
         <p style={{ color:"#64748b", fontSize:16, lineHeight:1.7, margin:"0 0 24px" }}>
-          Your answers have been submitted. Please share the link below with your interviewer(s) — each one can open it independently to review and score your responses.
+          Your answers have been submitted. Please share the link below with your interviewers — each one can open it independently.
         </p>
-
-        {/* Interviewer link box */}
         {interviewerURL && (
           <div style={{ background:"#1e293b", border:"1px solid #334155", borderRadius:14, padding:"1.5rem", textAlign:"left" }}>
             <div style={{ color:"#94a3b8", fontSize:12, fontWeight:600, textTransform:"uppercase", letterSpacing:"0.06em", marginBottom:10 }}>
@@ -338,10 +353,10 @@ export default function App() {
               style={{ width:"100%", padding:"11px", borderRadius:8, border:"none",
                 background: copied ? "linear-gradient(135deg,#22c55e,#16a34a)" : "linear-gradient(135deg,#3b82f6,#2563eb)",
                 color:"#fff", cursor:"pointer", fontSize:14, fontWeight:700, transition:"all 0.2s" }}>
-              {copied ? "✓ Copied to clipboard!" : "Copy Link"}
+              {copied ? "✓ Copied!" : "Copy Link"}
             </button>
             <p style={{ color:"#475569", fontSize:12, margin:"12px 0 0", lineHeight:1.6 }}>
-              Send this link to all interviewers. Each interviewer opens it in their own browser and scores independently — no login required, no data shared between them.
+              Send this to all interviewers. Each person opens it in their own browser and scores independently.
             </p>
           </div>
         )}
@@ -353,7 +368,6 @@ export default function App() {
   if (step === "setup") {
     const platformOptions = role === "analyst" ? TOOLS_ANALYST : PLATFORMS_ENG;
     const canStart = role && platform && band && candidateName.trim() && yearsExp.trim();
-
     return (
       <div style={{ minHeight:"100vh", background:"#0f172a", display:"flex", alignItems:"center", justifyContent:"center", fontFamily:"'DM Sans','Segoe UI',sans-serif", padding:"2rem" }}>
         <div style={{ width:"100%", maxWidth:540 }}>
@@ -365,20 +379,17 @@ export default function App() {
             <h1 style={{ color:"#f1f5f9", fontSize:26, fontWeight:800, margin:"0 0 8px" }}>Welcome</h1>
             <p style={{ color:"#64748b", fontSize:14, margin:0 }}>Please fill in your details to begin</p>
           </div>
-
           <div style={{ background:"#1e293b", border:"1px solid #334155", borderRadius:16, padding:"2rem", display:"flex", flexDirection:"column", gap:"1.5rem" }}>
             <div>
               <label style={{ color:"#94a3b8", fontSize:12, fontWeight:600, textTransform:"uppercase", letterSpacing:"0.06em", display:"block", marginBottom:8 }}>Full Name *</label>
               <input placeholder="e.g. Alex Johnson" value={candidateName} onChange={e => setCandidateName(e.target.value)}
                 style={{ width:"100%", background:"#0f172a", border:"1px solid #334155", borderRadius:8, padding:"10px 14px", color:"#f1f5f9", fontSize:15, outline:"none", boxSizing:"border-box" }} />
             </div>
-
             <div>
               <label style={{ color:"#94a3b8", fontSize:12, fontWeight:600, textTransform:"uppercase", letterSpacing:"0.06em", display:"block", marginBottom:8 }}>Years of Experience *</label>
               <input placeholder="e.g. 4" type="number" min="0" max="40" value={yearsExp} onChange={e => setYearsExp(e.target.value)}
                 style={{ width:"100%", background:"#0f172a", border:"1px solid #334155", borderRadius:8, padding:"10px 14px", color:"#f1f5f9", fontSize:15, outline:"none", boxSizing:"border-box" }} />
             </div>
-
             <div>
               <label style={{ color:"#94a3b8", fontSize:12, fontWeight:600, textTransform:"uppercase", letterSpacing:"0.06em", display:"block", marginBottom:10 }}>Role *</label>
               <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
@@ -386,10 +397,9 @@ export default function App() {
                   const active = role === r.id;
                   return (
                     <button key={r.id} onClick={() => { setRole(r.id); setPlatform(null); }}
-                      style={{ padding:"14px 10px", borderRadius:10,
-                        border: active ? "2px solid #3b82f6" : "2px solid #334155",
-                        background: active ? "#1d3a5e" : "#0f172a",
-                        cursor:"pointer", display:"flex", flexDirection:"column", alignItems:"center", gap:6, textAlign:"center" }}>
+                      style={{ padding:"14px 10px", borderRadius:10, border: active ? "2px solid #3b82f6" : "2px solid #334155",
+                        background: active ? "#1d3a5e" : "#0f172a", cursor:"pointer",
+                        display:"flex", flexDirection:"column", alignItems:"center", gap:6, textAlign:"center" }}>
                       <span style={{ fontSize:24 }}>{r.icon}</span>
                       <span style={{ color: active ? "#e2e8f0" : "#94a3b8", fontWeight:700, fontSize:13 }}>{r.label}</span>
                       <span style={{ color:"#475569", fontSize:11 }}>{r.desc}</span>
@@ -398,7 +408,6 @@ export default function App() {
                 })}
               </div>
             </div>
-
             {role && (
               <div>
                 <label style={{ color:"#94a3b8", fontSize:12, fontWeight:600, textTransform:"uppercase", letterSpacing:"0.06em", display:"block", marginBottom:10 }}>
@@ -409,10 +418,9 @@ export default function App() {
                     const active = platform === p;
                     return (
                       <button key={p} onClick={() => setPlatform(p)}
-                        style={{ padding:"14px 8px", borderRadius:10,
-                          border: active ? "2px solid #3b82f6" : "2px solid #334155",
-                          background: active ? "#1d3a5e" : "#0f172a",
-                          cursor:"pointer", display:"flex", flexDirection:"column", alignItems:"center", gap:6 }}>
+                        style={{ padding:"14px 8px", borderRadius:10, border: active ? "2px solid #3b82f6" : "2px solid #334155",
+                          background: active ? "#1d3a5e" : "#0f172a", cursor:"pointer",
+                          display:"flex", flexDirection:"column", alignItems:"center", gap:6 }}>
                         <span style={{ fontSize:22 }}>{PLATFORM_ICONS[p]}</span>
                         <span style={{ color: active ? "#93c5fd" : "#64748b", fontSize:11, fontWeight:600 }}>{p}</span>
                       </button>
@@ -421,7 +429,6 @@ export default function App() {
                 </div>
               </div>
             )}
-
             {role && platform && (
               <div>
                 <label style={{ color:"#94a3b8", fontSize:12, fontWeight:600, textTransform:"uppercase", letterSpacing:"0.06em", display:"block", marginBottom:10 }}>Experience Band *</label>
@@ -430,10 +437,8 @@ export default function App() {
                     const active = band === b.id;
                     return (
                       <button key={b.id} onClick={() => setBand(b.id)}
-                        style={{ padding:"12px 16px", borderRadius:10,
-                          border: active ? `2px solid ${b.color}` : "2px solid #334155",
-                          background:"#0f172a", cursor:"pointer",
-                          display:"flex", alignItems:"center", gap:12, textAlign:"left" }}>
+                        style={{ padding:"12px 16px", borderRadius:10, border: active ? `2px solid ${b.color}` : "2px solid #334155",
+                          background:"#0f172a", cursor:"pointer", display:"flex", alignItems:"center", gap:12, textAlign:"left" }}>
                         <span style={{ fontSize:18 }}>{b.emoji}</span>
                         <span>
                           <span style={{ color: active ? b.color : "#64748b", fontWeight:700, fontSize:14 }}>{b.label}</span>
@@ -445,15 +450,11 @@ export default function App() {
                 </div>
               </div>
             )}
-
             <button onClick={handleStart} disabled={!canStart}
               style={{ padding:"14px", borderRadius:10, border:"none",
                 background: canStart ? "linear-gradient(135deg,#3b82f6,#2563eb)" : "#1e293b",
-                color: canStart ? "#fff" : "#475569",
-                cursor: canStart ? "pointer" : "not-allowed",
-                fontSize:15, fontWeight:700,
-                boxShadow: canStart ? "0 4px 20px rgba(59,130,246,0.3)" : "none",
-                transition:"all 0.2s" }}>
+                color: canStart ? "#fff" : "#475569", cursor: canStart ? "pointer" : "not-allowed",
+                fontSize:15, fontWeight:700, boxShadow: canStart ? "0 4px 20px rgba(59,130,246,0.3)" : "none", transition:"all 0.2s" }}>
               {canStart ? "Begin Interview →" : "Complete all fields above"}
             </button>
           </div>
@@ -468,8 +469,6 @@ export default function App() {
 
   return (
     <div style={{ minHeight:"100vh", background:"#0f172a", fontFamily:"'DM Sans','Segoe UI',sans-serif" }}>
-
-      {/* Top bar */}
       <div style={{ background:"#1e293b", borderBottom:"1px solid #334155", padding:"1rem 2rem", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
         <div>
           <span style={{ color:"#f1f5f9", fontWeight:700 }}>{candidateName}</span>
@@ -478,12 +477,9 @@ export default function App() {
         </div>
         <span style={{ color:"#64748b", fontSize:13 }}>Q{currentQ+1} of {questions.length}</span>
       </div>
-
-      {/* Progress */}
       <div style={{ height:3, background:"#1e293b" }}>
         <div style={{ height:"100%", background:"linear-gradient(90deg,#3b82f6,#8b5cf6)", width:`${(currentQ / questions.length) * 100}%`, transition:"width 0.3s" }} />
       </div>
-
       <div style={{ maxWidth:760, margin:"0 auto", padding:"2rem" }}>
         <div style={{ marginBottom:"1.25rem" }}>
           <span style={{ background: catInfo?.color+"22", color: catInfo?.color, fontSize:12, fontWeight:700, padding:"4px 12px", borderRadius:20, textTransform:"uppercase", letterSpacing:"0.06em" }}>
@@ -491,27 +487,20 @@ export default function App() {
           </span>
           <span style={{ color:"#475569", fontSize:13, marginLeft:10 }}>Question {currentQ+1}</span>
         </div>
-
         <div style={{ background:"#1e293b", border:"1px solid #334155", borderRadius:16, padding:"1.75rem", marginBottom:"1.25rem" }}>
           <p style={{ color:"#e2e8f0", fontSize:18, lineHeight:1.7, margin:0, fontWeight:500 }}>{currentQuestion?.q}</p>
         </div>
-
         <div style={{ marginBottom:"1.5rem" }}>
           <label style={{ color:"#94a3b8", fontSize:12, fontWeight:600, textTransform:"uppercase", letterSpacing:"0.06em", display:"block", marginBottom:8 }}>Your Answer</label>
-          <textarea
-            value={answers[currentQuestion?.id] || ""}
-            onChange={e => setAnswers(p => ({ ...p, [currentQuestion.id]: e.target.value }))}
-            placeholder="Type your answer here..."
-            rows={6}
+          <textarea value={answers[currentQuestion?.id] || ""} onChange={e => setAnswers(p => ({ ...p, [currentQuestion.id]: e.target.value }))}
+            placeholder="Type your answer here..." rows={6}
             style={{ width:"100%", background:"#1e293b", border:"1px solid #334155", borderRadius:12, padding:"14px 16px",
               color:"#e2e8f0", fontSize:15, lineHeight:1.6, resize:"vertical", outline:"none", fontFamily:"inherit", boxSizing:"border-box" }} />
         </div>
-
         <div style={{ display:"flex", justifyContent:"space-between", gap:12 }}>
           <button onClick={() => setCurrentQ(q => Math.max(0, q-1))} disabled={currentQ === 0}
             style={{ flex:1, padding:"12px", borderRadius:10, border:"1px solid #334155", background:"#1e293b",
-              color: currentQ === 0 ? "#334155" : "#94a3b8",
-              cursor: currentQ === 0 ? "not-allowed" : "pointer", fontSize:14, fontWeight:600 }}>
+              color: currentQ === 0 ? "#334155" : "#94a3b8", cursor: currentQ === 0 ? "not-allowed" : "pointer", fontSize:14, fontWeight:600 }}>
             ← Previous
           </button>
           {currentQ < questions.length - 1 ? (
@@ -530,8 +519,6 @@ export default function App() {
             </button>
           )}
         </div>
-
-        {/* Dot nav */}
         <div style={{ display:"flex", justifyContent:"center", gap:6, marginTop:"1.5rem", flexWrap:"wrap" }}>
           {questions.map((q, i) => (
             <button key={q.id} onClick={() => setCurrentQ(i)}
@@ -539,8 +526,7 @@ export default function App() {
                 border: i === currentQ ? "2px solid #3b82f6" : "2px solid #334155",
                 background: answers[q.id]?.trim() ? "#22c55e33" : (i === currentQ ? "#1d3a5e" : "#0f172a"),
                 color: i === currentQ ? "#3b82f6" : answers[q.id]?.trim() ? "#22c55e" : "#475569",
-                cursor:"pointer", fontSize:12, fontWeight:700,
-                display:"flex", alignItems:"center", justifyContent:"center" }}>
+                cursor:"pointer", fontSize:12, fontWeight:700, display:"flex", alignItems:"center", justifyContent:"center" }}>
               {i+1}
             </button>
           ))}
