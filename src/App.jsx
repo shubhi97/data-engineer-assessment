@@ -542,34 +542,7 @@ export default function App() {
                   })}
                 </div>
 
-                {/* Live preview of question count */}
-                {selectedPlatforms.length > 0 && (
-                  <div style={{ marginTop:10, background:"#0f172a", border:"1px solid #334155", borderRadius:8, padding:"10px 14px" }}>
-                    <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:8 }}>
-                      <div style={{ color:"#64748b", fontSize:12 }}>
-                        {selectedPlatforms.map(pid => {
-                          const p = ALL_PLATFORMS.find(x => x.id === pid);
-                          return (
-                            <span key={pid} style={{ background: p.color+"22", color: p.color, padding:"2px 8px", borderRadius:12, fontSize:11, fontWeight:600, marginRight:4 }}>
-                              {p.icon} {pid}
-                            </span>
-                          );
-                        })}
-                      </div>
-                      <div style={{ color:"#94a3b8", fontSize:12, fontWeight:600 }}>
-                        <span style={{ color:"#38bdf8" }}>2 SQL</span>
-                        {" + "}
-                        <span style={{ color:"#34d399" }}>
-                          {selectedPlatforms.length === 1 ? "4" : selectedPlatforms.length * 2} Tech
-                        </span>
-                        {" + "}
-                        <span style={{ color:"#f472b6" }}>2 Stakeholder</span>
-                        {" = "}
-                        <span style={{ color:"#f1f5f9", fontWeight:800 }}>{totalQs} questions</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
+
               </div>
             )}
 
@@ -607,7 +580,7 @@ export default function App() {
                 fontSize:15, fontWeight:700,
                 boxShadow: canStart ? "0 4px 20px rgba(59,130,246,0.3)" : "none",
                 transition:"all 0.2s" }}>
-              {canStart ? `Begin Interview — ${totalQs} Questions →` : "Complete all fields above"}
+              {canStart ? "Begin Interview →" : "Complete all fields above"}
             </button>
           </div>
         </div>
